@@ -16,6 +16,12 @@ As far as possible, we maintain compatibility for some minor versions.
 -->
 
 
+## 📃 License
+
+`bv-experimental-add-ons` is released under the [Apache 2.0](LICENSE) license.  
+Copyright &copy; 2023-present, Bonitasoft S.A.
+
+
 <!--
 
 ## ⚡ Powered by

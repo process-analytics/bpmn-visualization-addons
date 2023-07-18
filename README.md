@@ -15,3 +15,17 @@ Before the release of version `1.0.0`, there may be some breaking changes. We av
 As far as possible, we maintain compatibility for some minor versions.
 -->
 
+
+<!--
+
+## ⚡ Powered by
+
+[![statically.io logo](https://statically.io/icons/icon-96x96.png "statically.io")](https://statically.io)
+
+**[statically.io](https://statically.io)** (<kbd>demo</kbd> and <kbd>examples</kbd> live environments)
+
+<img src="https://surge.sh/images/logos/svg/surge-logo.svg" alt="surge.sh logo" title="surge.sh" width="110"/>
+
+**[surge.sh](https://surge.sh)** (<kbd>demo</kbd> and <kbd>documentation</kbd> preview environments)
+
+-->

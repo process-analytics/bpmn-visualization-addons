@@ -3,5 +3,8 @@
   "private": true,
   "workspaces": [
     "packages/lib"
-  ]
+  ],
+  "dependencies": {
+    "bpmn-visualization": "~0.37.0"
+  }
 }

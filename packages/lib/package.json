@@ -1,0 +1,28 @@
+{
+  "name": "@process-analytics/bv-experimental-add-ons",
+  "version": "0.0.1",
+  "description": "Experimental add-ons for bpmn-visualization",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/process-analytics/bv-experimental-add-ons.git"
+  },
+  "keywords": [
+    "bpmn",
+    "visualization",
+    "add-ons",
+    "extensions",
+    "typescript"
+  ],
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/process-analytics/bv-experimental-add-ons/issues"
+  },
+  "homepage": "https://github.com/process-analytics/bv-experimental-add-ons#readme",
+  "devDependencies": {
+    "typescript": "~5.1.6"
+  }
+}

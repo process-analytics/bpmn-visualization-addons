@@ -1,0 +1,37 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/build.yml'
+      - 'packages/lib/src/**/*'
+      - 'packages/lib/src/*.json'
+      - '.nvmrc'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/build.yml'
+      - 'packages/lib/src/**/*'
+      - 'packages/lib/src/*.json'
+      - '.nvmrc'
+      - 'package.json'
+      - 'package-lock.json'
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    permissions:
+      # SonarCloud: checks and pull-requests
+      checks: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build Setup
+        uses: ./.github/actions/build-setup
+      - name: Build Library
+        run: npm run build -w @process-analytics/bv-experimental-add-ons

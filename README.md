@@ -11,3 +11,4 @@ This project uses [npm workspaces](https://docs.npmjs.com/cli/v9/using-npm/works
 
 Install dependencies: `npm install`
 
+Build (from the root folder): `npm run build -w @process-analytics/bv-experimental-add-ons`

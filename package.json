@@ -2,7 +2,7 @@
   "name": "bv-addons-root",
   "private": true,
   "workspaces": [
-    "packages/lib"
+    "./packages/*"
   ],
   "dependencies": {
     "bpmn-visualization": "~0.37.0"

@@ -34,4 +34,4 @@ jobs:
       - name: Build Setup
         uses: ./.github/actions/build-setup
       - name: Build Library
-        run: npm run build -w lib
+        run: npm run build -w @process-analytics/bv-experimental-add-ons

@@ -4,7 +4,7 @@
   "description": "Experimental add-ons for bpmn-visualization",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "build": "tsc"
   },
   "repository": {
     "type": "git",

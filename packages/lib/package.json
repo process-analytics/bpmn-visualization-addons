@@ -24,8 +24,8 @@
   "scripts": {
     "build": "tsc"
   },
-  "dependencies": {
-    "bpmn-visualization": "~0.37.0"
+  "peerDependencies": {
+    "bpmn-visualization": ">=0.37.0"
   },
   "devDependencies": {
     "typescript": "~5.1.6"

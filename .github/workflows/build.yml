@@ -29,10 +29,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    permissions:
-      # SonarCloud: checks and pull-requests
-      checks: write
-      pull-requests: write
     steps:
       - uses: actions/checkout@v3
       - name: Build Setup

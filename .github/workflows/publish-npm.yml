@@ -7,6 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     permissions:
+      # required for "npm provenance"
       id-token: write
       contents: write
     steps:

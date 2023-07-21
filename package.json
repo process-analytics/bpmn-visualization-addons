@@ -1,0 +1,7 @@
+{
+  "name": "bv-addons-root",
+  "private": true,
+  "workspaces": [
+    "./packages/*"
+  ]
+}

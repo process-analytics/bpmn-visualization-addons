@@ -16,6 +16,11 @@ As far as possible, we maintain compatibility for some minor versions.
 -->
 
 
+## 🎨 Features and Usage
+
+See the dedicated [README](packages/lib/README.md).
+
+
 ## ⚒️ Development Setup
 
 Use the node version declared in [.nvmrc](.nvmrc). You can use a Node version manager like [nvm](https://github.com/nvm-sh/nvm): `nvm use`

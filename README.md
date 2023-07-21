@@ -18,7 +18,7 @@ As far as possible, we maintain compatibility for some minor versions.
 
 ## 🎨 Features and Usage
 
-See the dedicated [README](packages/lib/README.md).
+See the dedicated [README](packages/addons/README.md).
 
 
 ## ⚒️ Development Setup
@@ -29,7 +29,7 @@ This project uses [npm workspaces](https://docs.npmjs.com/cli/v9/using-npm/works
 
 Install dependencies: `npm install`
 
-Build (from the root folder): `npm run build -w packages/lib`
+Build (from the root folder): `npm run build -w packages/addons`
 
 
 ## 📃 License

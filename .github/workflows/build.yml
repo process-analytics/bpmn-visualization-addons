@@ -6,8 +6,8 @@ on:
       - main
     paths:
       - '.github/workflows/build.yml'
-      - 'packages/lib/src/**/*'
-      - 'packages/lib/src/*.json'
+      - 'packages/addons/src/**/*'
+      - 'packages/addons/src/*.json'
       - '.nvmrc'
       - 'package.json'
       - 'package-lock.json'
@@ -16,8 +16,8 @@ on:
       - main
     paths:
       - '.github/workflows/build.yml'
-      - 'packages/lib/src/**/*'
-      - 'packages/lib/src/*.json'
+      - 'packages/addons/src/**/*'
+      - 'packages/addons/src/*.json'
       - '.nvmrc'
       - 'package.json'
       - 'package-lock.json'
@@ -34,4 +34,4 @@ jobs:
       - name: Build Setup
         uses: ./.github/actions/build-setup
       - name: Build Library
-        run: npm run build -w packages/lib
+        run: npm run build -w packages/addons

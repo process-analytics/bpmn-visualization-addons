@@ -43,6 +43,12 @@ npm i @process-analytics/bv-experimental-add-ons
 Also install [bpmn-visualization](https://github.com/process-analytics/bpmn-visualization-js/).
 
 
+## 📜 TypeScript Support
+
+The `@process-analytics/bv-experimental-add-ons` npm package includes type definitions, so the integration works out of the box in TypeScript projects.
+`bv-experimental-add-ons` requires **TypeScript 4.5** or greater.
+
+
 ## 📃 License
 
 `bv-experimental-add-ons` is released under the [Apache 2.0](LICENSE) license.  

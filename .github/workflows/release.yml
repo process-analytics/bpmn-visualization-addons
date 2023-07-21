@@ -31,6 +31,6 @@ jobs:
         run: git checkout main && git pull --tags
       - name: Bump Version
         run: |
-          npm version ${{ github.event.inputs.type }} --no-commit-hooks --message "chore(release): %s"
+          npm version ${{ github.event.inputs.type }} --no-commit-hooks --message "chore(release): %s" -w packages/addons
       - name: Push Version
         run: git push && git push --tags

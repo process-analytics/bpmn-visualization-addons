@@ -1,0 +1,12 @@
+{
+  "name": "check-lowest-typescript-version",
+  "private": true,
+  "scripts": {
+    "test": "tsc --version && tsc"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "typescript": "3.8.3"
+  }
+}

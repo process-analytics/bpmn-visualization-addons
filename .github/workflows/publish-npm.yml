@@ -1,0 +1,20 @@
+name: Publish NPM Package
+on:
+  push:
+    tags:
+      -  v*
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build Setup
+        uses: ./.github/actions/build-setup
+        with:
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm publish -w packages/lib
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -36,4 +36,4 @@ jobs:
       - name: Build Library
         run: npm run build -w packages/addons
       - name: Check TypeScript Support
-        run: npm run build -w packages/check-ts-support
+        run: npm test -w packages/check-ts-support

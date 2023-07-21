@@ -42,8 +42,12 @@ Copyright &copy; 2023-present, Bonitasoft S.A.
 
 When all updates have been completed, you are ready to publish a new release.
 
+Go to the [release workflow](https://github.com/process-analytics/bv-experimental-add-ons/actions/workflows/release.yml) in GitHub Actions and run it by choosing the type of release.
+
+This workflow will create a Git tag and trigger the publishing of the npm package.
+
 Create a new GitHub release by following the [GitHub help](https://help.github.com/en/github/administering-a-repository/managing-releases-in-a-repository#creating-a-release)
-- for `Tag version`, use a value following the **vX.Y.Z** scheme using the [Semantic Versioning](https://semver.org/).
+- for `Tag version`, use a value of the tag that has just been created.
 - for `Target`
     - usually, keep the `main` branch except if new commits that you don't want to integrate for the release are already
       available in the branch

@@ -24,18 +24,16 @@ Limitations
 - There is no guarantee that names are unique in the BPMN source. In case that there are several matches, `BpmnElementsSearcher` returns the first matching id.
 
 
+### `PathResolver`
 
-describe initial use cases covered and why (see description in
-[FEAT] Add a new experimental API to get a edge/node by name bpmn-visualization-js#2453)
-mention limitations
+Infer paths. Currently, only infer edges/flows given a list of flow node ids.
 
-PathResolver
-
-describe initial use cases covered and why
-frontend processing, probably more efficient if done in backend. Workaround the limitation of the tools and algorithms provided in backend
+**WARNING**: this is front-end processing. It's more efficient for this type of processing to be carried out in the backend.
+Use it to bypass the limitations of the tools and algorithms provided in the backend.
 
 
-### 📌 Usage in applications and projects
+## 📌 Usage
+<!-- ### 📌 Usage in applications and projects -->
 
 Install `bv-experimental-add-ons`:
 ```shell script

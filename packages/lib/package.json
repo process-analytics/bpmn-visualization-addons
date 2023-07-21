@@ -22,12 +22,14 @@
     "dist"
   ],
   "scripts": {
+    "clean": "rimraf dist",
     "build": "tsc"
   },
   "peerDependencies": {
     "bpmn-visualization": ">=0.37.0"
   },
   "devDependencies": {
+    "rimraf": "~5.0.1",
     "typescript": "~5.1.6"
   }
 }

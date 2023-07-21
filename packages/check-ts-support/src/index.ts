@@ -14,7 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { BpmnVisualization } from 'bpmn-visualization';
+import {BpmnVisualization} from 'bpmn-visualization';
+import {BpmnElementsIdentifier, PathResolver} from "@process-analytics/bv-experimental-add-ons";
 
+// bpmn-visualization
 const bpmnVisualization = new BpmnVisualization({ container: 'bpmn-container' });
 bpmnVisualization.load(`fake BPMN content`);
+const bpmnElementsRegistry = bpmnVisualization.bpmnElementsRegistry;
+
+// addons
+const bpmnElementsIdentifier = new BpmnElementsIdentifier(bpmnElementsRegistry);
+bpmnElementsIdentifier.isActivity('id_1');
+
+const pathResolver = new PathResolver(bpmnElementsRegistry);
+pathResolver.getVisitedEdges(['id_1', 'id_2']);

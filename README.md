@@ -31,6 +31,8 @@ Install dependencies: `npm install`
 
 Build (from the root folder): `npm run build -w packages/addons`
 
+Run the demo:  `npm run dev -w packages/demo`
+
 
 ## 📃 License
 

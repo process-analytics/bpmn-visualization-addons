@@ -39,13 +39,13 @@ const bpmnElementsRegistry = bpmnVisualization.bpmnElementsRegistry;
 // =====================================================================================================================
 
 // Highlight tasks with CSS classes
-bpmnElementsRegistry.addCssClasses(
-  [
-    'Activity_00vbm9s', // Record Goods Receipts
-    'Activity_1t65hvk', // Create Purchase Order Item
-  ],
-  'bpmn-highlight',
-);
+// bpmnElementsRegistry.addCssClasses(
+//   [
+//     'Activity_00vbm9s', // Record Goods Receipts
+//     'Activity_1t65hvk', // Create Purchase Order Item
+//   ],
+//   'bpmn-highlight',
+// );
 
 // Change the style of some elements using the "Update Style" API
 // bpmnElementsRegistry.updateStyle([

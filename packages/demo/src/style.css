@@ -70,12 +70,12 @@ footer {
   font-style: italic;
 }
 
-/* Added dynamically with bpmn-visualization */
-.bpmn-highlight.bpmn-task  > rect {
-  fill: pink;
-  fill-opacity: 30%;
-  stroke: coral;
-}
-.bpmn-highlight.bpmn-task >rect:hover {
-  fill-opacity: 70%;
-}
+/*!* Added dynamically with bpmn-visualization *!*/
+/*.bpmn-highlight.bpmn-task  > rect {*/
+/*  fill: pink;*/
+/*  fill-opacity: 30%;*/
+/*  stroke: coral;*/
+/*}*/
+/*.bpmn-highlight.bpmn-task >rect:hover {*/
+/*  fill-opacity: 70%;*/
+/*}*/

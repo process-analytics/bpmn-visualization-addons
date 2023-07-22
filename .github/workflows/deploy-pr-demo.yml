@@ -25,7 +25,7 @@ jobs:
       pull-requests: write # surge-preview: PR comments
     steps:
       - uses: actions/checkout@v3
-      - name: Build
+      - name: Build Setup
         uses: ./.github/actions/build-setup
         if: github.event.action != 'closed'
       - name: Build demo

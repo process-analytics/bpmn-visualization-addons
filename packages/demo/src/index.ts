@@ -16,12 +16,12 @@ limitations under the License.
 
 import './style.css';
 import {BpmnElement, BpmnVisualization, FitType, ShapeUtil} from 'bpmn-visualization';
+import {PathResolver} from "@process-analytics/bv-experimental-add-ons";
 // This is simple example of the BPMN diagram, loaded as string. The '?.raw' extension support is provided by Vite.
 // For other load methods, see https://github.com/process-analytics/bpmn-visualization-examples
 // eslint-disable-next-line n/file-extension-in-import -- Vite syntax
 import diagram from './diagram.bpmn?raw';
 import {isBpmnArtifact} from "./bpmn-utils";
-import {PathResolver} from "@process-analytics/bv-experimental-add-ons";
 
 // Instantiate BpmnVisualization, pass the container HTMLElement - present in index.html
 const bpmnVisualization = new BpmnVisualization({

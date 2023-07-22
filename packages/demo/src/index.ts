@@ -99,23 +99,30 @@ const registerSelectedBpmnElement = (id: string): boolean => {
   return true;
 }
 
-const computedFullPath: string[] = [];
+const computedFlows: string[] = [];
+// const computedFullPath: string[] = [];
 
 function computePath() {
   console.info('compute path')
+  // reset style of previously computed flows
+  // TODO bug bpmn-visualization, resetStyle with empty array acts like if it undefined (reset all)
+  computedFlows.length > 0 && bpmnElementsRegistry.resetStyle(computedFlows);
+  computedFlows.length = 0;
 
   const visitedEdges = pathResolver.getVisitedEdges([...selectedBpmnElements]);
-  bpmnElementsRegistry.updateStyle(visitedEdges,
+  computedFlows.push(...visitedEdges);
+  bpmnElementsRegistry.updateStyle(computedFlows,
       {stroke: {color: 'orange'}});
 
-  computedFullPath.push(...selectedBpmnElements, ...visitedEdges);
+  // computedFullPath.length = 0;
+  // computedFullPath.push(...selectedBpmnElements, ...computedFlows);
 }
 
 function clearPath(): void {
   console.info('call clear path')
-  bpmnElementsRegistry.resetStyle(computedFullPath);
-  computedFullPath.length = 0;
+  bpmnElementsRegistry.resetStyle([...selectedBpmnElements, ...computedFlows]);
   selectedBpmnElements.clear();
+  computedFlows.length = 0;
 }
 
 

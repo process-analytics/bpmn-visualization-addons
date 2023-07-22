@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import './style.css';
-import {BpmnElement, BpmnVisualization, FitType, type Overlay, ShapeUtil} from 'bpmn-visualization';
+import {BpmnElement, BpmnVisualization, FitType, ShapeUtil} from 'bpmn-visualization';
 // This is simple example of the BPMN diagram, loaded as string. The '?.raw' extension support is provided by Vite.
 // For other load methods, see https://github.com/process-analytics/bpmn-visualization-examples
 // eslint-disable-next-line n/file-extension-in-import -- Vite syntax
@@ -25,9 +25,9 @@ import {isBpmnArtifact} from "./bpmn-utils";
 // Instantiate BpmnVisualization, pass the container HTMLElement - present in index.html
 const bpmnVisualization = new BpmnVisualization({
   container: 'bpmn-container',
-  navigation: {
-    enabled: true,
-  },
+  // navigation: {
+  //   enabled: true,
+  // },
 });
 // Load the BPMN diagram defined above
 bpmnVisualization.load(diagram, {fit: {type: FitType.Center, margin: 20}});
@@ -48,44 +48,54 @@ bpmnElementsRegistry.addCssClasses(
 );
 
 // Change the style of some elements using the "Update Style" API
-bpmnElementsRegistry.updateStyle([
-  'Activity_1u4jwkv', // Record Invoice Receipt
-  'Flow_0lrixjg',
-  'Gateway_0a68dfj',
-  'Flow_1r9qd61',
-  'Activity_083jf01', // Remove Payment Block
-], {stroke: {color: 'blue'}, fill: {color: 'lightblue'}});
+// bpmnElementsRegistry.updateStyle([
+//   'Activity_1u4jwkv', // Record Invoice Receipt
+//   'Flow_0lrixjg',
+//   'Gateway_0a68dfj',
+//   'Flow_1r9qd61',
+//   'Activity_083jf01', // Remove Payment Block
+// ], {stroke: {color: 'blue'}, fill: {color: 'lightblue'}});
 
 // Add overlays
-const overlayConfiguration: Omit<Overlay, 'label'> = {
-  position: 'top-center',
-  style: {
-    fill: {
-      color: 'blue',
-    },
-    font: {
-      color: 'white',
-      size: 18,
-    },
-    stroke: {
-      color: 'blue',
-    },
-  },
-};
-bpmnElementsRegistry.addOverlays('Activity_1u4jwkv',
-  {
-    ...overlayConfiguration,
-    label: '12',
-  });
-bpmnElementsRegistry.addOverlays('Activity_083jf01',
-  {
-    ...overlayConfiguration,
-    label: '19',
-  });
+// const overlayConfiguration: Omit<Overlay, 'label'> = {
+//   position: 'top-center',
+//   style: {
+//     fill: {
+//       color: 'blue',
+//     },
+//     font: {
+//       color: 'white',
+//       size: 18,
+//     },
+//     stroke: {
+//       color: 'blue',
+//     },
+//   },
+// };
+// bpmnElementsRegistry.addOverlays('Activity_1u4jwkv',
+//   {
+//     ...overlayConfiguration,
+//     label: '12',
+//   });
+// bpmnElementsRegistry.addOverlays('Activity_083jf01',
+//   {
+//     ...overlayConfiguration,
+//     label: '19',
+//   });
 
 // =====================================================================================================================
 // NEW CODE
 // =====================================================================================================================
+
+
+const registeredElements = new Set<string>();
+const registerSelectedElement = (id: string): boolean => {
+  if (registeredElements.has(id)) {
+    return false;
+  }
+  registeredElements.add(id);
+  return true;
+}
 
 const getAllFlowNodes = (): BpmnElement[] => bpmnElementsRegistry.getElementsByKinds(ShapeUtil.flowNodeKinds().filter(kind => !isBpmnArtifact(kind)));
 
@@ -94,8 +104,14 @@ const setupEventHandlers = () => {
   getAllFlowNodes().forEach(item => {
     const currentId = item.bpmnSemantic.id;
     item.htmlElement.onclick = () => {
-      console.info('clicked', currentId)
-      // setSelectedElement(currentId);
+      console.info('clicked', currentId);
+      if (registerSelectedElement(currentId)) {
+        bpmnElementsRegistry.updateStyle(currentId,
+            {stroke: {color: 'blue'}, fill: {color: 'lightblue'}});
+      } else {
+        registeredElements.delete(currentId)
+        bpmnElementsRegistry.resetStyle(currentId);
+      }
     };
     // TODO change cursor to notify it can be clicked
     // when already clicked/selected, do not change on mouseenter

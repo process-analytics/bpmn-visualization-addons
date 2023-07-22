@@ -3,10 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "vite build --base ./",
+    "build": "tsc && vite build --base ./",
     "dev": "vite",
-    "preview": "vite preview --base ./",
-    "tsc": "tsc"
+    "preview": "vite preview --base ./"
   },
   "dependencies": {
     "bpmn-visualization": "~0.37.0"

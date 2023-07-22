@@ -15,11 +15,12 @@ limitations under the License.
 */
 
 import './style.css';
-import {BpmnVisualization, FitType, type Overlay} from 'bpmn-visualization';
+import {BpmnElement, BpmnVisualization, FitType, type Overlay, ShapeUtil} from 'bpmn-visualization';
 // This is simple example of the BPMN diagram, loaded as string. The '?.raw' extension support is provided by Vite.
 // For other load methods, see https://github.com/process-analytics/bpmn-visualization-examples
 // eslint-disable-next-line n/file-extension-in-import -- Vite syntax
 import diagram from './diagram.bpmn?raw';
+import {isBpmnArtifact} from "./bpmn-utils";
 
 // Instantiate BpmnVisualization, pass the container HTMLElement - present in index.html
 const bpmnVisualization = new BpmnVisualization({
@@ -31,6 +32,11 @@ const bpmnVisualization = new BpmnVisualization({
 // Load the BPMN diagram defined above
 bpmnVisualization.load(diagram, {fit: {type: FitType.Center, margin: 20}});
 const bpmnElementsRegistry = bpmnVisualization.bpmnElementsRegistry;
+
+
+// =====================================================================================================================
+// CODE OF THE DEMO TEMPLATE
+// =====================================================================================================================
 
 // Highlight tasks with CSS classes
 bpmnElementsRegistry.addCssClasses(
@@ -76,6 +82,41 @@ bpmnElementsRegistry.addOverlays('Activity_083jf01',
     ...overlayConfiguration,
     label: '19',
   });
+
+// =====================================================================================================================
+// NEW CODE
+// =====================================================================================================================
+
+function getAllFlowNodes(): BpmnElement[] {
+  return bpmnElementsRegistry.getElementsByKinds(ShapeUtil.flowNodeKinds().filter(kind => !isBpmnArtifact(kind)));
+}
+
+function setupEventHandlers() {
+  // TODO use "for of instead"
+  getAllFlowNodes().forEach(item => {
+    const currentId = item.bpmnSemantic.id;
+    item.htmlElement.onclick = () => {
+      console.info('clicked', currentId)
+      // setSelectedElement(currentId);
+    };
+    // TODO change cursor to notify it can be clicked
+    // when already clicked/selected, do not change on mouseenter
+    // item.htmlElement.onmouseenter = (ev) => {
+    //   if (ev.buttons == 1) {
+    //     return;
+    //   }
+    //   registry.addCssClasses(currentId, 'highlightNode');
+    // };
+    // item.htmlElement.onmouseleave = () => {
+    //   registry.removeCssClasses(currentId, 'highlightNode');
+    // };
+  });
+}
+
+setupEventHandlers();
+
+
+// =====================================================================================================================
 
 // Display the bpmn-visualization version in the footer
 const footer = document.querySelector<HTMLElement>('footer')!;

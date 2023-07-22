@@ -30,7 +30,7 @@ jobs:
         if: github.event.action != 'closed'
       - name: Build demo
         if: github.event.action != 'closed'
-        run: npm run tsc && npm run build -w packages/demo
+        run: npm run tsc -w packages/demo && npm run build -w packages/demo
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         if: github.event.action != 'closed'

@@ -112,7 +112,7 @@ function computePath() {
   const visitedEdges = pathResolver.getVisitedEdges([...selectedBpmnElements]);
   computedFlows.push(...visitedEdges);
   bpmnElementsRegistry.updateStyle(computedFlows,
-      {stroke: {color: 'orange'}});
+      {stroke: {color: 'orange', width: 3}});
 
   // computedFullPath.length = 0;
   // computedFullPath.push(...selectedBpmnElements, ...computedFlows);

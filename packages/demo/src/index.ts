@@ -88,12 +88,12 @@ const bpmnElementsRegistry = bpmnVisualization.bpmnElementsRegistry;
 // =====================================================================================================================
 
 
-const registeredSelectedElements = new Set<string>();
-const registerSelectedElement = (id: string): boolean => {
-  if (registeredSelectedElements.has(id)) {
+const selectedBpmnElements = new Set<string>();
+const registerSelectedBpmnElement = (id: string): boolean => {
+  if (selectedBpmnElements.has(id)) {
     return false;
   }
-  registeredSelectedElements.add(id);
+  selectedBpmnElements.add(id);
   return true;
 }
 
@@ -101,11 +101,14 @@ const computedFullPath: string[] = [];
 
 function computePath() {
   console.info('compute path')
-
+  computedFullPath.push(...selectedBpmnElements);
 }
 
 function clearPath(): void {
   console.info('call clear path')
+  bpmnElementsRegistry.resetStyle(computedFullPath);
+  computedFullPath.length = 0;
+  selectedBpmnElements.clear();
 }
 
 
@@ -119,11 +122,11 @@ const setupBpmnElementEventHandlers = () => {
     const currentId = item.bpmnSemantic.id;
     item.htmlElement.onclick = () => {
       console.info('clicked', currentId);
-      if (registerSelectedElement(currentId)) {
+      if (registerSelectedBpmnElement(currentId)) {
         bpmnElementsRegistry.updateStyle(currentId,
             {stroke: {color: 'blue'}, fill: {color: 'lightblue'}});
       } else {
-        registeredSelectedElements.delete(currentId)
+        selectedBpmnElements.delete(currentId)
         bpmnElementsRegistry.resetStyle(currentId);
       }
     };

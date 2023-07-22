@@ -1,5 +1,5 @@
 {
-  "name": "bpmn-visualization-demo-vitejs-template",
+  "name": "bv-addons-demo",
   "private": true,
   "type": "module",
   "scripts": {

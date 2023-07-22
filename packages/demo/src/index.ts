@@ -87,11 +87,9 @@ bpmnElementsRegistry.addOverlays('Activity_083jf01',
 // NEW CODE
 // =====================================================================================================================
 
-function getAllFlowNodes(): BpmnElement[] {
-  return bpmnElementsRegistry.getElementsByKinds(ShapeUtil.flowNodeKinds().filter(kind => !isBpmnArtifact(kind)));
-}
+const getAllFlowNodes = (): BpmnElement[] => bpmnElementsRegistry.getElementsByKinds(ShapeUtil.flowNodeKinds().filter(kind => !isBpmnArtifact(kind)));
 
-function setupEventHandlers() {
+const setupEventHandlers = () => {
   // TODO use "for of instead"
   getAllFlowNodes().forEach(item => {
     const currentId = item.bpmnSemantic.id;
@@ -111,7 +109,7 @@ function setupEventHandlers() {
     //   registry.removeCssClasses(currentId, 'highlightNode');
     // };
   });
-}
+};
 
 setupEventHandlers();
 

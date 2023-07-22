@@ -88,18 +88,32 @@ const bpmnElementsRegistry = bpmnVisualization.bpmnElementsRegistry;
 // =====================================================================================================================
 
 
-const registeredElements = new Set<string>();
+const registeredSelectedElements = new Set<string>();
 const registerSelectedElement = (id: string): boolean => {
-  if (registeredElements.has(id)) {
+  if (registeredSelectedElements.has(id)) {
     return false;
   }
-  registeredElements.add(id);
+  registeredSelectedElements.add(id);
   return true;
 }
 
+const computedFullPath: string[] = [];
+
+function computePath() {
+  console.info('compute path')
+
+}
+
+function clearPath(): void {
+  console.info('call clear path')
+}
+
+
+
+
 const getAllFlowNodes = (): BpmnElement[] => bpmnElementsRegistry.getElementsByKinds(ShapeUtil.flowNodeKinds().filter(kind => !isBpmnArtifact(kind)));
 
-const setupEventHandlers = () => {
+const setupBpmnElementEventHandlers = () => {
   // TODO use "for of instead"
   getAllFlowNodes().forEach(item => {
     const currentId = item.bpmnSemantic.id;
@@ -109,7 +123,7 @@ const setupEventHandlers = () => {
         bpmnElementsRegistry.updateStyle(currentId,
             {stroke: {color: 'blue'}, fill: {color: 'lightblue'}});
       } else {
-        registeredElements.delete(currentId)
+        registeredSelectedElements.delete(currentId)
         bpmnElementsRegistry.resetStyle(currentId);
       }
     };
@@ -127,7 +141,17 @@ const setupEventHandlers = () => {
   });
 };
 
-setupEventHandlers();
+const setupControlEventHandlers = () => {
+  document.querySelector('#btn-compute-path')?.addEventListener('click', _ev => {
+    computePath();
+  });
+  document.querySelector('#bt-clear')?.addEventListener('click', _ev => {
+    clearPath();
+  });
+};
+
+setupControlEventHandlers();
+setupBpmnElementEventHandlers();
 
 
 // =====================================================================================================================

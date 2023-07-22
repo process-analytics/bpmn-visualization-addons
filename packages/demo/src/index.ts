@@ -21,6 +21,7 @@ import {BpmnElement, BpmnVisualization, FitType, ShapeUtil} from 'bpmn-visualiza
 // eslint-disable-next-line n/file-extension-in-import -- Vite syntax
 import diagram from './diagram.bpmn?raw';
 import {isBpmnArtifact} from "./bpmn-utils";
+import {PathResolver} from "@process-analytics/bv-experimental-add-ons";
 
 // Instantiate BpmnVisualization, pass the container HTMLElement - present in index.html
 const bpmnVisualization = new BpmnVisualization({
@@ -87,6 +88,7 @@ const bpmnElementsRegistry = bpmnVisualization.bpmnElementsRegistry;
 // NEW CODE
 // =====================================================================================================================
 
+const pathResolver = new PathResolver(bpmnElementsRegistry);
 
 const selectedBpmnElements = new Set<string>();
 const registerSelectedBpmnElement = (id: string): boolean => {
@@ -101,7 +103,12 @@ const computedFullPath: string[] = [];
 
 function computePath() {
   console.info('compute path')
-  computedFullPath.push(...selectedBpmnElements);
+
+  const visitedEdges = pathResolver.getVisitedEdges([...selectedBpmnElements]);
+  bpmnElementsRegistry.updateStyle(visitedEdges,
+      {stroke: {color: 'orange'}});
+
+  computedFullPath.push(...selectedBpmnElements, ...visitedEdges);
 }
 
 function clearPath(): void {

@@ -66,11 +66,9 @@ Create a new GitHub release by following the [GitHub help](https://help.github.c
 
 ## ⚡ Powered by
 
-<!--
 <img src="docs/github-logo.svg" alt="GitHub logo" title="GitHub Pages" width="110"/>
 
 **[GitHub Pages](https://pages.github.com/)** (<kbd>demo</kbd> live environment)
--->
 
 <img src="https://surge.sh/images/logos/svg/surge-logo.svg" alt="surge.sh logo" title="surge.sh" width="110"/>
 

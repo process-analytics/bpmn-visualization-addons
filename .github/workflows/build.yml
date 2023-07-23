@@ -7,9 +7,9 @@ on:
     paths:
       - '.github/workflows/build.yml'
       - 'packages/addons/src/**/*'
-      - 'packages/addons/src/*.json'
+      - 'packages/addons/**/*.json'
       - 'packages/check-ts-support/src/**/*'
-      - 'packages/check-ts-support/src/*.json'
+      - 'packages/check-ts-support/**/*.json'
       - '.nvmrc'
       - 'package.json'
       - 'package-lock.json'
@@ -19,9 +19,9 @@ on:
     paths:
       - '.github/workflows/build.yml'
       - 'packages/addons/src/**/*'
-      - 'packages/addons/src/*.json'
+      - 'packages/addons/**/*.json'
       - 'packages/check-ts-support/src/**/*'
-      - 'packages/check-ts-support/src/*.json'
+      - 'packages/check-ts-support/**/*.json'
       - '.nvmrc'
       - 'package.json'
       - 'package-lock.json'

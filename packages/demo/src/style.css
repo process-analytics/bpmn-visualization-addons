@@ -64,11 +64,11 @@ header {
   margin: auto;
 }
 
-footer {
-  margin-top: auto;
-  margin-bottom: 2rem;
-  font-style: italic;
-}
+/*footer {*/
+/*  margin-top: auto;*/
+/*  margin-bottom: 2rem;*/
+/*  font-style: italic;*/
+/*}*/
 
 /*!* Added dynamically with bpmn-visualization *!*/
 /*.bpmn-highlight.bpmn-task  > rect {*/

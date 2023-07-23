@@ -173,8 +173,8 @@ setupBpmnElementEventHandlers();
 
 // =====================================================================================================================
 
-// Display the bpmn-visualization version in the footer
-const footer = document.querySelector<HTMLElement>('footer')!;
-const version = bpmnVisualization.getVersion();
-const versionAsString = `bpmn-visualization@${version.lib}`;
-footer.textContent = `${versionAsString}`;
+// // Display the bpmn-visualization version in the footer
+// const footer = document.querySelector<HTMLElement>('footer')!;
+// const version = bpmnVisualization.getVersion();
+// const versionAsString = `bpmn-visualization@${version.lib}`;
+// footer.textContent = `${versionAsString}`;

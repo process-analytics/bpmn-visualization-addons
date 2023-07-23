@@ -33,7 +33,9 @@ Install dependencies: `npm install`
 
 From the root folder:
 - Build the lib: `npm run build -w packages/addons`
-- Run the demo: `npm run dev -w packages/demo`. The demo is accessible at http://localhost:5173/
+- Run the demo:
+  - `npm run dev -w packages/demo`. The demo is accessible at http://localhost:5173/
+  - if you want to see live changes in the lib when running the demo, also run `npm run dev -w packages/addons` in another process
 
 
 ## 📃 License

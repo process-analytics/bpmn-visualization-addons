@@ -69,7 +69,8 @@ const setupBpmnElementEventHandlers = () => {
   // TODO use "for of instead"
   getAllFlowNodes().forEach(item => {
     const currentId = item.bpmnSemantic.id;
-    item.htmlElement.onclick = () => {
+    const htmlElement = item.htmlElement;
+    htmlElement.onclick = () => {
       console.info('clicked', currentId);
       if (registerSelectedBpmnElement(currentId)) {
         bpmnElementsRegistry.updateStyle(currentId,
@@ -79,17 +80,9 @@ const setupBpmnElementEventHandlers = () => {
         bpmnElementsRegistry.resetStyle(currentId);
       }
     };
-    // TODO change cursor to notify it can be clicked
-    // when already clicked/selected, do not change on mouseenter
-    // item.htmlElement.onmouseenter = (ev) => {
-    //   if (ev.buttons == 1) {
-    //     return;
-    //   }
-    //   registry.addCssClasses(currentId, 'highlightNode');
-    // };
-    // item.htmlElement.onmouseleave = () => {
-    //   registry.removeCssClasses(currentId, 'highlightNode');
-    // };
+    htmlElement.onmouseenter = (_ev) => {
+      htmlElement.style.cursor = 'pointer'
+    };
   });
 };
 

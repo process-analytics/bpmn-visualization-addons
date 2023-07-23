@@ -9,12 +9,14 @@ on:
     paths:
       - '.github/actions/build/**/*'
       - '.github/workflows/deploy-pr-demo.yml'
-      - 'src/**/*'
+      - 'packages/addons/src/**/*'
+      - 'packages/addons/**/*.json'
+      - 'packages/demo/src/**/*'
+      - 'packages/demo/**/*.json'
+      - 'packages/demo/**/*.html'
       - '.nvmrc'
-      - 'index.html'
       - 'package.json'
       - 'package-lock.json'
-      - 'tsconfig.json'
 
 jobs:
   # Keep unique across jobs using surge preview (preview url and PR comment id).

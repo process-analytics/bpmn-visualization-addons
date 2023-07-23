@@ -32,6 +32,11 @@ Infer paths. Currently, only infer edges/flows given a list of flow node ids.
 Use it to bypass the limitations of the tools and algorithms provided in the backend.
 
 
+### `ShapeUtil`
+
+Add new methods to the `ShapeUtil` class provided by `bpmn-visualization`. 
+
+
 ## 📌 Usage
 <!-- ### 📌 Usage in applications and projects -->
 

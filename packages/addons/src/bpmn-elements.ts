@@ -18,7 +18,7 @@ import {
   type BpmnElementsRegistry,
   type BpmnSemantic,
   ShapeBpmnElementKind,
-  ShapeUtil,
+  ShapeUtil as BaseShapeUtil,
 } from 'bpmn-visualization';
 
 /**
@@ -58,15 +58,15 @@ export class BpmnElementsIdentifier {
   constructor(private readonly bpmnElementsRegistry: BpmnElementsRegistry) {}
 
   isActivity(elementId: string): boolean {
-    return this.isInCategory(ShapeUtil.isActivity, elementId);
+    return this.isInCategory(BaseShapeUtil.isActivity, elementId);
   }
 
   isGateway(elementId: string): boolean {
-    return this.isInCategory(ShapeUtil.isGateway, elementId);
+    return this.isInCategory(BaseShapeUtil.isGateway, elementId);
   }
 
   isEvent(elementId: string): boolean {
-    return this.isInCategory(ShapeUtil.isEvent, elementId);
+    return this.isInCategory(BaseShapeUtil.isEvent, elementId);
   }
 
   private isInCategory(categorizeFunction: (value: string) => boolean, elementId: string): boolean {
@@ -78,4 +78,11 @@ export class BpmnElementsIdentifier {
 
     return false;
   }
+}
+
+export class ShapeUtil extends BaseShapeUtil {
+  // TODO duplicated with https://github.com/process-analytics/bpmn-visualization-examples/blob/v0.37.0/projects/typescript-vue/src/bpmn-utils.ts
+  static isBpmnArtifact = (kind: ShapeBpmnElementKind): boolean => {
+    return kind === ShapeBpmnElementKind.GROUP || kind === ShapeBpmnElementKind.TEXT_ANNOTATION ;
+  };
 }

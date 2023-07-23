@@ -20,6 +20,9 @@ As far as possible, we maintain compatibility for some minor versions.
 
 See the dedicated [README](packages/addons/README.md).
 
+A live demo is available at ⏩ https://process-analytics.github.io/bv-experimental-add-ons/
+
+
 
 ## ⚒️ Development Setup
 
@@ -29,9 +32,9 @@ This project uses [npm workspaces](https://docs.npmjs.com/cli/v9/using-npm/works
 
 Install dependencies: `npm install`
 
-Build (from the root folder): `npm run build -w packages/addons`
-
-Run the demo:  `npm run dev -w packages/demo`
+From the root folder:
+- Build the lib: `npm run build -w packages/addons`
+- Run the demo: `npm run dev -w packages/demo`. The demo is accessible at http://localhost:5173/
 
 
 ## 📃 License

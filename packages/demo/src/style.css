@@ -53,20 +53,21 @@ header {
 /*}*/
 
 .controls button {
-  border-radius: .1rem;
   background: #5755d9;
   border-color: #4b48d6;
+  border-radius: .1rem;
   color: #fff;
   cursor: pointer;
   display: inline-block;
   font-size: 1rem;
+  font-weight: bold;
   height: 2.6rem;
   line-height: 1.2rem;
   outline: 0;
   padding: .25rem .4rem;
   text-align: center;
   text-decoration: none;
-  transition: background .2s,border .2s,box-shadow .2s,color .2s;
+  transition: background .2s,border .2s;
   vertical-align: middle;
 }
 

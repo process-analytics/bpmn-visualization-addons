@@ -1,0 +1,17 @@
+{
+  "name": "bv-addons-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc && vite build --base ./",
+    "dev": "vite",
+    "preview": "vite preview --base ./"
+  },
+  "dependencies": {
+    "bpmn-visualization": "~0.37.0"
+  },
+  "devDependencies": {
+    "typescript": "~5.1.6",
+    "vite": "~4.4.6"
+  }
+}

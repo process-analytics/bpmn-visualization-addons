@@ -19,6 +19,9 @@ As far as possible, we maintain compatibility for some minor versions.
 ## 🎨 Features and Usage
 
 See the dedicated [README](packages/addons/README.md).
+<!--
+A live demo is available at ⏩ https://process-analytics.github.io/bv-experimental-add-ons/
+-->
 
 
 ## ⚒️ Development Setup
@@ -29,7 +32,9 @@ This project uses [npm workspaces](https://docs.npmjs.com/cli/v9/using-npm/works
 
 Install dependencies: `npm install`
 
-Build (from the root folder): `npm run build -w packages/addons`
+From the root folder:
+- Build the lib: `npm run build -w packages/addons`
+- Run the demo: `npm run dev -w packages/demo`. The demo is accessible at http://localhost:5173/
 
 
 ## 📃 License
@@ -61,16 +66,15 @@ Create a new GitHub release by following the [GitHub help](https://help.github.c
     - make GitHub generates the [release notes automatically](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes)
 - Publish the GitHub release
 
-<!--
 
 ## ⚡ Powered by
 
-[![statically.io logo](https://statically.io/icons/icon-96x96.png "statically.io")](https://statically.io)
+<!--
+<img src="docs/github-logo.svg" alt="GitHub logo" title="GitHub Pages" width="110"/>
 
-**[statically.io](https://statically.io)** (<kbd>demo</kbd> and <kbd>examples</kbd> live environments)
+**[GitHub Pages](https://pages.github.com/)** (<kbd>demo</kbd> live environment)
+-->
 
 <img src="https://surge.sh/images/logos/svg/surge-logo.svg" alt="surge.sh logo" title="surge.sh" width="110"/>
 
-**[surge.sh](https://surge.sh)** (<kbd>demo</kbd> and <kbd>documentation</kbd> preview environments)
-
--->
+**[surge.sh](https://surge.sh)** (<kbd>demo</kbd> preview environment)

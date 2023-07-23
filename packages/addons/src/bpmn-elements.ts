@@ -61,6 +61,10 @@ export class BpmnElementsIdentifier {
     return this.isInCategory(BaseShapeUtil.isActivity, elementId);
   }
 
+  isBpmnArtifact(elementId: string): boolean {
+    return this.isInCategory(ShapeUtil.isBpmnArtifact, elementId);
+  }
+
   isGateway(elementId: string): boolean {
     return this.isInCategory(BaseShapeUtil.isGateway, elementId);
   }
@@ -81,8 +85,7 @@ export class BpmnElementsIdentifier {
 }
 
 export class ShapeUtil extends BaseShapeUtil {
-  // TODO duplicated with https://github.com/process-analytics/bpmn-visualization-examples/blob/v0.37.0/projects/typescript-vue/src/bpmn-utils.ts
-  static isBpmnArtifact = (kind: ShapeBpmnElementKind): boolean => {
+  static isBpmnArtifact = (kind: ShapeBpmnElementKind | string): boolean => {
     return kind === ShapeBpmnElementKind.GROUP || kind === ShapeBpmnElementKind.TEXT_ANNOTATION ;
   };
 }

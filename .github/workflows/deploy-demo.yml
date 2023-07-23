@@ -1,14 +1,12 @@
 name: Deploy the demo on GitHub Pages
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push event but only for the "main" branch
   push:
     branches:
       - main
     paths:
       - '.github/actions/build/**/*'
-      - '.github/workflows/deploy-pr-demo.yml'
+      - '.github/workflows/deploy-demo.yml'
       - 'packages/addons/src/**/*'
       - 'packages/addons/**/*.json'
       - 'packages/demo/src/**/*'

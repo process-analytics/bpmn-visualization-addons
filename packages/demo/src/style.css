@@ -43,15 +43,6 @@ header {
   margin-right: .5rem;
 }
 
-/*.gh-logo {*/
-/*  display: flex;*/
-/*  text-decoration: none;*/
-/*  margin-left: .5rem;*/
-/*}*/
-/*.gh-logo img {*/
-/*  width: 2rem;*/
-/*}*/
-
 .controls button {
   background: #5755d9;
   border-color: #4b48d6;
@@ -87,19 +78,3 @@ header {
 
   margin: auto;
 }
-
-/*footer {*/
-/*  margin-top: auto;*/
-/*  margin-bottom: 2rem;*/
-/*  font-style: italic;*/
-/*}*/
-
-/*!* Added dynamically with bpmn-visualization *!*/
-/*.bpmn-highlight.bpmn-task  > rect {*/
-/*  fill: pink;*/
-/*  fill-opacity: 30%;*/
-/*  stroke: coral;*/
-/*}*/
-/*.bpmn-highlight.bpmn-task >rect:hover {*/
-/*  fill-opacity: 70%;*/
-/*}*/

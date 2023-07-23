@@ -45,7 +45,6 @@ const registerSelectedBpmnElement = (id: string): boolean => {
 const computedFlows: string[] = [];
 
 function computePath() {
-  console.info('compute path')
   // reset style of previously computed flows
   // TODO bug bpmn-visualization, resetStyle with empty array acts like if it undefined (reset all)
   computedFlows.length > 0 && bpmnElementsRegistry.resetStyle(computedFlows);
@@ -57,7 +56,6 @@ function computePath() {
 }
 
 function clearPath(): void {
-  console.info('call clear path')
   bpmnElementsRegistry.resetStyle([...selectedBpmnElements, ...computedFlows]);
   selectedBpmnElements.clear();
   computedFlows.length = 0;
@@ -71,7 +69,6 @@ const setupBpmnElementEventHandlers = () => {
     const currentId = item.bpmnSemantic.id;
     const htmlElement = item.htmlElement;
     htmlElement.onclick = () => {
-      console.info('clicked', currentId);
       if (registerSelectedBpmnElement(currentId)) {
         bpmnElementsRegistry.updateStyle(currentId,
             {stroke: {color: 'blue'}, fill: {color: 'lightblue'}});

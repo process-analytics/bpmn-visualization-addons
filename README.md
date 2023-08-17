@@ -1,13 +1,13 @@
 <h1 align="center">bpmn-visualization experimental add-ons</h1>
 <div align="center">
     <p align="center"> 
-        <a href="https://npmjs.org/package/bpmn-visualization">
+        <a href="https://npmjs.org/package/@process-analytics/bv-experimental-add-ons">
           <img alt="npm package" src="https://img.shields.io/npm/v/@process-analytics/bv-experimental-add-ons.svg?color=orange"> 
         </a> 
         <a href="https://github.com/process-analytics/bv-experimental-add-ons/releases">
           <img alt="GitHub release (latest by date including pre-releases)" src="https://img.shields.io/github/v/release/process-analytics/bv-experimental-add-ons?label=changelog&include_prereleases"> 
         </a> 
-        <a href="https://cdn.statically.io/gh/process-analytics/bpmn-visualization-examples/master/examples/index.html">
+        <a href="https://process-analytics.github.io/bv-experimental-add-ons/">
           <img alt="Live Demo" src="https://img.shields.io/badge/demo-online-blueviolet.svg"> 
         </a> 
         <a href="https://github.com/process-analytics/bv-experimental-add-ons/actions">

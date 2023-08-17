@@ -1,4 +1,28 @@
-# bpmn-visualization experimental add-ons
+<h1 align="center">bpmn-visualization experimental add-ons</h1>
+<div align="center">
+    <p align="center"> 
+        <a href="https://npmjs.org/package/bpmn-visualization">
+          <img alt="npm package" src="https://img.shields.io/npm/v/@process-analytics/bv-experimental-add-ons.svg?color=orange"> 
+        </a> 
+        <a href="https://github.com/process-analytics/bv-experimental-add-ons/releases">
+          <img alt="GitHub release (latest by date including pre-releases)" src="https://img.shields.io/github/v/release/process-analytics/bv-experimental-add-ons?label=changelog&include_prereleases"> 
+        </a> 
+        <a href="https://cdn.statically.io/gh/process-analytics/bpmn-visualization-examples/master/examples/index.html">
+          <img alt="Live Demo" src="https://img.shields.io/badge/demo-online-blueviolet.svg"> 
+        </a> 
+        <a href="https://github.com/process-analytics/bv-experimental-add-ons/actions">
+          <img alt="Build" src="https://github.com/process-analytics/bv-experimental-add-ons/workflows/Build/badge.svg"> 
+        </a>
+        <br>
+        <a href=https://github.com/process-analytics/.github/blob/main/CODE_OF_CONDUCT.md">
+          <img alt="Contributor Covenant" src="https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg"> 
+        </a> 
+        <a href="LICENSE">
+          <img alt="License" src="https://img.shields.io/github/license/process-analytics/bv-experimental-add-ons?color=blue"> 
+        </a>
+    </p>
+</div>  
+<br>
 
 Experimental add-ons for [bpmn-visualization](https://github.com/process-analytics/bpmn-visualization-js).
 

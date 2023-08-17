@@ -40,12 +40,10 @@ Add new methods to the `ShapeUtil` class provided by `bpmn-visualization`.
 ## 📌 Usage
 <!-- ### 📌 Usage in applications and projects -->
 
-Install `bv-experimental-add-ons`:
+Install `bv-experimental-add-ons` and [bpmn-visualization](https://github.com/process-analytics/bpmn-visualization-js/):
 ```shell script
-npm i @process-analytics/bv-experimental-add-ons
+npm i @process-analytics/bv-experimental-add-ons bpmn-visualization
 ```
-
-Also install [bpmn-visualization](https://github.com/process-analytics/bpmn-visualization-js/).
 
 
 ## 📜 TypeScript Support

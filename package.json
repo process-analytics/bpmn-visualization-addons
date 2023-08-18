@@ -8,6 +8,7 @@
     "dev": "concurrently -n lib,demo \"npm run dev -w packages/addons\" \"npm run dev -w packages/demo\""
   },
   "devDependencies": {
-    "concurrently": "~8.2.0"
+    "concurrently": "~8.2.0",
+    "typescript": "~5.1.6"
   }
 }

@@ -26,7 +26,7 @@ Limitations
 
 ### `PathResolver`
 
-Infer paths. Currently, only infer edges/flows given a list of flow node ids.
+Infer BPMN path. Currently, only infer edges/flows given a list of flow node ids.
 
 **WARNING**: this is front-end processing. It's more efficient for this type of processing to be carried out in the backend.
 Use it to bypass the limitations of the tools and algorithms provided in the backend.

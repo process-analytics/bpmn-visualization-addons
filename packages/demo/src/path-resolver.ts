@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import './style.css';
+import './path-resolver.css';
 import {BpmnElement, BpmnVisualization, FitType} from 'bpmn-visualization';
 import {PathResolver, ShapeUtil} from "@process-analytics/bv-experimental-add-ons";
 // This is simple example of the BPMN diagram, loaded as string. The '?.raw' extension support is provided by Vite.
@@ -22,7 +22,7 @@ import {PathResolver, ShapeUtil} from "@process-analytics/bv-experimental-add-on
 // eslint-disable-next-line n/file-extension-in-import -- Vite syntax
 import diagram from './diagram.bpmn?raw';
 
-// Instantiate BpmnVisualization, pass the container HTMLElement - present in index.html
+// Instantiate BpmnVisualization, pass the container HTMLElement - present in path-resolver.html
 const bpmnVisualization = new BpmnVisualization({
   container: 'bpmn-container',
 });
@@ -40,7 +40,6 @@ const registerSelectedBpmnElement = (id: string): boolean => {
   selectedBpmnElements.add(id);
   return true;
 }
-
 const computedFlows: string[] = [];
 
 function computePath() {

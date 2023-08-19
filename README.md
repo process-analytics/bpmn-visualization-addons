@@ -59,7 +59,7 @@ Running the demo only:
 - Build the lib: `npm run build -w packages/addons`
 - Run the demo: `npm run dev -w packages/demo`. The demo is accessible at http://localhost:5173/
 
-Develop in the lib and live update the demo
+Develop the lib and live update the demo
 - run `npm run dev`
 
 
@@ -95,7 +95,7 @@ Create a new GitHub release by following the [GitHub help](https://help.github.c
 
 ## ⚡ Powered by
 
-<img src="docs/github-logo.svg" alt="GitHub logo" title="GitHub Pages" width="110"/>
+<img src="packages/demo/public/assets/github-logo.svg" alt="GitHub logo" title="GitHub Pages" width="110"/>
 
 **[GitHub Pages](https://pages.github.com/)** (<kbd>demo</kbd> live environment)
 

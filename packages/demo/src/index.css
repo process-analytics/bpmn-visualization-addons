@@ -1,0 +1,48 @@
+/*TODO duplicated with path-resolver.css*/
+:root {
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+body {
+/*TODO duplicated with path-resolver.css*/
+    /*margin: 0;*/
+    min-width: 320px;
+    min-height: 100vh;
+    color: #2c3e50;
+    /*display: flex;*/
+    /*place-items: center;*/
+    /*flex-direction: column;*/
+/* Specific */
+    margin-left: 2rem;
+    margin-top: .5rem;
+}
+
+/*TODO duplicated with path-resolver.css*/
+header {
+    display: flex;
+    align-items: center;
+    /*justify-content: space-evenly;*/
+}
+
+/*TODO duplicated with path-resolver.css*/
+.logo {
+    height: 3rem;
+    width: 3rem;
+    margin-right: .5rem;
+}
+
+.source-code {
+    display: flex;
+    align-items: center;
+}
+
+.gh-logo {
+    display: flex;
+    text-decoration: none;
+    margin-left: .5rem;
+}
+.gh-logo img {
+    width: 2rem;
+}

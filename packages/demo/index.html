@@ -1,24 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>bpmn-visualization demo template</title>
-    <script type="module" src="src/index.ts"></script>
-  </head>
-  <body>
-    <header>
-      <img src="/logo.svg" id="logo" alt="The Process Analytics project logo" class="logo">
-      <h1>PathResolver demo</h1>
-    </header>
-    <section class="presentation">
-      <div class="description">Select or deselect BPMN flow nodes, then compute the missing flows in the path.</div>
-      <div class="controls">
-        <button id="btn-compute-path">Compute path</button>
-        <button id="bt-clear">Clear</button>
-      </div>
-    </section>
-    <div id="bpmn-container"></div>
-  </body>
+    <title>bv-experimental-add-ons</title>
+    <link rel="stylesheet" href="/src/index.css" type="text/css">
+</head>
+<body>
+<header>
+    <img src="/assets/logo.svg" id="logo" alt="The Process Analytics project logo" class="logo">
+    <h1>bv-experimental-add-ons</h1>
+</header>
+<section class="presentation">
+    Welcome to <code>bv-experimental-add-ons</code>.
+    <p>
+    <code>bv-experimental-add-ons</code> provides new experimental features for <a href="https://github.com/process-analytics/bpmn-visualization-js">bpmn-visualization</a>.
+    <p>
+
+    <div>
+        <div class="source-code">
+            <span>Source code:</span>
+            <a href="https://github.com/process-analytics/bv-experimental-add-ons" target="_blank" class="gh-logo" title="Go to the bv-experimental-add-ons GitHub repository"><img src="/assets/github-logo.svg" id="gh-logo" alt="The GitHub logo"></a>
+        </div>
+        <code>bpmn-visualization</code> examples: <a href="https://cdn.statically.io/gh/process-analytics/bpmn-visualization-examples/master/examples/index.html" target="_blank"><i>⏩ live environment</i></a>
+    </div>
+
+</section>
+<section class="demos">
+    <h1>Available demos</h1>
+    <ul>
+        <li><a href="./pages/path-resolver.html">PathResolver</a>: Infer path after selecting some flow nodes.</li>
+    </ul>
+</section>
+</body>
 </html>

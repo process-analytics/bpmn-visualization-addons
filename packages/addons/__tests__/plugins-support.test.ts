@@ -35,6 +35,8 @@ test('No errors when no plugins is set', () => {
 });
 
 
+// TODO test to add plugins with the same ids several times
+
 // test('Add OverlayPlugin', () => {
 //     new BpmnVisualization({})
 //

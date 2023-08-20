@@ -20,6 +20,7 @@
     "type": "git",
     "url": "git+https://github.com/process-analytics/bv-experimental-add-ons.git"
   },
+  "type": "module",
   "module": "./dist/index.js",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -46,9 +47,9 @@
     ],
     "typescript": {
       "rewritePaths": {
-        "src/": "build/"
+        "src/": "dist/"
       },
-      "compile": false
+      "compile": "tsc"
     }
   }
 }

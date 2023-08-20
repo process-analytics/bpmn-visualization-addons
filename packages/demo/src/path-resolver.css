@@ -82,13 +82,14 @@ header {
 }
 
 #bpmn-container {
-  height: 80vh;
-  width: 98vw;
   overflow: hidden;
   border-style: solid;
   border-color: #b0b0b0;
   border-width: .1rem;
   border-radius: .2rem;
 
-  margin: auto;
+  width: 96vw;
+  margin-top: 1.25rem;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
 }

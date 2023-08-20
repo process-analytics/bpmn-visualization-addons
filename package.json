@@ -5,7 +5,7 @@
     "./packages/*"
   ],
   "scripts": {
-    "dev": "concurrently -n lib,demo \"npm run dev -w packages/addons\" \"npm run dev -w packages/demo\""
+    "start": "concurrently -n lib,demo \"npm run dev -w packages/addons\" \"npm run dev -w packages/demo\""
   },
   "devDependencies": {
     "concurrently": "~8.2.0",

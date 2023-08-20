@@ -14,18 +14,37 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { resolve } from 'node:path';
+import { parse, resolve } from 'node:path';
 import { defineConfig } from 'vite';
+
+
+import { readdirSync, readFileSync as fsReadFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+// =====================================================================================================================
+// Taken from bpmn-visualization test/shared/file-helper.ts
+/** Returns the files in the given directory. The function doesn't do any recursion in subdirectories. */
+function findFiles(relPathToSourceDirectory: string): string[] {
+  return readdirSync(join(__dirname, relPathToSourceDirectory));
+}
+// =====================================================================================================================
+
+function generateInput() {
+  const pages = findFiles('pages');
+  const input: {[p: string]: string} = {
+    index: resolve(__dirname, 'index.html'),
+  };
+  for (const page of pages) {
+    input[parse(page).name] = resolve(__dirname, `pages/${page}`);
+  }
+  return input;
+}
 
 export default defineConfig(() => {
   return {
     build: {
       rollupOptions: {
-        input: {
-          // TODO compute the list of HTML pages automatically
-          index: resolve(__dirname, 'index.html'),
-          'path-resolver': resolve(__dirname, 'pages/path-resolver.html'),
-        },
+        input: generateInput(),
         output: {
           manualChunks: {
             // put mxgraph code in a dedicated file.

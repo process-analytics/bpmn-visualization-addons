@@ -16,3 +16,4 @@ limitations under the License.
 
 export * from './bpmn-elements';
 export * from './paths';
+export * from './plugins-support';

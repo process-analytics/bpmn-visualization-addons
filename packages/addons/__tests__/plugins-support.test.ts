@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { expect, test } from '@jest/globals';
+import {BpmnVisualization} from "../src/plugins-support";
 
 test('Constructor set all parameters', () => {
     expect({props: 'value'}).toEqual(
@@ -26,3 +27,15 @@ test('Constructor set all parameters', () => {
             verticalAlign: 'middle',
         });
 });
+
+
+test('No errors when no plugins is set', () => {
+    const bpmnVisualization = new BpmnVisualization({container: null!});
+    expect(bpmnVisualization.getPlugin('unknown')).toBeUndefined();
+});
+
+
+// test('Add OverlayPlugin', () => {
+//     new BpmnVisualization({})
+//
+// });

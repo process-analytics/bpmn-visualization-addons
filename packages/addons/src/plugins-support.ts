@@ -32,19 +32,19 @@ export type GlobalOptions = BaseGlobalOptions & PluginOptionExtension;
 
 export class BpmnVisualization extends BaseBpmnVisualization {
 
-    private readonly plugins: Record<string, Plugin> = {};
+    private readonly plugins: Map<string, Plugin> = new Map();
 
     constructor(options: GlobalOptions) {
         super(options);
 
         options.plugins?.forEach((constructor: PluginConstructor) => {
             const plugin = new constructor(this, options);
-            this.plugins[plugin.getPluginId()] = plugin;
+            this.plugins.set(plugin.getPluginId(), plugin);
         });
         console.info('[bv-addons] Registered plugins:', this.plugins);
     }
 
-    getPlugin = (id: string) => this.plugins[id] as unknown;
+    getPlugin = (id: string) => this.plugins.get(id) as unknown;
 }
 
 export class OverlaysPlugin implements Plugin {

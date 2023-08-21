@@ -27,7 +27,7 @@
     "dist"
   ],
   "scripts": {
-    "dev": "tsc --watch",
+    "dev": "tsc --watch --sourceMap",
     "build": "tsc",
     "clean": "rimraf dist",
     "prepack": "run-s clean build"

@@ -3,7 +3,46 @@
 Experimental add-ons for [bpmn-visualization](https://github.com/process-analytics/bpmn-visualization-js).
 
 
+## 📌 Usage
+<!-- ### 📌 Usage in applications and projects -->
+
+Install `bv-experimental-add-ons` and [bpmn-visualization](https://github.com/process-analytics/bpmn-visualization-js/):
+```shell script
+npm i @process-analytics/bv-experimental-add-ons bpmn-visualization
+```
+
+
+## 📜 TypeScript Support
+
+The `@process-analytics/bv-experimental-add-ons` npm package includes type definitions, so the integration works out of the box in TypeScript projects and applications.
+`bv-experimental-add-ons` requires **TypeScript 4.5** or greater.
+
+
 ## 🎨 Features
+
+### Plugins
+
+The plugins infrastructure provides a way to register extension points.
+
+Example of use:
+
+```ts
+// use BpmnVisualization from addons not from bpmn-visualization
+import {BpmnVisualization} from "@process-analytics/bv-experimental-add-ons";
+
+const bpmnVisualization = new BpmnVisualization({
+    container: 'bpmn-container',
+    plugins: [MyPlugin]
+});
+// Retrieve the plugin by id. The id is defined in the plugin implementation
+const myPlugin = bpmnVisualization.getPlugin('my-plugin') as MyPlugin;
+myPlugin.aMethod();
+```
+
+#### Available plugins
+
+- `OverlaysPlugin`: let show/hide overlays created with `BpmnElementsRegistry.addOverlays`.
+
 
 ### `BpmnElementsIdentifier`
 
@@ -35,21 +74,6 @@ Use it to bypass the limitations of the tools and algorithms provided in the bac
 ### `ShapeUtil`
 
 Add new methods to the `ShapeUtil` class provided by `bpmn-visualization`. 
-
-
-## 📌 Usage
-<!-- ### 📌 Usage in applications and projects -->
-
-Install `bv-experimental-add-ons` and [bpmn-visualization](https://github.com/process-analytics/bpmn-visualization-js/):
-```shell script
-npm i @process-analytics/bv-experimental-add-ons bpmn-visualization
-```
-
-
-## 📜 TypeScript Support
-
-The `@process-analytics/bv-experimental-add-ons` npm package includes type definitions, so the integration works out of the box in TypeScript projects.
-`bv-experimental-add-ons` requires **TypeScript 4.5** or greater.
 
 
 ## 📃 License

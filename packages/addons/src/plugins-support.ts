@@ -24,6 +24,19 @@ export interface Plugin {
     getPluginId(): string;
 }
 
+/**
+ * Let pass plugins configuration to {@link BpmnVisualization}.
+ *
+ * Use this type if you already have a dedicated custom `GlobalOptions` type extending the bpmn-visualization `GlobalOptions` type.
+ * In this case, proceed as in the following example to add the plugins configuration to the custom `GlobalOptions`.
+ *
+ * ```ts
+ * // Assuming you have a `CustomGlobalOptions`
+ * type GlobalOptionsWithPluginsSupport = CustomGlobalOptions & PluginOptionExtension;
+ * ```
+ *
+ * If you don't extend `GlobalOptions`, use {@link GlobalOptions} directly.
+ */
 export type PluginOptionExtension = {
     plugins?: PluginConstructor[];
 };

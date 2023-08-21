@@ -44,7 +44,10 @@ export class BpmnVisualization extends BaseBpmnVisualization {
         console.info('[bv-addons] Registered plugins:', this.plugins);
     }
 
-    getPlugin = (id: string) => this.plugins.get(id) as unknown;
+    getPlugin(id: string): unknown {
+        // no need to return a Plugin type, methods of this type are useless for consumers
+        return this.plugins.get(id) as unknown;
+    }
 }
 
 export class OverlaysPlugin implements Plugin {

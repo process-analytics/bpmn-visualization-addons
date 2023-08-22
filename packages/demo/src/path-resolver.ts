@@ -43,8 +43,7 @@ const computedFlows: string[] = [];
 
 function computePath() {
   // reset style of previously computed flows
-  // TODO bug bpmn-visualization, resetStyle with empty array acts like if it undefined (reset all)
-  computedFlows.length > 0 && bpmnElementsRegistry.resetStyle(computedFlows);
+  bpmnElementsRegistry.resetStyle(computedFlows);
   computedFlows.length = 0;
 
   const visitedEdges = pathResolver.getVisitedEdges([...selectedBpmnElements]);

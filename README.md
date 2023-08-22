@@ -83,7 +83,7 @@ Manage Milestone
 
 Create a new GitHub release by following the [GitHub help](https://help.github.com/en/github/administering-a-repository/managing-releases-in-a-repository#creating-a-release)
 - `Tag version`: use a value of the tag that has just been created.
-- `Target`: keep the `main` branch
+- `Name`: same value as the tag, without the `v` prefix i.e. if the tag is `v0.2.0`, the name is `0.2.0`.
 - Description
     - briefly explain the contents of the new version
     - reference the GitHub milestone

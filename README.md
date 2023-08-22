@@ -86,6 +86,7 @@ Create a new GitHub release by following the [GitHub help](https://help.github.c
 - `Tag version`: use a value of the tag that has just been created
 - `Name`: same value as the tag, without the `v` prefix i.e. if the tag is `v0.2.0`, the name is `0.2.0`
 - Description
+    - _Note_: use [release 0.2.0](https://github.com/process-analytics/bv-experimental-add-ons/releases/tag/v0.2.0) as an example
     - briefly explain the contents of the new version
     - reference the GitHub milestone
     - make GitHub generates the [release notes automatically](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes)

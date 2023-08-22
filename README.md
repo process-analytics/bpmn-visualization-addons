@@ -82,6 +82,7 @@ Manage Milestone
 - Close the milestone
 
 Create a new GitHub release by following the [GitHub help](https://help.github.com/en/github/administering-a-repository/managing-releases-in-a-repository#creating-a-release)
+- Create a new [Draft release](https://github.com/process-analytics/bv-experimental-add-ons/releases/new).
 - `Tag version`: use a value of the tag that has just been created.
 - `Name`: same value as the tag, without the `v` prefix i.e. if the tag is `v0.2.0`, the name is `0.2.0`.
 - Description

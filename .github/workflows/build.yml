@@ -37,5 +37,7 @@ jobs:
         run: npm run build -w packages/addons
       - name: Check TypeScript Support
         run: npm test -w packages/check-ts-support
+      - name: Test
+        run: npm test -w packages/addons
       - name: Check Lint
         run: npm run lint-check

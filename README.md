@@ -13,6 +13,9 @@
         <a href="https://github.com/process-analytics/bv-experimental-add-ons/actions">
           <img alt="Build" src="https://github.com/process-analytics/bv-experimental-add-ons/workflows/Build/badge.svg"> 
         </a>
+        <a href="https://sonarcloud.io/project/overview?id=process-analytics_bv-experimental-add-ons">
+          <img alt="Coverage" src="https://sonarcloud.io/api/project_badges/measure?project=process-analytics_bv-experimental-add-ons&metric=alert_status">
+        </a>
         <br>
         <a href=https://github.com/process-analytics/.github/blob/main/CODE_OF_CONDUCT.md">
           <img alt="Contributor Covenant" src="https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg"> 

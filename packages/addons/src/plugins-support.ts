@@ -14,14 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import {BpmnVisualization as BaseBpmnVisualization, type GlobalOptions as BaseGlobalOptions} from "bpmn-visualization";
+import { BpmnVisualization as BaseBpmnVisualization, type GlobalOptions as BaseGlobalOptions } from 'bpmn-visualization';
 
 export interface PluginConstructor {
-    new (bpmnVisualization: BpmnVisualization, options: GlobalOptions): Plugin;
+  new (bpmnVisualization: BpmnVisualization, options: GlobalOptions): Plugin;
 }
 
 export interface Plugin {
-    getPluginId(): string;
+  getPluginId(): string;
 }
 
 /**
@@ -38,53 +38,53 @@ export interface Plugin {
  * If you don't extend `GlobalOptions`, use {@link GlobalOptions} directly.
  */
 export type PluginOptionExtension = {
-    plugins?: PluginConstructor[];
+  plugins?: PluginConstructor[];
 };
 
 export type GlobalOptions = BaseGlobalOptions & PluginOptionExtension;
 
 export class BpmnVisualization extends BaseBpmnVisualization {
+  private readonly plugins: Map<string, Plugin> = new Map();
 
-    private readonly plugins: Map<string, Plugin> = new Map();
+  constructor(options: GlobalOptions) {
+    super(options);
 
-    constructor(options: GlobalOptions) {
-        super(options);
+    options.plugins?.forEach((constructor: PluginConstructor) => {
+      const plugin = new constructor(this, options);
+      this.plugins.set(plugin.getPluginId(), plugin);
+    });
+    // eslint-disable-next-line no-console
+    console.info('[bv-addons] Registered plugins:', this.plugins);
+  }
 
-        options.plugins?.forEach((constructor: PluginConstructor) => {
-            const plugin = new constructor(this, options);
-            this.plugins.set(plugin.getPluginId(), plugin);
-        });
-        console.info('[bv-addons] Registered plugins:', this.plugins);
-    }
-
-    getPlugin(id: string): unknown {
-        // no need to return a Plugin type, methods of this type are useless for consumers
-        return this.plugins.get(id) as unknown;
-    }
+  getPlugin(id: string): unknown {
+    // no need to return a Plugin type, methods of this type are useless for consumers
+    return this.plugins.get(id) as unknown;
+  }
 }
 
 export class OverlaysPlugin implements Plugin {
-    private readonly overlayPane: HTMLElement;
-    private previousStyleDisplay?: string;
-    private isVisible = true;
+  private readonly overlayPane: HTMLElement;
+  private previousStyleDisplay?: string;
+  private isVisible = true;
 
-    constructor(bpmnVisualization: BpmnVisualization) {
-        const view = bpmnVisualization.graph.getView();
-        this.overlayPane = view.getOverlayPane() as HTMLElement;
-    }
+  constructor(bpmnVisualization: BpmnVisualization) {
+    const view = bpmnVisualization.graph.getView();
+    this.overlayPane = view.getOverlayPane() as HTMLElement;
+  }
 
-    setVisible(visible = true): void {
-        if (visible && !this.isVisible) {
-            this.overlayPane.style.display = this.previousStyleDisplay ?? '';
-            this.isVisible = true;
-        } else if (!visible && this.isVisible) {
-            this.previousStyleDisplay = this.overlayPane.style.display;
-            this.overlayPane.style.display = 'none';
-            this.isVisible = false;
-        }
+  setVisible(visible = true): void {
+    if (visible && !this.isVisible) {
+      this.overlayPane.style.display = this.previousStyleDisplay ?? '';
+      this.isVisible = true;
+    } else if (!visible && this.isVisible) {
+      this.previousStyleDisplay = this.overlayPane.style.display;
+      this.overlayPane.style.display = 'none';
+      this.isVisible = false;
     }
+  }
 
-    getPluginId(): string {
-        return 'overlays';
-    }
+  getPluginId(): string {
+    return 'overlays';
+  }
 }

@@ -17,8 +17,7 @@ limitations under the License.
 import { parse, resolve } from 'node:path';
 import { defineConfig } from 'vite';
 
-
-import { readdirSync, readFileSync as fsReadFileSync } from 'node:fs';
+import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 // =====================================================================================================================
@@ -29,9 +28,9 @@ function findFiles(relPathToSourceDirectory: string): string[] {
 }
 // =====================================================================================================================
 
-function generateInput() {
+function generateInput(): { [p: string]: string } {
   const pages = findFiles('pages');
-  const input: {[p: string]: string} = {
+  const input: { [p: string]: string } = {
     index: resolve(__dirname, 'index.html'),
   };
   for (const page of pages) {

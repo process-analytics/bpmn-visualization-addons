@@ -14,12 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import {
-  type BpmnElementsRegistry,
-  type BpmnSemantic,
-  ShapeBpmnElementKind,
-  ShapeUtil as BaseShapeUtil,
-} from 'bpmn-visualization';
+import { type BpmnElementsRegistry, type BpmnSemantic, ShapeBpmnElementKind, ShapeUtil as BaseShapeUtil } from 'bpmn-visualization';
 
 /**
  * Provides workarounds for {@link https://github.com/process-analytics/bpmn-visualization-js/issues/2453}.
@@ -37,7 +32,8 @@ export class BpmnElementsSearcher {
     const kinds = Object.values(ShapeBpmnElementKind);
     // Split query by kind to avoid returning a big chunk of data
     for (const kind of kinds) {
-      const bpmnSemantics = this.bpmnElementsRegistry.getElementsByKinds(kind)
+      const bpmnSemantics = this.bpmnElementsRegistry
+        .getElementsByKinds(kind)
         .map(elt => elt.bpmnSemantic)
         .filter(Boolean);
 
@@ -86,6 +82,6 @@ export class BpmnElementsIdentifier {
 
 export class ShapeUtil extends BaseShapeUtil {
   static isBpmnArtifact = (kind: ShapeBpmnElementKind | string): boolean => {
-    return kind === ShapeBpmnElementKind.GROUP || kind === ShapeBpmnElementKind.TEXT_ANNOTATION ;
+    return kind === ShapeBpmnElementKind.GROUP || kind === ShapeBpmnElementKind.TEXT_ANNOTATION;
   };
 }

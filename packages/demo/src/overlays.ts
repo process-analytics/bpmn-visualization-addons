@@ -15,8 +15,8 @@ limitations under the License.
 */
 
 import './path-resolver.css';
-import {FitType} from 'bpmn-visualization';
-import {BpmnVisualization, OverlaysPlugin} from "@process-analytics/bv-experimental-add-ons";
+import { FitType } from 'bpmn-visualization';
+import { BpmnVisualization, OverlaysPlugin } from '@process-analytics/bv-experimental-add-ons';
 // This is simple example of the BPMN diagram, loaded as string. The '?.raw' extension support is provided by Vite.
 // For other load methods, see https://github.com/process-analytics/bpmn-visualization-examples
 import diagram from './diagram.bpmn?raw';
@@ -24,34 +24,35 @@ import diagram from './diagram.bpmn?raw';
 // Instantiate BpmnVisualization, and pass the OverlaysPlugin
 const bpmnVisualization = new BpmnVisualization({
   container: 'bpmn-container',
-  navigation: {enabled: false},
-  plugins: [OverlaysPlugin]
+  navigation: { enabled: false },
+  plugins: [OverlaysPlugin],
 });
 // Load the BPMN diagram defined above
-bpmnVisualization.load(diagram, {fit: {type: FitType.Center, margin: 20}});
+bpmnVisualization.load(diagram, { fit: { type: FitType.Center, margin: 20 } });
 
 // Add overlays
 const bpmnElementsRegistry = bpmnVisualization.bpmnElementsRegistry;
-const overlayStyle = {stroke: {color: 'chartreuse'}, fill: {color: 'chartreuse'}, font: {color: 'white', size: 18}};
+const overlayStyle = { stroke: { color: 'chartreuse' }, fill: { color: 'chartreuse' }, font: { color: 'white', size: 18 } };
 // SRM subprocess
-bpmnElementsRegistry.addOverlays('Activity_0ec8azh', {label: '123', position: 'top-center', style: overlayStyle});
+bpmnElementsRegistry.addOverlays('Activity_0ec8azh', { label: '123', position: 'top-center', style: overlayStyle });
 // Record Service Entry Sheet
-bpmnElementsRegistry.addOverlays('Activity_06cvihl', {label: '100', position: 'top-left', style: overlayStyle});
+bpmnElementsRegistry.addOverlays('Activity_06cvihl', { label: '100', position: 'top-left', style: overlayStyle });
 // Record Invoice Receipt
-bpmnElementsRegistry.addOverlays('Activity_1u4jwkv', {label: '123', position: 'bottom-center', style: overlayStyle});
+bpmnElementsRegistry.addOverlays('Activity_1u4jwkv', { label: '123', position: 'bottom-center', style: overlayStyle });
 // Remove Payment Block
-bpmnElementsRegistry.addOverlays('Activity_083jf01', {label: '147', position: 'top-right', style: overlayStyle});
+bpmnElementsRegistry.addOverlays('Activity_083jf01', { label: '147', position: 'top-right', style: overlayStyle });
 
 // Configure button to hide/show overlays
 const overlaysPlugin = bpmnVisualization.getPlugin('overlays') as OverlaysPlugin;
 let isOverlaysVisible = true;
 const overlaysVisibilityButton = document.querySelector('#btn-overlays-visibility') as HTMLButtonElement;
-const handleOverlaysVisibility = () => {
+const handleOverlaysVisibility = (): void => {
   isOverlaysVisible = !isOverlaysVisible;
   overlaysPlugin.setVisible(isOverlaysVisible);
   overlaysVisibilityButton.innerText = isOverlaysVisible ? 'Hide overlays' : 'Show overlays';
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 overlaysVisibilityButton.addEventListener('click', _ev => {
   handleOverlaysVisibility();
 });

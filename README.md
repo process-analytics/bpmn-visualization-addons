@@ -75,16 +75,18 @@ Go to the [release workflow](https://github.com/process-analytics/bv-experimenta
 
 This workflow will create a Git tag and trigger the publishing of the npm package.
 
-Manage Milestone
+Manage Milestone:
 - **Note:** we always put issues related to a version in a Milestone whose name matches the version.
 - Ensure the name of the milestone used for the new release version matches the name of the tag/version that has just been pushed. Renamed it if needed.
 - Clean this opened milestone if some issues are still opened (move them to a new one or discard milestone from them)
 - Close the milestone
 
-Create a new GitHub release by following the [GitHub help](https://help.github.com/en/github/administering-a-repository/managing-releases-in-a-repository#creating-a-release)
-- `Tag version`: use a value of the tag that has just been created.
-- `Target`: keep the `main` branch
+Create a new GitHub release by following the [GitHub help](https://help.github.com/en/github/administering-a-repository/managing-releases-in-a-repository#creating-a-release):
+- Create a new [Draft release](https://github.com/process-analytics/bv-experimental-add-ons/releases/new)
+- `Tag version`: use a value of the tag that has just been created
+- `Name`: same value as the tag, without the `v` prefix i.e. if the tag is `v0.2.0`, the name is `0.2.0`
 - Description
+    - _Note_: use [release 0.2.0](https://github.com/process-analytics/bv-experimental-add-ons/releases/tag/v0.2.0) as an example
     - briefly explain the contents of the new version
     - reference the GitHub milestone
     - make GitHub generates the [release notes automatically](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes)

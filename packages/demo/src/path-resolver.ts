@@ -15,8 +15,9 @@ limitations under the License.
 */
 
 import './path-resolver.css';
-import {BpmnElement, BpmnVisualization, FitType} from 'bpmn-visualization';
-import {PathResolver, ShapeUtil} from "@process-analytics/bv-experimental-add-ons";
+import type { BpmnElement } from 'bpmn-visualization';
+import { BpmnVisualization, FitType } from 'bpmn-visualization';
+import { PathResolver, ShapeUtil } from '@process-analytics/bv-experimental-add-ons';
 // This is simple example of the BPMN diagram, loaded as string. The '?.raw' extension support is provided by Vite.
 // For other load methods, see https://github.com/process-analytics/bpmn-visualization-examples
 import diagram from './diagram.bpmn?raw';
@@ -26,7 +27,7 @@ const bpmnVisualization = new BpmnVisualization({
   container: 'bpmn-container',
 });
 // Load the BPMN diagram defined above
-bpmnVisualization.load(diagram, {fit: {type: FitType.Center, margin: 20}});
+bpmnVisualization.load(diagram, { fit: { type: FitType.Center, margin: 20 } });
 const bpmnElementsRegistry = bpmnVisualization.bpmnElementsRegistry;
 
 const pathResolver = new PathResolver(bpmnElementsRegistry);
@@ -38,17 +39,17 @@ const registerSelectedBpmnElement = (id: string): boolean => {
   }
   selectedBpmnElements.add(id);
   return true;
-}
+};
 const computedFlows: string[] = [];
 
-function computePath() {
+function computePath(): void {
   // reset style of previously computed flows
   bpmnElementsRegistry.resetStyle(computedFlows);
   computedFlows.length = 0;
 
   const visitedEdges = pathResolver.getVisitedEdges([...selectedBpmnElements]);
   computedFlows.push(...visitedEdges);
-  bpmnElementsRegistry.updateStyle(computedFlows, {stroke: {color: 'orange', width: 3}});
+  bpmnElementsRegistry.updateStyle(computedFlows, { stroke: { color: 'orange', width: 3 } });
 }
 
 function clearPath(): void {
@@ -59,30 +60,32 @@ function clearPath(): void {
 
 const getAllFlowNodes = (): BpmnElement[] => bpmnElementsRegistry.getElementsByKinds(ShapeUtil.flowNodeKinds().filter(kind => !ShapeUtil.isBpmnArtifact(kind)));
 
-const setupBpmnElementEventHandlers = () => {
+const setupBpmnElementEventHandlers = (): void => {
   // TODO use "for of instead"
   getAllFlowNodes().forEach(item => {
     const currentId = item.bpmnSemantic.id;
     const htmlElement = item.htmlElement;
     htmlElement.onclick = () => {
       if (registerSelectedBpmnElement(currentId)) {
-        bpmnElementsRegistry.updateStyle(currentId,
-            {stroke: {color: 'blue'}, fill: {color: 'lightblue'}});
+        bpmnElementsRegistry.updateStyle(currentId, { stroke: { color: 'blue' }, fill: { color: 'lightblue' } });
       } else {
-        selectedBpmnElements.delete(currentId)
+        selectedBpmnElements.delete(currentId);
         bpmnElementsRegistry.resetStyle(currentId);
       }
     };
-    htmlElement.onmouseenter = (_ev) => {
-      htmlElement.style.cursor = 'pointer'
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    htmlElement.onmouseenter = _ev => {
+      htmlElement.style.cursor = 'pointer';
     };
   });
 };
 
-const setupControlEventHandlers = () => {
+const setupControlEventHandlers = (): void => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   document.querySelector('#btn-compute-path')?.addEventListener('click', _ev => {
     computePath();
   });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   document.querySelector('#bt-clear')?.addEventListener('click', _ev => {
     clearPath();
   });

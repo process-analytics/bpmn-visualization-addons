@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import type {BpmnElementsRegistry, EdgeBpmnSemantic, ShapeBpmnSemantic} from 'bpmn-visualization';
+import type { BpmnElementsRegistry, EdgeBpmnSemantic, ShapeBpmnSemantic } from 'bpmn-visualization';
 
 /**
  * Experimental implementation for {@link https://github.com/process-analytics/bpmn-visualization-js/issues/930}

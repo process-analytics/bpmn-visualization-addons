@@ -20,6 +20,7 @@
     "type": "git",
     "url": "git+https://github.com/process-analytics/bv-experimental-add-ons.git"
   },
+  "type": "module",
   "module": "./dist/index.js",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -31,9 +32,9 @@
     "clean": "rimraf dist",
     "dev": "tsc --watch --sourceMap",
     "prepack": "run-s clean build",
-    "test": "jest --runInBand"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand"
   },
-  "peerDependencies": {
+  "dependencies": {
     "bpmn-visualization": ">=0.37.0"
   },
   "devDependencies": {

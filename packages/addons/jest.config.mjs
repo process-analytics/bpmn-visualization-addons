@@ -17,6 +17,18 @@ limitations under the License.
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 export default {
   // preset: 'ts-jest',
-  preset: 'ts-jest/presets/default-esm',
+  // preset: 'ts-jest/presets/default-esm',
   // testEnvironment: 'jsdom', // need to access to the browser objects
+  testMatch: ['**/?(*.)+(spec|test).[t]s'],
+  transform: {
+    '^.+\\.ts?$': [
+      // 'ts-jest',
+      'ts-jest',
+      {
+        tsconfig: '<rootDir>/tsconfig.test.json',
+        extensionsToTreatAsEsm: ['.ts'],
+        useESM: true,
+      },
+    ],
+  },
 };

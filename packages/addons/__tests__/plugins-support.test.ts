@@ -15,17 +15,16 @@ limitations under the License.
 */
 
 import { expect, test } from '@jest/globals';
-// import { BpmnVisualization } from '../src/plugins-support';
 
-test('is failing', () => {
-  expect({ props: 'value' }).toEqual({
-    align: 'left',
-    cursor: 'custom',
-    offset: 20,
-    tooltip: 'my tooltip',
-    verticalAlign: 'middle',
-  });
-});
+// test('is failing', () => {
+//   expect({ props: 'value' }).toEqual({
+//     align: 'left',
+//     cursor: 'custom',
+//     offset: 20,
+//     tooltip: 'my tooltip',
+//     verticalAlign: 'middle',
+//   });
+// });
 
 test('is OK', () => {
   expect({ props: 'value', props2: 12 }).toEqual({
@@ -34,6 +33,7 @@ test('is OK', () => {
   });
 });
 
+// import { BpmnVisualization } from '../src';
 // test('No errors when no plugins is set', () => {
 //   const bpmnVisualization = new BpmnVisualization({ container: null! });
 //   expect(bpmnVisualization.getPlugin('unknown')).toBeUndefined();

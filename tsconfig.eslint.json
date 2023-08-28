@@ -15,5 +15,5 @@
     "skipLibCheck": true
   },
   //  fix https://typescript-eslint.io/linting/troubleshooting/#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file
-  "include": ["packages/demo/vite.config.ts"]
+  "include": ["packages/addons/__tests__/**/*.ts", "packages/demo/vite.config.ts"]
 }

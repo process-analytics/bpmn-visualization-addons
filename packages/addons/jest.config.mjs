@@ -18,7 +18,7 @@ limitations under the License.
 export default {
   // preset: 'ts-jest',
   // preset: 'ts-jest/presets/default-esm',
-  // testEnvironment: 'jsdom', // need to access to the browser objects
+  testEnvironment: 'jsdom', // need to access to the browser objects
   testMatch: ['**/?(*.)+(spec|test).[t]s'],
   transform: {
     '^.+\\.ts?$': [

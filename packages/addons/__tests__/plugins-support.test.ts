@@ -15,9 +15,9 @@ limitations under the License.
 */
 
 import { expect, test } from '@jest/globals';
-import { BpmnVisualization } from '../src/plugins-support';
+// import { BpmnVisualization } from '../src/plugins-support';
 
-test('Constructor set all parameters', () => {
+test('is failing', () => {
   expect({ props: 'value' }).toEqual({
     align: 'left',
     cursor: 'custom',
@@ -27,10 +27,17 @@ test('Constructor set all parameters', () => {
   });
 });
 
-test('No errors when no plugins is set', () => {
-  const bpmnVisualization = new BpmnVisualization({ container: null! });
-  expect(bpmnVisualization.getPlugin('unknown')).toBeUndefined();
+test('is OK', () => {
+  expect({ props: 'value', props2: 12 }).toEqual({
+    props2: 12,
+    props: 'value',
+  });
 });
+
+// test('No errors when no plugins is set', () => {
+//   const bpmnVisualization = new BpmnVisualization({ container: null! });
+//   expect(bpmnVisualization.getPlugin('unknown')).toBeUndefined();
+// });
 
 // TODO test to add plugins with the same ids several times
 

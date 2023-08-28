@@ -31,7 +31,7 @@
     "clean": "rimraf dist",
     "dev": "tsc --watch --sourceMap",
     "prepack": "run-s clean build",
-    "test": "jest --runInBand --detectOpenHandles"
+    "test": "jest --runInBand"
   },
   "peerDependencies": {
     "bpmn-visualization": ">=0.37.0"

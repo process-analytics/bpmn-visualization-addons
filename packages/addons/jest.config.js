@@ -15,6 +15,6 @@ limitations under the License.
 */
 
 /** @type {import('ts-jest').JestConfigWithTsJest} */
-export default {
+module.exports = {
   preset: 'ts-jest/presets/default-esm',
 };

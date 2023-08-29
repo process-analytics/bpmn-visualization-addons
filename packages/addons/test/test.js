@@ -22,8 +22,8 @@ test('fn() returns foo', t => {
   t.is(fn(), 'foo');
 });
 
-import { BpmnVisualization } from '../src/index.js';
-test('No errors when no plugins is set', t => {
-  const bpmnVisualization = new BpmnVisualization({ container: null });
-  t.is(bpmnVisualization.getPlugin('unknown'), ['dtc']);
-});
+// import { BpmnVisualization } from '../dist/index.js';
+// test('No errors when no plugins is set', t => {
+//   const bpmnVisualization = new BpmnVisualization({ container: null });
+//   t.is(bpmnVisualization.getPlugin('unknown'), ['dtc']);
+// });

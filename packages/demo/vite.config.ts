@@ -14,11 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { parse, resolve } from 'node:path';
-import { defineConfig } from 'vite';
-
+import { join, parse, resolve } from 'node:path';
 import { readdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { defineConfig } from 'vite';
 
 // =====================================================================================================================
 // Taken from bpmn-visualization test/shared/file-helper.ts

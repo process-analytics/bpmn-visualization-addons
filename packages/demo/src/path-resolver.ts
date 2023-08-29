@@ -61,8 +61,7 @@ function clearPath(): void {
 const getAllFlowNodes = (): BpmnElement[] => bpmnElementsRegistry.getElementsByKinds(ShapeUtil.flowNodeKinds().filter(kind => !ShapeUtil.isBpmnArtifact(kind)));
 
 const setupBpmnElementEventHandlers = (): void => {
-  // TODO use "for of instead"
-  getAllFlowNodes().forEach(item => {
+  for (const item of getAllFlowNodes()) {
     const currentId = item.bpmnSemantic.id;
     const htmlElement = item.htmlElement;
     htmlElement.onclick = () => {
@@ -77,7 +76,7 @@ const setupBpmnElementEventHandlers = (): void => {
     htmlElement.onmouseenter = _ev => {
       htmlElement.style.cursor = 'pointer';
     };
-  });
+  }
 };
 
 const setupControlEventHandlers = (): void => {

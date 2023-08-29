@@ -16,9 +16,7 @@ limitations under the License.
 
 import { BpmnVisualization as BaseBpmnVisualization, type GlobalOptions as BaseGlobalOptions } from 'bpmn-visualization';
 
-export interface PluginConstructor {
-  new (bpmnVisualization: BpmnVisualization, options: GlobalOptions): Plugin;
-}
+export type PluginConstructor = new (bpmnVisualization: BpmnVisualization, options: GlobalOptions) => Plugin;
 
 export interface Plugin {
   getPluginId(): string;
@@ -53,8 +51,6 @@ export class BpmnVisualization extends BaseBpmnVisualization {
       const plugin = new constructor(this, options);
       this.plugins.set(plugin.getPluginId(), plugin);
     });
-    // eslint-disable-next-line no-console
-    console.info('[bv-addons] Registered plugins:', this.plugins);
   }
 
   getPlugin(id: string): unknown {

@@ -34,7 +34,7 @@
     "prepack": "run-s clean build",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand"
   },
-  "dependencies": {
+  "peerDependencies": {
     "bpmn-visualization": "0.27.0"
   },
   "devDependencies": {

@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// TODO restore imports and code when using a more recent bpmn-visualization version
+// commented because not available in version 0.27.0
 import type { BpmnElementsRegistry } from 'bpmn-visualization';
 // import type { BpmnElementsRegistry, EdgeBpmnSemantic, ShapeBpmnSemantic } from 'bpmn-visualization';
 

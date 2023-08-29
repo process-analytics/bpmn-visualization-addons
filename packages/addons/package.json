@@ -49,7 +49,7 @@
       "rewritePaths": {
         "src/": "dist/"
       },
-      "compile": "tsc"
+      "compile": false
     }
   }
 }

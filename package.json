@@ -1,12 +1,13 @@
 {
   "name": "bv-addons-root",
   "private": true,
+  "type": "module",
   "workspaces": [
     "./packages/*"
   ],
   "scripts": {
-    "lint": "eslint \"**/*.{js,mjs,ts}\" --max-warnings 0 --quiet --fix",
-    "lint-check": "eslint \"**/*.{js,mjs,ts}\" --max-warnings 0",
+    "lint": "eslint \"**/*.{js,cs,mjs,ts}\" --max-warnings 0 --quiet --fix",
+    "lint-check": "eslint \"**/*.{js,cs,mjs,ts}\" --max-warnings 0",
     "prepare": "husky install",
     "start": "concurrently -n lib,demo \"npm run dev -w packages/addons\" \"npm run dev -w packages/demo\""
   },
@@ -23,7 +24,7 @@
     "typescript": "~5.2.2"
   },
   "lint-staged": {
-    "*.{js,mjs,ts}": [
+    "*.{js,cs,mjs,ts}": [
       "eslint --fix"
     ]
   }

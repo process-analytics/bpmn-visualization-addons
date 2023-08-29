@@ -2,6 +2,7 @@
   "name": "@process-analytics/bv-experimental-add-ons",
   "version": "0.3.0",
   "private": false,
+  "type": "module",
   "description": "Experimental add-ons for bpmn-visualization",
   "keywords": [
     "analytics",

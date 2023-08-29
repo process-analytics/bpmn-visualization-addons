@@ -33,7 +33,7 @@ test('is OK', () => {
   });
 });
 
-import { BpmnVisualization } from '../src/index.ts';
+import { BpmnVisualization } from '../src';
 test('No errors when no plugins is set', () => {
   const bpmnVisualization = new BpmnVisualization({ container: null! });
   expect(bpmnVisualization.getPlugin('unknown')).toBeUndefined();

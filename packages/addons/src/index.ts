@@ -14,6 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export * from './bpmn-elements.ts';
-export * from './paths.ts';
-export * from './plugins-support.ts';
+export * from './bpmn-elements';
+export * from './paths';
+export * from './plugins-support';

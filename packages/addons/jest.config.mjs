@@ -20,9 +20,11 @@ export default {
   // preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'jsdom', // need to access to the browser objects
   testMatch: ['**/?(*.)+(spec|test).[t]s'],
+  // moduleNameMapper: {
+  //   '^(\\.{1,2}/.*)\\.js$': '$1',
+  // },
   transform: {
     '^.+\\.ts?$': [
-      // 'ts-jest',
       'ts-jest',
       {
         tsconfig: '<rootDir>/tsconfig.test.json',

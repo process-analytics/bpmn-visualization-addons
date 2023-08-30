@@ -17,10 +17,7 @@ limitations under the License.
 /** @type {import('jest').Config} */
 const config = {
   testEnvironment: 'jsdom', // let access to the browser objects
-  testMatch: [
-    '**/__tests__/**/*.[jt]s?(x)',
-    // "**/?(*.)+(spec|test).[tj]s?(x)"
-  ],
+  testMatch: ['**/test/**/?(*.)+(spec|test).[tj]s?(x)'],
 };
 
 export default config;

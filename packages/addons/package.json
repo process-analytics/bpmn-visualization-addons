@@ -32,7 +32,7 @@
     "clean": "rimraf dist",
     "dev": "tsc --watch --sourceMap",
     "prepack": "run-s clean build",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand"
   },
   "peerDependencies": {
     "bpmn-visualization": "0.27.0"

@@ -17,12 +17,13 @@ limitations under the License.
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 export default {
   // preset: 'ts-jest',
-  preset: 'ts-jest/presets/default-esm',
+  // preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'jsdom', // need to access to the browser objects
+  // extensionsToTreatAsEsm: ['.ts', '.esm.js'],
   testMatch: ['**/?(*.)+(spec|test).[t]s'],
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
-    '^bpmn-visualization$': '<rootDir>/node_modules/bpmn-visualization/dist/bpmn-visualization.esm.js',
+    // '^bpmn-visualization$': '<rootDir>/node_modules/bpmn-visualization/dist/bpmn-visualization.esm.js',
   },
   transform: {
     //'^.+\\.esm.js?$': 'ts-jest',
@@ -30,13 +31,8 @@ export default {
       'ts-jest',
       {
         tsconfig: '<rootDir>/tsconfig.test.json',
-        extensionsToTreatAsEsm: ['.ts', '.esm.js'],
         useESM: true,
       },
     ],
   },
-  transformIgnorePatterns: [
-    // Add any patterns for ES modules that you want Jest to ignore
-    // '/node_modules/(?!bpmn-visualization)',
-  ],
 };

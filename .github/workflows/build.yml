@@ -35,9 +35,9 @@ jobs:
         uses: ./.github/actions/build-setup
       - name: Build Library
         run: npm run build -w packages/addons
-      - name: Check TypeScript Support
-        run: npm test -w packages/check-ts-support
       - name: Test
         run: npm test -w packages/addons
+      - name: Check TypeScript Support
+        run: npm test -w packages/check-ts-support
       - name: Check Lint
         run: npm run lint-check

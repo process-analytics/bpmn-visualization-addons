@@ -25,6 +25,11 @@ updates:
             - "cssnano"
             - "postcss*"
             - "tailwindcss"
+       jest:
+          patterns:
+            - "@jest/*"
+            - "jest"
+            - "jest-*"
        lint:
           patterns:
             - "@typescript-eslint/*"

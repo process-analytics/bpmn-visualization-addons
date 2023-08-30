@@ -34,14 +34,26 @@ test('is OK', () => {
 });
 
 import { BpmnVisualization } from '../dist';
+
 test('No errors when no plugins is set', () => {
   const bpmnVisualization = new BpmnVisualization({ container: null });
   expect(bpmnVisualization.getPlugin('unknown')).toBeUndefined();
 });
 
-// TODO test to add plugins with the same ids several times
-
-// test('Add OverlayPlugin', () => {
-//     new BpmnVisualization({})
-//
-// });
+class MyCustomPlugin {
+  constructor(bpmnVisualization) {
+    // do nothing
+  }
+  getPluginId() {
+    return 'custom-plugin';
+  }
+  doSomethingSpecial() {
+    return 5;
+  }
+}
+test('Load a plugin and retrieve it', () => {
+  const bpmnVisualization = new BpmnVisualization({ container: null, plugins: [MyCustomPlugin] });
+  const plugin = bpmnVisualization.getPlugin('custom-plugin');
+  expect(plugin).toBeDefined();
+  expect(plugin.doSomethingSpecial()).toBe(5);
+});

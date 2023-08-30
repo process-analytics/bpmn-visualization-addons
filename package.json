@@ -8,7 +8,9 @@
   "scripts": {
     "lint": "eslint \"**/*.{js,cs,mjs,ts}\" --max-warnings 0 --quiet --fix",
     "lint-check": "eslint \"**/*.{js,cs,mjs,ts}\" --max-warnings 0",
-    "prepare": "husky install",
+    "prepare": "run-s prepare:*",
+    "prepare:husky": "husky install",
+    "prepare:patches": "node bin/patch.bpmn-visualization.js",
     "start": "concurrently -n lib,demo \"npm run dev -w packages/addons\" \"npm run dev -w packages/demo\""
   },
   "devDependencies": {
@@ -21,6 +23,7 @@
     "eslint-plugin-prettier": "~5.0.0",
     "husky": "~8.0.3",
     "lint-staged": "~14.0.1",
+    "npm-run-all": "~4.1.5",
     "typescript": "~5.2.2"
   },
   "lint-staged": {

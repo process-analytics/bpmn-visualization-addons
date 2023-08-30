@@ -31,7 +31,8 @@
     "build": "tsc",
     "clean": "rimraf dist",
     "dev": "tsc --watch --sourceMap",
-    "prepack": "run-s clean build"
+    "prepack": "run-s clean build",
+    "test": "jest"
   },
   "peerDependencies": {
     "bpmn-visualization": ">=0.37.0"

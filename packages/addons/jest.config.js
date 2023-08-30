@@ -67,8 +67,8 @@ export default {
     ],
   },*/
 
-  /*  extensionsToTreatAsEsm: ['.ts'],
-  "preset": "ts-jest/presets/default-esm",*/
+    extensionsToTreatAsEsm: ['.ts'],
+  preset: 'ts-jest/presets/default-esm',
 
   /*  moduleNameMapper: {
     '^bpmn-visualization$': BpmnVisualization,

@@ -80,6 +80,19 @@ const config = {
   // ],
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   // moduleNameMapper: {},
+  moduleNameMapper: {
+    // <rootDir> is the current folder, npm workspace stores package in the root directory of the project
+    '^bpmn-visualization$': '<rootDir>/../../node_modules/bpmn-visualization/dist/bpmn-visualization.esm.js',
+  },
+  // transformIgnorePatterns: ['node_modules/(?!(bpmn-visualization))'],
+  // moduleNameMapper: {
+  //   tslib: 'tslib/tslib.es6.js', // didn't figure out why this one works without full path
+  //   '@googlemaps/markerclusterer': '<rootDir>../../node_modules/@googlemaps/markerclusterer/dist/index.esm.js',
+  // },
+  // transformIgnorePatterns: [
+  //   'node_modules/(?!(tslib|@googlemaps/markerclusterer))',
+  // ],
+
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],
   // Activates notifications for test results

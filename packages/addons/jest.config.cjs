@@ -80,10 +80,10 @@ const config = {
   // ],
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   // moduleNameMapper: {},
-  moduleNameMapper: {
-    // <rootDir> is the current folder, npm workspace stores package in the root directory of the project
-    '^bpmn-visualization$': '<rootDir>/../../node_modules/bpmn-visualization/dist/bpmn-visualization.esm.js',
-  },
+  // moduleNameMapper: {
+  //   // <rootDir> is the current folder, npm workspace stores package in the root directory of the project
+  //   '^bpmn-visualization$': '<rootDir>/../../node_modules/bpmn-visualization/dist/bpmn-visualization.esm.js',
+  // },
   // transformIgnorePatterns: ['node_modules/(?!(bpmn-visualization))'],
   // moduleNameMapper: {
   //   tslib: 'tslib/tslib.es6.js', // didn't figure out why this one works without full path

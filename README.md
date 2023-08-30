@@ -88,6 +88,7 @@ Create a new GitHub release by following the [GitHub help](https://help.github.c
 - Description
     - _Note_: use [release 0.2.0](https://github.com/process-analytics/bv-experimental-add-ons/releases/tag/v0.2.0) as an example
     - briefly explain the contents of the new version
+    - if relevant, create a **Highlight** paragraph and add screenshots, animations or videos to make the changes more user-friendly
     - reference the GitHub milestone
     - make GitHub generates the [release notes automatically](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes)
 - Publish the GitHub release

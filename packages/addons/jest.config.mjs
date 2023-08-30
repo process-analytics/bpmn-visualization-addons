@@ -52,13 +52,13 @@ export default {
 
   verbose: true,
 
-  // testEnvironment: 'jsdom', // need to access to the browser objects
+   testEnvironment: 'jsdom', // need to access to the browser objects
   // testEnvironment: 'jest-environment-node',
-  testEnvironment: 'node',
+  //testEnvironment: 'jsdom',
   testMatch: ['**/?(*.)+(spec|test).[tj]s?(x)'],
 
-  // transform: {},
-  transform: {
+//  transform: {},
+/*  transform: {
     // '^.+\\.[tj]sx?$' to process js/ts with `ts-jest`
     // '^.+\\.m?[tj]sx?$' to process js/ts/mjs/mts with `ts-jest`
     '^.+\\.ts?$': [
@@ -68,26 +68,37 @@ export default {
         useESM: true,
       },
     ],
-  },
+  },*/
 
-  extensionsToTreatAsEsm: ['.ts'],
-  //preset: 'ts-jest/presets/default-esm',
-  preset: 'ts-jest',
+/*  extensionsToTreatAsEsm: ['.ts'],
+  preset: 'ts-jest/presets/default-esm',*/
+ // preset: 'ts-jest',
 
-  // more on this later
+ // transformIgnorePatterns: ['<rootDir>/node_modules/', 'node_modules/', '<rootDir>../../node_modules']
+
+  // Lib has valid ESM but invalid package.json configuration
+  moduleNameMapper: {
+    '^bpmn-visualization$': '<rootDir>../../node_modules/bpmn-visualization/dist/bpmn-visualization.esm.js',
+  }
+
+
+
+// more on this later
   /*  moduleNameMapper: {
     // eg when importing symbol (tslib) use content of the file (path)
     'bpmn-visualization': 'bpmn-visualization/dist/bpmn-visualization.esm.js',
   },*/
 
-  /*  moduleNameMapper: {
-    '^bpmn-visualization$': ['<rootDir>/node_modules/bpmn-visualization/dist/bpmn-visualization.esm.js'],
+/*    moduleNameMapper: {
+    '^bpmn-visualization$': ['<rootDir>../../node_modules/bpmn-visualization/dist/bpmn-visualization.esm.js'],
   },*/
 
+/*
   moduleNameMapper: pathsToModuleNameMapper(
     tsconfigJson.compilerOptions.paths,
     { prefix: '<rootDir>/', useESM: true }
   ),
+*/
 
   /*  moduleNameMapper: manageMapper(pathsToModuleNameMapper(tsconfigJson.compilerOptions.paths, { prefix: '<rootDir>/' }) ),
   transformIgnorePatterns: ['<rootDir>/node_modules/']*/

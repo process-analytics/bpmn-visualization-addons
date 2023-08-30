@@ -35,7 +35,7 @@ test('is OK', () => {
 });
 
 test('No errors when no plugins is set', () => {
-  const bpmnVisualization = new BpmnVisualization({ container: 'plop' });
+  const bpmnVisualization = new BpmnVisualization({ container: null! });
   expect(bpmnVisualization.getPlugin('unknown')).toBeUndefined();
 });
 

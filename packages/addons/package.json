@@ -35,7 +35,7 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand"
   },
   "peerDependencies": {
-    "bpmn-visualization": "0.27.0"
+    "bpmn-visualization": "git@github.com:process-analytics/bpmn-visualization-js.git"
   },
   "devDependencies": {
     "jest": "~29.6.2",

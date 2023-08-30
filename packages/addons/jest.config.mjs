@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { pathsToModuleNameMapper } from "ts-jest";
-import tsconfigJson from './tsconfig.test.json' assert { type: 'json' };
+//import { pathsToModuleNameMapper } from 'ts-jest';
+//import tsconfigJson from './tsconfig.test.json';
 //const tsconfigJson = require('./tsconfig.test.json');
 
-/*function manageKey(key) {
+function manageKey(key) {
   return key.includes('(.*)') ? key.slice(0, -1) + '\\.js$' : key;
 }
 function manageMapper(mapper) {
@@ -28,9 +28,7 @@ function manageMapper(mapper) {
   }
   newMapper['^(.*).js$'] = '$1';
   return newMapper;
-}*/
-
-
+}
 
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 export default {
@@ -52,53 +50,39 @@ export default {
 
   verbose: true,
 
-   testEnvironment: 'jsdom', // need to access to the browser objects
-  // testEnvironment: 'jest-environment-node',
-  //testEnvironment: 'jsdom',
+  testEnvironment: 'jsdom', // need to access to the browser objects
+  //testEnvironment: 'jest-environment-node',
   testMatch: ['**/?(*.)+(spec|test).[tj]s?(x)'],
 
-//  transform: {},
-/*  transform: {
+  transform: {},
+  /*  transform: {
     // '^.+\\.[tj]sx?$' to process js/ts with `ts-jest`
     // '^.+\\.m?[tj]sx?$' to process js/ts/mjs/mts with `ts-jest`
     '^.+\\.ts?$': [
       'ts-jest',
       {
-        tsconfig: '<rootDir>/tsconfig.test.json',
+       tsconfig: '<rootDir>/tsconfig.test.json',
         useESM: true,
       },
     ],
   },*/
 
-/*  extensionsToTreatAsEsm: ['.ts'],
-  preset: 'ts-jest/presets/default-esm',*/
- // preset: 'ts-jest',
-
- // transformIgnorePatterns: ['<rootDir>/node_modules/', 'node_modules/', '<rootDir>../../node_modules']
-
-  // Lib has valid ESM but invalid package.json configuration
+    // Lib has valid ESM but invalid package.json configuration
   moduleNameMapper: {
     '^bpmn-visualization$': '<rootDir>../../node_modules/bpmn-visualization/dist/bpmn-visualization.esm.js',
-  }
+  },
+
+  transformIgnorePatterns: [
+    'node_modules/(?!bpmn-visualization)',
+  ],
 
 
+   extensionsToTreatAsEsm: ['.ts'],
+  //"preset": "ts-jest/presets/default-esm",
 
-// more on this later
   /*  moduleNameMapper: {
-    // eg when importing symbol (tslib) use content of the file (path)
-    'bpmn-visualization': 'bpmn-visualization/dist/bpmn-visualization.esm.js',
+    '^bpmn-visualization$': BpmnVisualization,
   },*/
-
-/*    moduleNameMapper: {
-    '^bpmn-visualization$': ['<rootDir>../../node_modules/bpmn-visualization/dist/bpmn-visualization.esm.js'],
-  },*/
-
-/*
-  moduleNameMapper: pathsToModuleNameMapper(
-    tsconfigJson.compilerOptions.paths,
-    { prefix: '<rootDir>/', useESM: true }
-  ),
-*/
 
   /*  moduleNameMapper: manageMapper(pathsToModuleNameMapper(tsconfigJson.compilerOptions.paths, { prefix: '<rootDir>/' }) ),
   transformIgnorePatterns: ['<rootDir>/node_modules/']*/

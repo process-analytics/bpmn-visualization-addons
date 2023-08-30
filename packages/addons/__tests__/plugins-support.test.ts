@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { expect, test } from '@jest/globals';
+import { BpmnVisualization } from '../src';
 //
 // test('is failing', () => {
 //   expect({ props: 'value' }).toEqual({
@@ -33,9 +34,8 @@ test('is OK', () => {
   });
 });
 
-import { BpmnVisualization } from '../src';
 test('No errors when no plugins is set', () => {
-  const bpmnVisualization = new BpmnVisualization({ container: null! });
+  const bpmnVisualization = new BpmnVisualization({ container: 'plop' });
   expect(bpmnVisualization.getPlugin('unknown')).toBeUndefined();
 });
 

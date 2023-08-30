@@ -18,6 +18,12 @@ updates:
       - skip-changelog
     reviewers:
       - process-analytics/pa-collaborators
+    ignore:
+      # typescript must not be updated in packages/check-ts-support. Its version must remain unchanged to test the minimum version supported by bv-addons
+      # For more details, see:
+      #    https://github.com/process-analytics/bv-experimental-add-ons/pull/90
+      #    https://github.com/process-analytics/bv-experimental-add-ons/pull/92
+      - dependency-name: "typescript"
     groups:
        css:
           patterns:

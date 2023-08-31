@@ -16,4 +16,5 @@ runs:
     - name: Install dependencies
       uses: bahmutov/npm-install@v1
       with:
-        install-command: npm ci --prefer-offline --audit false --ignore-scripts
+        # restore --ignore-scripts when there is no need to patch bpmn-visualization@0.38.1 anymore during post-install (to make jest resolve it)
+        install-command: npm ci --prefer-offline --audit false

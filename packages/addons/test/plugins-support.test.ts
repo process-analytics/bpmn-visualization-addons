@@ -15,8 +15,8 @@ limitations under the License.
 */
 
 import { describe, expect, test } from '@jest/globals';
-import type { Plugin } from '../dist';
-import { BpmnVisualization } from '../dist';
+import type { Plugin } from '../src';
+import { BpmnVisualization } from '../src';
 
 interface TestPlugin extends Plugin {
   doSomethingSpecial(): number | string;

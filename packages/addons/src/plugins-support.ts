@@ -57,7 +57,7 @@ export class BpmnVisualization extends BaseBpmnVisualization {
     });
   }
 
-  getPlugin<T extends Plugin>(id: string): T {
+  getPlugin<T extends Plugin | unknown>(id: string): T {
     // no need to return a Plugin type, methods of this type are useless for consumers
     return this.plugins.get(id) as T;
   }

@@ -32,11 +32,18 @@ class MyCustomPlugin1 {
   }
 }
 
-test('Load a plugin and use it', () => {
+test('Load a typed plugin and use it', () => {
   const bpmnVisualization = new BpmnVisualization({ container: null!, plugins: [MyCustomPlugin1] });
   const plugin = bpmnVisualization.getPlugin<MyCustomPlugin1>('custom-plugin-1');
   expect(plugin).toBeInstanceOf(MyCustomPlugin1);
   expect(plugin.doSomethingSpecial()).toBe(5);
+});
+
+test('Load a unknown plugin and use it', () => {
+  const bpmnVisualization = new BpmnVisualization({ container: null!, plugins: [MyCustomPlugin1] });
+  const plugin = bpmnVisualization.getPlugin('custom-plugin-1');
+  expect(plugin).toBeInstanceOf(MyCustomPlugin1);
+  expect((plugin as MyCustomPlugin1).doSomethingSpecial()).toBe(5);
 });
 
 class MyCustomPlugin2 {

@@ -23,9 +23,6 @@ test('No error when no plugin is defined', () => {
 });
 
 class MyCustomPlugin {
-  constructor(bpmnVisualization) {
-    // do nothing
-  }
   getPluginId() {
     return 'custom-plugin';
   }

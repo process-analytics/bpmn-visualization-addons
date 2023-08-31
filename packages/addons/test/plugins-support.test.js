@@ -17,7 +17,7 @@ limitations under the License.
 import { expect, test } from '@jest/globals';
 import { BpmnVisualization } from '../dist';
 
-test('No errors when no plugins is set', () => {
+test('No error when no plugin is defined', () => {
   const bpmnVisualization = new BpmnVisualization({ container: null });
   expect(bpmnVisualization.getPlugin('unknown')).toBeUndefined();
 });

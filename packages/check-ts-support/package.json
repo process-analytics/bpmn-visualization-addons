@@ -1,6 +1,7 @@
 {
   "name": "check-lowest-typescript-version",
   "private": true,
+  "type": "module",
   "scripts": {
     "test": "tsc --version && tsc"
   },

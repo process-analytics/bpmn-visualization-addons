@@ -33,6 +33,7 @@ updates:
             - "tailwindcss"
        lint:
           patterns:
+            - "@types/eslint"
             - "@typescript-eslint/*"
             - "eslint"
             - "eslint-*"

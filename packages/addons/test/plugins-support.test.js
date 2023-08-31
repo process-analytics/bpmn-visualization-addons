@@ -22,18 +22,37 @@ test('No error when no plugin is defined', () => {
   expect(bpmnVisualization.getPlugin('unknown')).toBeUndefined();
 });
 
-class MyCustomPlugin {
+class MyCustomPlugin1 {
   getPluginId() {
-    return 'custom-plugin';
+    return 'custom-plugin-1';
   }
   doSomethingSpecial() {
     return 5;
   }
 }
 
-test('Load a plugin and retrieve it', () => {
-  const bpmnVisualization = new BpmnVisualization({ container: null, plugins: [MyCustomPlugin] });
-  const plugin = bpmnVisualization.getPlugin('custom-plugin');
-  expect(plugin).toBeDefined();
+test('Load a plugin and use it', () => {
+  const bpmnVisualization = new BpmnVisualization({ container: null, plugins: [MyCustomPlugin1] });
+  const plugin = bpmnVisualization.getPlugin('custom-plugin-1');
+  expect(plugin).toBeInstanceOf(MyCustomPlugin1);
   expect(plugin.doSomethingSpecial()).toBe(5);
+});
+
+class MyCustomPlugin2 {
+  getPluginId() {
+    return 'custom-plugin-2';
+  }
+  doSomethingSpecial() {
+    return 'I am awesome';
+  }
+}
+
+test('Load several plugins and use them', () => {
+  const bpmnVisualization = new BpmnVisualization({ container: null, plugins: [MyCustomPlugin2, MyCustomPlugin1] });
+  const plugin1 = bpmnVisualization.getPlugin('custom-plugin-1');
+  expect(plugin1).toBeInstanceOf(MyCustomPlugin1);
+
+  const plugin2 = bpmnVisualization.getPlugin('custom-plugin-2');
+  expect(plugin2).toBeInstanceOf(MyCustomPlugin2);
+  expect(plugin2.doSomethingSpecial()).toBe('I am awesome');
 });

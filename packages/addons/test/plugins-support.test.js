@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { expect, test } from '@jest/globals';
+import { describe, expect, test } from '@jest/globals';
 import { BpmnVisualization } from '../dist';
 
 test('No error when no plugin is defined', () => {
@@ -55,4 +55,37 @@ test('Load several plugins and use them', () => {
   const plugin2 = bpmnVisualization.getPlugin('custom-plugin-2');
   expect(plugin2).toBeInstanceOf(MyCustomPlugin2);
   expect(plugin2.doSomethingSpecial()).toBe('I am awesome');
+});
+
+describe('Prevent multiple plugins with the same ID from loading', () => {
+  test('Load the same plugin twice', () => {
+    expect(() => new BpmnVisualization({ container: null, plugins: [MyCustomPlugin1, MyCustomPlugin1] })).toThrow(
+      "Plugin loading fails. It is not possible to register multiple plugins with the same 'custom-plugin-1' identifier.",
+    );
+  });
+
+  test('Load 2 plugins with the same id', () => {
+    class MyCustomPluginWithSameId {
+      getPluginId() {
+        return 'custom-plugin-1';
+      }
+      doThings() {
+        return { prop: 'alpha' };
+      }
+    }
+    expect(() => new BpmnVisualization({ container: null, plugins: [MyCustomPluginWithSameId, MyCustomPlugin1] })).toThrow(
+      "Plugin loading fails. It is not possible to register multiple plugins with the same 'custom-plugin-1' identifier.",
+    );
+  });
+
+  test('Load 2 plugins with the same id - one extending the other', () => {
+    class MyCustomPlugin2SubClass extends MyCustomPlugin2 {
+      doAnotherThing() {
+        return 'this is the end';
+      }
+    }
+    expect(() => new BpmnVisualization({ container: null, plugins: [MyCustomPlugin2, MyCustomPlugin2SubClass] })).toThrow(
+      "Plugin loading fails. It is not possible to register multiple plugins with the same 'custom-plugin-2' identifier.",
+    );
+  });
 });

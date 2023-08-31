@@ -49,7 +49,11 @@ export class BpmnVisualization extends BaseBpmnVisualization {
 
     options.plugins?.forEach((constructor: PluginConstructor) => {
       const plugin = new constructor(this, options);
-      this.plugins.set(plugin.getPluginId(), plugin);
+      const pluginId = plugin.getPluginId();
+      if (this.plugins.has(pluginId)) {
+        throw new Error(`Plugin loading fails. It is not possible to register multiple plugins with the same '${pluginId}' identifier.`);
+      }
+      this.plugins.set(pluginId, plugin);
     });
   }
 

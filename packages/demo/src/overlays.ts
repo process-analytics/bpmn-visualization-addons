@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import './path-resolver.css';
+import './assets/path-resolver.css';
 import { FitType } from 'bpmn-visualization';
 import { BpmnVisualization, OverlaysPlugin } from '@process-analytics/bv-experimental-add-ons';
 // This is simple example of the BPMN diagram, loaded as string. The '?.raw' extension support is provided by Vite.

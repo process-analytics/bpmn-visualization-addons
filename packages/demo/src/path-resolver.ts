@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import './path-resolver.css';
+import './assets/path-resolver.css';
 import type { BpmnElement } from 'bpmn-visualization';
 import { BpmnVisualization, FitType } from 'bpmn-visualization';
 import { PathResolver, ShapeUtil } from '@process-analytics/bv-experimental-add-ons';

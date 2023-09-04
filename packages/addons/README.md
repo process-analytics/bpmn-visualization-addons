@@ -35,7 +35,7 @@ const bpmnVisualization = new BpmnVisualization({
     plugins: [MyPlugin]
 });
 // Retrieve the plugin by id. The id is defined in the plugin implementation
-const myPlugin = bpmnVisualization.getPlugin('my-plugin') as MyPlugin;
+const myPlugin = bpmnVisualization.getPlugin<MyPlugin>('my-plugin');
 myPlugin.aMethod();
 ```
 

@@ -14,9 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { copyFileSync } from 'node:fs';
-
-/* eslint-disable no-console -- provide message when installing packages */
-console.info('Replacing bpmn-visualization package.json by a patched version....');
-copyFileSync('./patches/bpmn-visualization_0.38.1.package.json', './node_modules/bpmn-visualization/package.json');
-console.info('File replaced!');
+export const insertBpmnContainerWithoutId = (): HTMLDivElement => {
+  const divElement = document.createElement('div');
+  document.body.insertBefore(divElement, document.body.firstChild);
+  return divElement;
+};

@@ -32,11 +32,19 @@ class MyCustomPlugin1 {
   }
 }
 
-test('Load a plugin and use it', () => {
+test('Load a typed plugin and use it', () => {
   const bpmnVisualization = new BpmnVisualization({ container: null!, plugins: [MyCustomPlugin1] });
-  const plugin = bpmnVisualization.getPlugin('custom-plugin-1') as MyCustomPlugin1;
+  const plugin = bpmnVisualization.getPlugin<MyCustomPlugin1>('custom-plugin-1');
   expect(plugin).toBeInstanceOf(MyCustomPlugin1);
   expect(plugin.doSomethingSpecial()).toBe(5);
+});
+
+test('Load a untyped plugin and use it', () => {
+  const bpmnVisualization = new BpmnVisualization({ container: null!, plugins: [MyCustomPlugin1] });
+  const plugin = bpmnVisualization.getPlugin('custom-plugin-1');
+  expect(plugin).toBeInstanceOf(MyCustomPlugin1);
+  expect(plugin.getPluginId()).toBe('custom-plugin-1');
+  expect((plugin as MyCustomPlugin1).doSomethingSpecial()).toBe(5);
 });
 
 class MyCustomPlugin2 {
@@ -53,7 +61,7 @@ test('Load several plugins and use them', () => {
   const plugin1 = bpmnVisualization.getPlugin('custom-plugin-1');
   expect(plugin1).toBeInstanceOf(MyCustomPlugin1);
 
-  const plugin2 = bpmnVisualization.getPlugin('custom-plugin-2') as MyCustomPlugin2;
+  const plugin2 = bpmnVisualization.getPlugin<MyCustomPlugin2>('custom-plugin-2');
   expect(plugin2).toBeInstanceOf(MyCustomPlugin2);
   expect(plugin2.doSomethingSpecial()).toBe('I am awesome');
 });

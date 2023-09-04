@@ -14,7 +14,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export * from './bpmn-elements';
-export * from './paths';
-export * from './plugins';
-export * from './plugins-support';
+import '@testing-library/jest-dom';

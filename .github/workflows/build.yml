@@ -30,13 +30,20 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build Setup
         uses: ./.github/actions/build-setup
       - name: Build Library
         run: npm run build -w packages/addons
       - name: Test
-        run: npm test -w packages/addons
+        id: 'test'
+        run: npm test -w packages/addons -- --coverage
+      - name: Upload coverage report
+        if: ${{ steps.test.outcome == 'success' || steps.test.outcome == 'failure' }} # when tests have been run
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-${{github.sha}}
+          path: packages/addons/coverage
       - name: Check TypeScript Support
         run: npm test -w packages/check-ts-support
       - name: Check Lint

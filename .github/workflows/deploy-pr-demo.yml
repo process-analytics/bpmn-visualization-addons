@@ -26,7 +26,7 @@ jobs:
     permissions:
       pull-requests: write # surge-preview: PR comments
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build Setup
         uses: ./.github/actions/build-setup
         if: github.event.action != 'closed'

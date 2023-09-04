@@ -17,6 +17,8 @@ limitations under the License.
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 const config = {
   extensionsToTreatAsEsm: ['.ts'],
+  // https://jestjs.io/docs/configuration#modulefileextensions-arraystring
+  moduleFileExtensions: ['ts', 'js', 'mjs', 'cjs', 'jsx', 'tsx', 'json', 'node'],
 
   testEnvironment: 'jsdom', // let access to the browser objects
   testMatch: ['**/test/**/?(*.)+(spec|test).[tj]s?(x)'],

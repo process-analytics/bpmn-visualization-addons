@@ -43,7 +43,7 @@ bpmnElementsRegistry.addOverlays('Activity_1u4jwkv', { label: '123', position: '
 bpmnElementsRegistry.addOverlays('Activity_083jf01', { label: '147', position: 'top-right', style: overlayStyle });
 
 // Configure button to hide/show overlays
-const overlaysPlugin = bpmnVisualization.getPlugin('overlays') as OverlaysPlugin;
+const overlaysPlugin = bpmnVisualization.getPlugin<OverlaysPlugin>('overlays');
 let isOverlaysVisible = true;
 const overlaysVisibilityButton = document.querySelector('#btn-overlays-visibility') as HTMLButtonElement;
 const handleOverlaysVisibility = (): void => {

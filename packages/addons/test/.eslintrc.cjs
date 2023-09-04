@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 module.exports = {
-  plugins: ['jest', 'jest-extended'],
+  plugins: ['jest'],
   env: {
     'jest/globals': true,
   },
@@ -24,7 +24,7 @@ module.exports = {
       version: require('jest/package.json').version,
     },
   },
-  extends: ['plugin:jest/recommended', 'plugin:jest/style', 'plugin:jest-extended/all'],
+  extends: ['plugin:jest/recommended', 'plugin:jest/style'],
   rules: {
     /* The rule list: https://github.com/jest-community/eslint-plugin-jest#rules */
     'jest/prefer-expect-resolves': 'warn',

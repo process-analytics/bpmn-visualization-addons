@@ -62,29 +62,3 @@ export class BpmnVisualization extends BaseBpmnVisualization {
     return this.plugins.get(id) as T;
   }
 }
-
-export class OverlaysPlugin implements Plugin {
-  private readonly overlayPane: HTMLElement;
-  private previousStyleDisplay?: string;
-  private isVisible = true;
-
-  constructor(bpmnVisualization: BpmnVisualization) {
-    const view = bpmnVisualization.graph.getView();
-    this.overlayPane = view.getOverlayPane() as HTMLElement;
-  }
-
-  setVisible(visible = true): void {
-    if (visible && !this.isVisible) {
-      this.overlayPane.style.display = this.previousStyleDisplay ?? '';
-      this.isVisible = true;
-    } else if (!visible && this.isVisible) {
-      this.previousStyleDisplay = this.overlayPane.style.display;
-      this.overlayPane.style.display = 'none';
-      this.isVisible = false;
-    }
-  }
-
-  getPluginId(): string {
-    return 'overlays';
-  }
-}

@@ -22,7 +22,4 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // assume that this module/file is stored in a direct sub-folder of the test root
 const testRootFolder = join(__dirname, '..');
 
-// export function readFileSync(relativePathFromTestRootFolder: string): string {
-export function readFileSync(relativePathFromTestRootFolder) {
-  return fsReadFileSync(join(testRootFolder, relativePathFromTestRootFolder), { encoding: 'utf-8' });
-}
+export const readFileSync = (relativePathFromTestRootFolder: string): string => fsReadFileSync(join(testRootFolder, relativePathFromTestRootFolder), { encoding: 'utf-8' });

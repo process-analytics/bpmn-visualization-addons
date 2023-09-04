@@ -15,9 +15,9 @@ limitations under the License.
 */
 
 import { describe, expect, test } from '@jest/globals';
-import { BpmnVisualization, OverlaysPlugin } from '../../dist/index.js';
-import { insertBpmnContainerWithoutId } from '../shared/dom-utils.js';
-import { readFileSync } from '../shared/io-utils.js';
+import { BpmnVisualization, OverlaysPlugin } from '../../src';
+import { insertBpmnContainerWithoutId } from '../shared/dom-utils';
+import { readFileSync } from '../shared/io-utils';
 
 /**
  * Information taken from bpmn-visualization QuerySelectors
@@ -42,18 +42,18 @@ import { readFileSync } from '../shared/io-utils.js';
  *   - 4th: decorators
  */
 class ContainersRetriever {
-  /**
-   * @param bpmnVisualization {BpmnVisualization}
-   */
-  constructor(bpmnVisualization) {
+  private bpmnContainer: HTMLElement;
+
+  constructor(bpmnVisualization: BpmnVisualization) {
     this.bpmnContainer = bpmnVisualization.graph.container;
   }
-  getElementsContainer() {
-    return this.bpmnContainer.querySelector('svg:nth-child(1) > g:nth-child(1) > g:nth-child(2)');
+
+  getElementsContainer(): HTMLElement {
+    return this.bpmnContainer.querySelector<HTMLElement>('svg:nth-child(1) > g:nth-child(1) > g:nth-child(2)')!;
   }
 
-  getOverlaysContainer() {
-    return this.bpmnContainer.querySelector('svg:nth-child(1) > g:nth-child(1) > g:nth-child(3)');
+  getOverlaysContainer(): HTMLElement {
+    return this.bpmnContainer.querySelector<HTMLElement>('svg:nth-child(1) > g:nth-child(1) > g:nth-child(3)')!;
   }
 }
 
@@ -85,8 +85,7 @@ describe('setVisible', () => {
     const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId(), plugins: [OverlaysPlugin] });
     bpmnVisualization.load(readFileSync('./fixtures/bpmn/1_pool_custom_colors_with_1_text-annotation.bpmn'));
 
-    /** @type OverlaysPlugin*/
-    const plugin = bpmnVisualization.getPlugin('overlays');
+    const plugin = bpmnVisualization.getPlugin('overlays') as OverlaysPlugin;
     plugin.setVisible(false);
     expect(new ContainersRetriever(bpmnVisualization).getOverlaysContainer()).not.toBeVisible();
   });
@@ -95,8 +94,7 @@ describe('setVisible', () => {
     const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId(), plugins: [OverlaysPlugin] });
     bpmnVisualization.load(readFileSync('./fixtures/bpmn/1_pool_custom_colors_with_1_text-annotation.bpmn'));
 
-    /** @type OverlaysPlugin*/
-    const plugin = bpmnVisualization.getPlugin('overlays');
+    const plugin = bpmnVisualization.getPlugin('overlays') as OverlaysPlugin;
     plugin.setVisible(false);
     plugin.setVisible();
     const overlaysContainer = new ContainersRetriever(bpmnVisualization).getOverlaysContainer();
@@ -110,8 +108,7 @@ describe('setVisible', () => {
     overlaysContainer.style.display = 'inherit';
     expect(overlaysContainer).toHaveStyle('display: inherit');
 
-    /** @type OverlaysPlugin*/
-    const plugin = bpmnVisualization.getPlugin('overlays');
+    const plugin = bpmnVisualization.getPlugin('overlays') as OverlaysPlugin;
     plugin.setVisible(false);
     plugin.setVisible();
     expect(overlaysContainer).toHaveStyle('display: inherit');
@@ -123,8 +120,7 @@ describe('setVisible', () => {
     overlaysContainer.style.display = 'inherit';
     expect(overlaysContainer).toHaveStyle('display: inherit');
 
-    /** @type OverlaysPlugin*/
-    const plugin = bpmnVisualization.getPlugin('overlays');
+    const plugin = bpmnVisualization.getPlugin('overlays') as OverlaysPlugin;
     plugin.setVisible(false);
     plugin.setVisible(false);
     plugin.setVisible();
@@ -137,8 +133,7 @@ describe('setVisible', () => {
     overlaysContainer.style.display = 'inherit';
     expect(overlaysContainer).toHaveStyle('display: inherit');
 
-    /** @type OverlaysPlugin*/
-    const plugin = bpmnVisualization.getPlugin('overlays');
+    const plugin = bpmnVisualization.getPlugin('overlays') as OverlaysPlugin;
     plugin.setVisible();
     expect(overlaysContainer).toHaveStyle('display: inherit');
   });
@@ -147,8 +142,7 @@ describe('setVisible', () => {
     const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId(), plugins: [OverlaysPlugin] });
     bpmnVisualization.load(readFileSync('./fixtures/bpmn/1_pool_custom_colors_with_1_text-annotation.bpmn'));
 
-    /** @type OverlaysPlugin*/
-    const plugin = bpmnVisualization.getPlugin('overlays');
+    const plugin = bpmnVisualization.getPlugin('overlays') as OverlaysPlugin;
     plugin.setVisible(false);
     plugin.setVisible(false);
     expect(new ContainersRetriever(bpmnVisualization).getOverlaysContainer()).not.toBeVisible();
@@ -158,8 +152,7 @@ describe('setVisible', () => {
     const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId(), plugins: [OverlaysPlugin] });
     bpmnVisualization.load(readFileSync('./fixtures/bpmn/1_pool_custom_colors_with_1_text-annotation.bpmn'));
 
-    /** @type OverlaysPlugin*/
-    const plugin = bpmnVisualization.getPlugin('overlays');
+    const plugin = bpmnVisualization.getPlugin('overlays') as OverlaysPlugin;
     plugin.setVisible();
     plugin.setVisible(true);
     plugin.setVisible();
@@ -170,8 +163,7 @@ describe('setVisible', () => {
     const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId(), plugins: [OverlaysPlugin] });
     bpmnVisualization.load(readFileSync('./fixtures/bpmn/1_pool_custom_colors_with_1_text-annotation.bpmn'));
 
-    /** @type OverlaysPlugin*/
-    const plugin = bpmnVisualization.getPlugin('overlays');
+    const plugin = bpmnVisualization.getPlugin('overlays') as OverlaysPlugin;
     plugin.setVisible(false);
     plugin.setVisible();
     plugin.setVisible(false);

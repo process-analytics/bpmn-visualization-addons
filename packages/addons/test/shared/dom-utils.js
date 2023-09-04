@@ -14,7 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export * from './bpmn-elements';
-export * from './paths';
-export * from './plugins';
-export * from './plugins-support';
+export function insertBpmnContainerWithoutId() {
+  // export function insertBpmnContainerWithoutId(): HTMLDivElement {
+  const divElement = document.createElement('div');
+  document.body.insertBefore(divElement, document.body.firstChild);
+  return divElement;
+}

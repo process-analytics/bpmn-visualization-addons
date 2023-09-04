@@ -31,12 +31,6 @@ updates:
             - "cssnano"
             - "postcss*"
             - "tailwindcss"
-       jest:
-          patterns:
-            - "@jest/*"
-            - "jest"
-            - "jest-*"
-            - "ts-jest"
        lint:
           patterns:
             - "@types/eslint"
@@ -45,6 +39,13 @@ updates:
             - "eslint-*"
             - "lint-staged"
             - "prettier"
+       test:
+         patterns:
+           - "@jest/*"
+           - "@testing-library/*"
+           - "jest"
+           - "jest-*"
+           - "ts-jest"
 
   - package-ecosystem: "github-actions"
     # Workflow files stored in the default location of `.github/workflows`

@@ -85,7 +85,7 @@ describe('setVisible', () => {
     const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId(), plugins: [OverlaysPlugin] });
     bpmnVisualization.load(readFileSync('./fixtures/bpmn/1_pool_custom_colors_with_1_text-annotation.bpmn'));
 
-    const plugin = bpmnVisualization.getPlugin('overlays') as OverlaysPlugin;
+    const plugin = bpmnVisualization.getPlugin<OverlaysPlugin>('overlays');
     plugin.setVisible(false);
     expect(new ContainersRetriever(bpmnVisualization).getOverlaysContainer()).not.toBeVisible();
   });
@@ -94,7 +94,7 @@ describe('setVisible', () => {
     const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId(), plugins: [OverlaysPlugin] });
     bpmnVisualization.load(readFileSync('./fixtures/bpmn/1_pool_custom_colors_with_1_text-annotation.bpmn'));
 
-    const plugin = bpmnVisualization.getPlugin('overlays') as OverlaysPlugin;
+    const plugin = bpmnVisualization.getPlugin<OverlaysPlugin>('overlays');
     plugin.setVisible(false);
     plugin.setVisible();
     const overlaysContainer = new ContainersRetriever(bpmnVisualization).getOverlaysContainer();
@@ -108,7 +108,7 @@ describe('setVisible', () => {
     overlaysContainer.style.display = 'inherit';
     expect(overlaysContainer).toHaveStyle('display: inherit');
 
-    const plugin = bpmnVisualization.getPlugin('overlays') as OverlaysPlugin;
+    const plugin = bpmnVisualization.getPlugin<OverlaysPlugin>('overlays');
     plugin.setVisible(false);
     plugin.setVisible();
     expect(overlaysContainer).toHaveStyle('display: inherit');
@@ -120,7 +120,7 @@ describe('setVisible', () => {
     overlaysContainer.style.display = 'inherit';
     expect(overlaysContainer).toHaveStyle('display: inherit');
 
-    const plugin = bpmnVisualization.getPlugin('overlays') as OverlaysPlugin;
+    const plugin = bpmnVisualization.getPlugin<OverlaysPlugin>('overlays');
     plugin.setVisible(false);
     plugin.setVisible(false);
     plugin.setVisible();
@@ -133,7 +133,7 @@ describe('setVisible', () => {
     overlaysContainer.style.display = 'inherit';
     expect(overlaysContainer).toHaveStyle('display: inherit');
 
-    const plugin = bpmnVisualization.getPlugin('overlays') as OverlaysPlugin;
+    const plugin = bpmnVisualization.getPlugin<OverlaysPlugin>('overlays');
     plugin.setVisible();
     expect(overlaysContainer).toHaveStyle('display: inherit');
   });
@@ -142,7 +142,7 @@ describe('setVisible', () => {
     const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId(), plugins: [OverlaysPlugin] });
     bpmnVisualization.load(readFileSync('./fixtures/bpmn/1_pool_custom_colors_with_1_text-annotation.bpmn'));
 
-    const plugin = bpmnVisualization.getPlugin('overlays') as OverlaysPlugin;
+    const plugin = bpmnVisualization.getPlugin<OverlaysPlugin>('overlays');
     plugin.setVisible(false);
     plugin.setVisible(false);
     expect(new ContainersRetriever(bpmnVisualization).getOverlaysContainer()).not.toBeVisible();
@@ -152,7 +152,7 @@ describe('setVisible', () => {
     const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId(), plugins: [OverlaysPlugin] });
     bpmnVisualization.load(readFileSync('./fixtures/bpmn/1_pool_custom_colors_with_1_text-annotation.bpmn'));
 
-    const plugin = bpmnVisualization.getPlugin('overlays') as OverlaysPlugin;
+    const plugin = bpmnVisualization.getPlugin<OverlaysPlugin>('overlays');
     plugin.setVisible();
     plugin.setVisible(true);
     plugin.setVisible();
@@ -163,7 +163,7 @@ describe('setVisible', () => {
     const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId(), plugins: [OverlaysPlugin] });
     bpmnVisualization.load(readFileSync('./fixtures/bpmn/1_pool_custom_colors_with_1_text-annotation.bpmn'));
 
-    const plugin = bpmnVisualization.getPlugin('overlays') as OverlaysPlugin;
+    const plugin = bpmnVisualization.getPlugin<OverlaysPlugin>('overlays');
     plugin.setVisible(false);
     plugin.setVisible();
     plugin.setVisible(false);

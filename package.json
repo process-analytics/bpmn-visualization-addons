@@ -10,7 +10,6 @@
     "lint-check": "eslint \"**/*.{js,cjs,mjs,ts,cts,mts}\" --max-warnings 0",
     "prepare": "run-s prepare:*",
     "prepare:husky": "husky install",
-    "prepare:patches": "node bin/patch.bpmn-visualization.js",
     "start": "concurrently -n lib,demo \"npm run dev -w packages/addons\" \"npm run dev -w packages/demo\""
   },
   "devDependencies": {

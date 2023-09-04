@@ -36,6 +36,7 @@ updates:
             - "@jest/*"
             - "jest"
             - "jest-*"
+            - "ts-jest"
        lint:
           patterns:
             - "@types/eslint"

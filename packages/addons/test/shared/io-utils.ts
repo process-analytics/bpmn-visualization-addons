@@ -14,7 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export * from './bpmn-elements';
-export * from './paths';
-export * from './plugins';
-export * from './plugins-support';
+import { readFileSync as fsReadFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+// assume that this module/file is stored in a direct sub-folder of the test root
+const testRootFolder = join(__dirname, '..');
+
+export const readFileSync = (relativePathFromTestRootFolder: string): string => fsReadFileSync(join(testRootFolder, relativePathFromTestRootFolder), { encoding: 'utf-8' });

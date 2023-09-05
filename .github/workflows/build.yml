@@ -7,6 +7,7 @@ on:
     paths:
       - '.github/workflows/build.yml'
       - 'packages/addons/src/**/*'
+      - 'packages/addons/test/**/*'
       - 'packages/addons/**/*.json'
       - 'packages/check-ts-support/src/**/*'
       - 'packages/check-ts-support/**/*.json'
@@ -19,6 +20,7 @@ on:
     paths:
       - '.github/workflows/build.yml'
       - 'packages/addons/src/**/*'
+      - 'packages/addons/test/**/*'
       - 'packages/addons/**/*.json'
       - 'packages/check-ts-support/src/**/*'
       - 'packages/check-ts-support/**/*.json'

@@ -15,8 +15,8 @@ limitations under the License.
 */
 
 import { describe, expect, test } from '@jest/globals';
-import type { Plugin } from '../src';
-import { BpmnVisualization } from '../src';
+import type { Plugin } from '../../src';
+import { BpmnVisualization } from '../../src';
 
 test('No error when no plugin is defined', () => {
   const bpmnVisualization = new BpmnVisualization({ container: null! });

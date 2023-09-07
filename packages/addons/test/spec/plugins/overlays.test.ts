@@ -15,9 +15,9 @@ limitations under the License.
 */
 
 import { describe, expect, test } from '@jest/globals';
-import { BpmnVisualization, OverlaysPlugin } from '../../src';
-import { insertBpmnContainerWithoutId } from '../shared/dom-utils';
-import { readFileSync } from '../shared/io-utils';
+import { BpmnVisualization, OverlaysPlugin } from '../../../src';
+import { insertBpmnContainerWithoutId } from '../../shared/dom-utils';
+import { readFileSync } from '../../shared/io-utils';
 
 /**
  * Information taken from bpmn-visualization QuerySelectors

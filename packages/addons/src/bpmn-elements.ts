@@ -14,35 +14,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { type BpmnElementsRegistry, type BpmnSemantic, ShapeBpmnElementKind, ShapeUtil as BaseShapeUtil } from 'bpmn-visualization';
+import type { BpmnSemantic, ElementsRegistry } from 'bpmn-visualization';
+import { ShapeBpmnElementKind, ShapeUtil as BaseShapeUtil } from 'bpmn-visualization';
 
 /**
  * Provides workarounds for {@link https://github.com/process-analytics/bpmn-visualization-js/issues/2453}.
  */
 export class BpmnElementsSearcher {
-  constructor(private readonly bpmnElementsRegistry: BpmnElementsRegistry) {}
+  constructor(private readonly elementsRegistry: ElementsRegistry) {}
 
   getElementIdByName(name: string): string | undefined {
     return this.getElementByName(name)?.id;
   }
 
-  // Only work for shape for now
+  // Only work for shape for now. See https://github.com/process-analytics/bv-experimental-add-ons/issues/113
   // not optimize, do a full lookup at each call
   private getElementByName(name: string): BpmnSemantic | undefined {
     const kinds = Object.values(ShapeBpmnElementKind);
     // Split query by kind to avoid returning a big chunk of data
     for (const kind of kinds) {
-      const bpmnSemantics = this.bpmnElementsRegistry
-        .getElementsByKinds(kind)
-        .map(elt => elt.bpmnSemantic)
-        .filter(Boolean);
-
-      // May have been implemented with: bpmnSemantics.filter(bpmnSemantic => bpmnSemantic.name === name)[0];
-      // Here, we stop the search right after we find a matching name
-      for (const bpmnSemantic of bpmnSemantics) {
-        if (bpmnSemantic.name === name) {
-          return bpmnSemantic;
-        }
+      const candidate = this.elementsRegistry.getModelElementsByKinds(kind).filter(element => element.name === name)[0];
+      if (candidate) {
+        return candidate;
       }
     }
 
@@ -51,7 +44,7 @@ export class BpmnElementsSearcher {
 }
 
 export class BpmnElementsIdentifier {
-  constructor(private readonly bpmnElementsRegistry: BpmnElementsRegistry) {}
+  constructor(private readonly elementsRegistry: ElementsRegistry) {}
 
   isActivity(elementId: string): boolean {
     return this.isInCategory(BaseShapeUtil.isActivity, elementId);
@@ -70,9 +63,9 @@ export class BpmnElementsIdentifier {
   }
 
   private isInCategory(categorizeFunction: (value: string) => boolean, elementId: string): boolean {
-    const elements = this.bpmnElementsRegistry.getElementsByIds(elementId);
+    const elements = this.elementsRegistry.getModelElementsByIds(elementId);
     if (elements.length > 0) {
-      const kind = elements[0].bpmnSemantic.kind;
+      const kind = elements[0].kind;
       return categorizeFunction(kind);
     }
 

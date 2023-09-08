@@ -26,9 +26,14 @@ describe('Find element ids by providing names', () => {
 
   const getModelElementName = (bpmnElementId: string): string => bpmnVisualization.bpmnElementsRegistry.getModelElementsByIds(bpmnElementId).map(element => element.name)[0];
 
-  test('an existing flow node', () => {
-    expect(bpmnElementsSearcher.getElementIdByName('start event 1')).toBe('StartEvent_1');
-    expect(bpmnElementsSearcher.getElementIdByName('gateway 1')).toBe('Gateway_1');
+  // : { type: string; name: string; expectedId: string }
+  test.each([
+    { name: 'start event 1', expectedId: 'StartEvent_1' },
+    { name: 'gateway 1', expectedId: 'Gateway_1' },
+    { name: 'seq flow 10', expectedId: 'sequenceFlow_10' },
+    { name: 'message flow 1', expectedId: 'messageFlow_1' },
+  ])('an existing element - $name', ({ name, expectedId }: { name: string; expectedId: string }) => {
+    expect(bpmnElementsSearcher.getElementIdByName(name)).toBe(expectedId);
   });
 
   test('several existing tasks with the same name', () => {
@@ -38,11 +43,6 @@ describe('Find element ids by providing names', () => {
 
     // Retrieve the first one
     expect(bpmnElementsSearcher.getElementIdByName('task 1')).toBe('Task_1');
-  });
-
-  test('an existing flow', () => {
-    expect(bpmnElementsSearcher.getElementIdByName('seq flow 10')).toBe('sequenceFlow_10');
-    expect(bpmnElementsSearcher.getElementIdByName('message flow 1')).toBe('messageFlow_1');
   });
 
   test('several existing sequence flows with the same name', () => {

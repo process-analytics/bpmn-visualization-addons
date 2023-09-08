@@ -29,7 +29,6 @@ export class BpmnElementsSearcher {
     return this.getElementByName(name)?.id;
   }
 
-  // Only work for shape for now. See https://github.com/process-analytics/bv-experimental-add-ons/issues/113
   // not optimize, do a full lookup at each call
   private getElementByName(name: string): BpmnSemantic | undefined {
     // Split query by kind to avoid returning a big chunk of data

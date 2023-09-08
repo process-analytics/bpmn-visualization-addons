@@ -26,7 +26,6 @@ describe('Find element ids by providing names', () => {
 
   const getModelElementName = (bpmnElementId: string): string => bpmnVisualization.bpmnElementsRegistry.getModelElementsByIds(bpmnElementId).map(element => element.name)[0];
 
-  // : { type: string; name: string; expectedId: string }
   test.each([
     { name: 'start event 1', expectedId: 'StartEvent_1' },
     { name: 'gateway 1', expectedId: 'Gateway_1' },

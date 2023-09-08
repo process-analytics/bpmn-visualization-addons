@@ -24,12 +24,33 @@ describe('Find element ids by providing names', () => {
   bpmnVisualization.load(readFileSync('./fixtures/bpmn/search-elements.bpmn'));
   const bpmnElementsSearcher = new BpmnElementsSearcher(bpmnVisualization.bpmnElementsRegistry);
 
-  test('name of an existing element', () => {
-    expect(bpmnElementsSearcher.getElementIdByName('start event 1')).toBe('StartEvent_1');
+  const getModelElementName = (bpmnElementId: string): string => bpmnVisualization.bpmnElementsRegistry.getModelElementsByIds(bpmnElementId).map(element => element.name)[0];
+
+  test.each([
+    { name: 'start event 1', expectedId: 'StartEvent_1' },
+    { name: 'gateway 1', expectedId: 'Gateway_1' },
+    { name: 'seq flow 10', expectedId: 'sequenceFlow_10' },
+    { name: 'message flow 1', expectedId: 'messageFlow_1' },
+  ])('an existing element - $name', ({ name, expectedId }: { name: string; expectedId: string }) => {
+    expect(bpmnElementsSearcher.getElementIdByName(name)).toBe(expectedId);
   });
 
-  test('name of of several existing tasks', () => {
+  test('several existing tasks with the same name', () => {
+    // Verify that several elements have the same names
+    expect(getModelElementName('Task_1')).toBe('task 1');
+    expect(getModelElementName('Task_with_same_name_as_Task_1')).toBe('task 1');
+
+    // Retrieve the first one
     expect(bpmnElementsSearcher.getElementIdByName('task 1')).toBe('Task_1');
+  });
+
+  test('several existing sequence flows with the same name', () => {
+    // Verify that several elements have the same names
+    expect(getModelElementName('sequenceFlow_11')).toBe('seq flow 11');
+    expect(getModelElementName('sequenceFlow_with_same_name_as_sequenceFlow_11')).toBe('seq flow 11');
+
+    // Retrieve the first one
+    expect(bpmnElementsSearcher.getElementIdByName('seq flow 11')).toBe('sequenceFlow_11');
   });
 
   test('unknown element', () => {

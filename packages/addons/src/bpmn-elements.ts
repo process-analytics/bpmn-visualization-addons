@@ -14,8 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import type { BpmnSemantic, ElementsRegistry } from 'bpmn-visualization';
-import { ShapeBpmnElementKind, ShapeUtil as BaseShapeUtil } from 'bpmn-visualization';
+import type { BpmnElementKind, BpmnSemantic, ElementsRegistry } from 'bpmn-visualization';
+import { FlowKind, ShapeBpmnElementKind, ShapeUtil as BaseShapeUtil } from 'bpmn-visualization';
+
+const allBpmnElementKinds: BpmnElementKind[] = [...Object.values(ShapeBpmnElementKind), ...Object.values(FlowKind)];
 
 /**
  * Provides workarounds for {@link https://github.com/process-analytics/bpmn-visualization-js/issues/2453}.
@@ -27,18 +29,15 @@ export class BpmnElementsSearcher {
     return this.getElementByName(name)?.id;
   }
 
-  // Only work for shape for now. See https://github.com/process-analytics/bv-experimental-add-ons/issues/113
   // not optimize, do a full lookup at each call
   private getElementByName(name: string): BpmnSemantic | undefined {
-    const kinds = Object.values(ShapeBpmnElementKind);
     // Split query by kind to avoid returning a big chunk of data
-    for (const kind of kinds) {
+    for (const kind of allBpmnElementKinds) {
       const candidate = this.elementsRegistry.getModelElementsByKinds(kind).filter(element => element.name === name)[0];
       if (candidate) {
         return candidate;
       }
     }
-
     return undefined;
   }
 }

@@ -3,6 +3,9 @@
   <bpmn:process id="Process_1" isExecutable="false">
     <bpmn:startEvent id="StartEvent_1" name="Start event">
       <bpmn:outgoing>Flow_StartEvent_1_Task_1</bpmn:outgoing>
+      <!-- extra wrong outgoing -->
+      <bpmn:outgoing>Flow_Task_1_Task_2</bpmn:outgoing>
+      <!-- END OF extra wrong outgoing -->
     </bpmn:startEvent>
     <bpmn:task id="Task_1" name="Task 1">
       <bpmn:incoming>Flow_StartEvent_1_Task_1</bpmn:incoming>
@@ -12,7 +15,10 @@
     <bpmn:sequenceFlow id="Flow_Task_1_Task_2" sourceRef="Task_1" targetRef="Task_2" />
     <bpmn:sequenceFlow id="Flow_Task_2_Task_3" sourceRef="Task_2" targetRef="Task_3" />
     <bpmn:endEvent id="EndEvent_1" name="End event">
-      <bpmn:incoming>Flow_0ukxpir</bpmn:incoming>
+      <bpmn:incoming>Flow_Task_4_EndEvent_1</bpmn:incoming>
+      <!-- extra wrong incoming -->
+      <bpmn:incoming>Flow_Task_3_Task_4</bpmn:incoming>
+      <!-- END OF extra wrong incoming -->
     </bpmn:endEvent>
     <bpmn:userTask id="Task_2" name="Task 2">
       <bpmn:incoming>Flow_Task_1_Task_2</bpmn:incoming>
@@ -22,10 +28,10 @@
       <bpmn:incoming>Flow_Task_2_Task_3</bpmn:incoming>
       <bpmn:outgoing>Flow_Task_3_Task_4</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_0ukxpir" sourceRef="Task_4" targetRef="EndEvent_1" />
+    <bpmn:sequenceFlow id="Flow_Task_4_EndEvent_1" sourceRef="Task_4" targetRef="EndEvent_1" />
     <bpmn:scriptTask id="Task_4" name="Task 4">
       <bpmn:incoming>Flow_Task_3_Task_4</bpmn:incoming>
-      <bpmn:outgoing>Flow_0ukxpir</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Task_4_EndEvent_1</bpmn:outgoing>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_Task_3_Task_4" sourceRef="Task_3" targetRef="Task_4" />
   </bpmn:process>
@@ -75,7 +81,7 @@
         <di:waypoint x="528" y="120" />
         <di:waypoint x="598" y="120" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0ukxpir_di" bpmnElement="Flow_0ukxpir">
+      <bpmndi:BPMNEdge id="Flow_Task_4_EndEvent_1_di" bpmnElement="Flow_Task_4_EndEvent_1">
         <di:waypoint x="890" y="120" />
         <di:waypoint x="972" y="120" />
       </bpmndi:BPMNEdge>

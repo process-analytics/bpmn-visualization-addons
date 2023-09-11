@@ -83,4 +83,21 @@ describe('getVisitedEdges', () => {
     ensureElementsExistInModel(ids);
     expect(pathResolver.getVisitedEdges(ids)).toEqual(['Flow_StartEvent_1_Task_1']);
   });
+
+  test('Using a diagram with wrong incoming and outgoing', () => {
+    //   start event  --> task 1 --> task 2 --> task 3 --> task 4 --> end event
+    bpmnVisualization.load(readFileSync('./fixtures/bpmn/paths/simple-with-wrong-incoming-and-outgoing.bpmn'));
+    const ids = [
+      'Task_2',
+      'Task_3',
+      'StartEvent_1', // has extra outgoing flow from Task_1 to Task_2
+      'EndEvent_1', // // has extra incoming flow from Task_3 to Task_4
+    ];
+    ensureElementsExistInModel(ids);
+    expect(pathResolver.getVisitedEdges(ids)).toEqual([
+      'Flow_Task_1_Task_2', // from wrong outgoing StartEvent_1
+      'Flow_Task_2_Task_3',
+      'Flow_Task_3_Task_4', // from wrong incoming EndEvent_1
+    ]);
+  });
 });

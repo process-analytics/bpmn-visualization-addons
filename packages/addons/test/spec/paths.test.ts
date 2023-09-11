@@ -23,9 +23,13 @@ describe('getVisitedEdges', () => {
   bpmnVisualization.load(readFileSync('./fixtures/bpmn/paths/simple.bpmn'));
   const pathResolver = new PathResolver(bpmnVisualization.bpmnElementsRegistry);
 
+  const ensureElementsExistInModel = (ids: string[]): void => {
+    expect(bpmnVisualization.bpmnElementsRegistry.getModelElementsByIds(ids)).toHaveLength(ids.length);
+  };
+
   test('Passing a single flow node id', () => {
     const ids = ['Task_2_1'];
-    expect(bpmnVisualization.bpmnElementsRegistry.getModelElementsByIds(ids)).toHaveLength(ids.length); // ensure passed elements exist in the model
+    ensureElementsExistInModel(ids);
     expect(pathResolver.getVisitedEdges(ids)).toEqual([]);
   });
 
@@ -44,8 +48,7 @@ describe('getVisitedEdges', () => {
       'StartEvent_1',
       'EndEvent_1',
     ];
-    // TODO extract function to remove duplication and remove comment
-    expect(bpmnVisualization.bpmnElementsRegistry.getModelElementsByIds(ids)).toHaveLength(ids.length); // ensure passed elements exist in the model
+    ensureElementsExistInModel(ids);
     expect(pathResolver.getVisitedEdges(ids)).toEqual(['Flow_Gateway_1_Task_2_2', 'Flow_Task_2_2_IntermediateEvent_1', 'Flow_IntermediateEvent_1_Gateway_2']);
   });
 
@@ -57,13 +60,13 @@ describe('getVisitedEdges', () => {
       // edges
       'Flow_Task_2_2_IntermediateEvent_1',
     ];
-    expect(bpmnVisualization.bpmnElementsRegistry.getModelElementsByIds(ids)).toHaveLength(ids.length); // ensure passed elements exist in the model
+    ensureElementsExistInModel(ids);
     expect(pathResolver.getVisitedEdges([])).toEqual(['Flow_StartEvent_1_Task_1']);
   });
 
   test('Passing edge ids only', () => {
     const ids = ['Flow_StartEvent_1_Task_1', 'Flow_12pv067'];
-    expect(bpmnVisualization.bpmnElementsRegistry.getModelElementsByIds(ids)).toHaveLength(ids.length); // ensure passed elements exist in the model
+    ensureElementsExistInModel(ids);
     expect(pathResolver.getVisitedEdges(ids)).toEqual([]);
   });
 });

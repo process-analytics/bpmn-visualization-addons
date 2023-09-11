@@ -13,20 +13,34 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 import { describe, expect, test } from '@jest/globals';
-import { BpmnElementsIdentifier, BpmnVisualization } from '../../src';
+import { BpmnVisualization, PathResolver } from '../../src';
 import { readFileSync } from '../shared/io-utils';
 
-describe('Identify elements', () => {
+describe('getVisitedEdges', () => {
   const bpmnVisualization = new BpmnVisualization({ container: null! });
-  bpmnVisualization.load(readFileSync('./fixtures/bpmn/search-elements.bpmn'));
-  const bpmnElementsIdentifier = new BpmnElementsIdentifier(bpmnVisualization.bpmnElementsRegistry);
+  bpmnVisualization.load(readFileSync('./fixtures/bpmn/paths/simple.bpmn'));
+  const pathResolver = new PathResolver(bpmnVisualization.bpmnElementsRegistry);
 
-  test('task', () => {
-    const taskId = 'Task_2_1';
-    expect(bpmnElementsIdentifier.isActivity(taskId)).toBeTruthy();
-    expect(bpmnElementsIdentifier.isBpmnArtifact(taskId)).toBeFalsy();
-    expect(bpmnElementsIdentifier.isEvent(taskId)).toBeFalsy();
-    expect(bpmnElementsIdentifier.isGateway(taskId)).toBeFalsy();
+  test('Passing a single flow node id', () => {
+    expect(pathResolver.getVisitedEdges(['Task_2_1'])).toEqual([]);
   });
+
+  test('Passing an empty array', () => {
+    expect(pathResolver.getVisitedEdges([])).toEqual([]);
+  });
+
+  test('Passing flow node ids', () => {
+    // some connected
+    // other not connected
+    expect(pathResolver.getVisitedEdges(['Task_2_1'])).toBe(['ylo']);
+  });
+
+  test('Passing flow node and flow ids', () => {
+    // TODO return the passed edges?
+    expect(pathResolver.getVisitedEdges([])).toBe(['ylo']);
+  });
+
+  // TODO edge ids only --> same array
 });

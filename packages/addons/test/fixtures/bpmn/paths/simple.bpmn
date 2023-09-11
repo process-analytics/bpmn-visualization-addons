@@ -2,13 +2,13 @@
 <bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
   <bpmn:process id="Process_1" isExecutable="false">
     <bpmn:startEvent id="StartEvent_1" name="Start event">
-      <bpmn:outgoing>Flow_17a0d5j</bpmn:outgoing>
+      <bpmn:outgoing>Flow_StartEvent_1_Task_1</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:task id="Task_1" name="Task 1">
-      <bpmn:incoming>Flow_17a0d5j</bpmn:incoming>
+      <bpmn:incoming>Flow_StartEvent_1_Task_1</bpmn:incoming>
       <bpmn:outgoing>Flow_12pv067</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:sequenceFlow id="Flow_17a0d5j" sourceRef="StartEvent_1" targetRef="Task_1" />
+    <bpmn:sequenceFlow id="Flow_StartEvent_1_Task_1" sourceRef="StartEvent_1" targetRef="Task_1" />
     <bpmn:exclusiveGateway id="Gateway_1">
       <bpmn:incoming>Flow_12pv067</bpmn:incoming>
       <bpmn:outgoing>Flow_1qsbuis</bpmn:outgoing>
@@ -90,7 +90,7 @@
           <dc:Bounds x="670" y="255" width="61" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_17a0d5j_di" bpmnElement="Flow_17a0d5j">
+      <bpmndi:BPMNEdge id="Flow_StartEvent_1_Task_1_di" bpmnElement="Flow_StartEvent_1_Task_1">
         <di:waypoint x="209" y="120" />
         <di:waypoint x="260" y="120" />
       </bpmndi:BPMNEdge>

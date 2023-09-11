@@ -24,7 +24,9 @@ describe('getVisitedEdges', () => {
   const pathResolver = new PathResolver(bpmnVisualization.bpmnElementsRegistry);
 
   test('Passing a single flow node id', () => {
-    expect(pathResolver.getVisitedEdges(['Task_2_1'])).toEqual([]);
+    const ids = ['Task_2_1'];
+    expect(bpmnVisualization.bpmnElementsRegistry.getModelElementsByIds(ids)).toHaveLength(ids.length); // ensure passed elements exist in the model
+    expect(pathResolver.getVisitedEdges(ids)).toEqual([]);
   });
 
   test('Passing an empty array', () => {
@@ -32,7 +34,7 @@ describe('getVisitedEdges', () => {
   });
 
   test('Passing flow node ids', () => {
-    const shapeIds = [
+    const ids = [
       // some are connected
       'Gateway_1',
       'Task_2_2',
@@ -42,16 +44,26 @@ describe('getVisitedEdges', () => {
       'StartEvent_1',
       'EndEvent_1',
     ];
-    expect(pathResolver.getVisitedEdges(shapeIds)).toEqual(['Flow_Gateway_1_Task_2_2', 'Flow_Task_2_2_IntermediateEvent_1', 'Flow_IntermediateEvent_1_Gateway_2']);
+    // TODO extract function to remove duplication and remove comment
+    expect(bpmnVisualization.bpmnElementsRegistry.getModelElementsByIds(ids)).toHaveLength(ids.length); // ensure passed elements exist in the model
+    expect(pathResolver.getVisitedEdges(ids)).toEqual(['Flow_Gateway_1_Task_2_2', 'Flow_Task_2_2_IntermediateEvent_1', 'Flow_IntermediateEvent_1_Gateway_2']);
   });
 
-  test.skip('Passing flow node and flow ids', () => {
-    // TODO return the passed edges?
-    expect(pathResolver.getVisitedEdges([])).toBe(['ylo']);
+  test('Passing shape and edge ids', () => {
+    const ids = [
+      // shapes
+      'Task_1',
+      'StartEvent_1',
+      // edges
+      'Flow_Task_2_2_IntermediateEvent_1',
+    ];
+    expect(bpmnVisualization.bpmnElementsRegistry.getModelElementsByIds(ids)).toHaveLength(ids.length); // ensure passed elements exist in the model
+    expect(pathResolver.getVisitedEdges([])).toEqual(['Flow_StartEvent_1_Task_1']);
   });
 
-  test.skip('Passing flow ids only', () => {
-    // TODO edge ids only --> same array
-    expect(pathResolver.getVisitedEdges([])).toBe(['ylo']);
+  test('Passing edge ids only', () => {
+    const ids = ['Flow_StartEvent_1_Task_1', 'Flow_12pv067'];
+    expect(bpmnVisualization.bpmnElementsRegistry.getModelElementsByIds(ids)).toHaveLength(ids.length); // ensure passed elements exist in the model
+    expect(pathResolver.getVisitedEdges(ids)).toEqual([]);
   });
 });

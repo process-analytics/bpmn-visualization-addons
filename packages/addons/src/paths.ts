@@ -22,15 +22,20 @@ import type { BpmnElementsRegistry, EdgeBpmnSemantic, ShapeBpmnSemantic } from '
 export class PathResolver {
   constructor(private readonly bpmnElementsRegistry: BpmnElementsRegistry) {}
 
+  /**
+   * Currently, if the shapeIds parameter contains ids related to edges, these ids are ignored and not returned as part of the visited edges.
+   *
+   * @param shapeIds
+   */
   getVisitedEdges(shapeIds: string[]): string[] {
     const edgeIds = new Set<string>();
     for (const shapeId of shapeIds) {
       const shapeElt = this.bpmnElementsRegistry.getModelElementsByIds(shapeId)[0];
-      if (!shapeElt) {
+      // filter non existing element and edge
+      if (!shapeElt || !shapeElt.isShape) {
         continue;
       }
 
-      // TODO filter edge
       const bpmnSemantic = shapeElt as ShapeBpmnSemantic;
       const incomingEdges = bpmnSemantic.incomingIds;
       const outgoingEdges = bpmnSemantic.outgoingIds;

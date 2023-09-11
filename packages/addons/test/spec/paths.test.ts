@@ -61,7 +61,7 @@ describe('getVisitedEdges', () => {
       'Flow_Task_2_2_IntermediateEvent_1',
     ];
     ensureElementsExistInModel(ids);
-    expect(pathResolver.getVisitedEdges([])).toEqual(['Flow_StartEvent_1_Task_1']);
+    expect(pathResolver.getVisitedEdges(ids)).toEqual(['Flow_StartEvent_1_Task_1']);
   });
 
   test('Passing edge ids only', () => {

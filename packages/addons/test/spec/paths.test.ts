@@ -42,7 +42,7 @@ describe('getVisitedEdges', () => {
       'StartEvent_1',
       'EndEvent_1',
     ];
-    expect(pathResolver.getVisitedEdges(shapeIds)).toBe(['Flow_Gateway_1_Task_2_2', 'Flow_Task_2_2_IntermediateEvent_1', 'Flow_IntermediateEvent_1_Gateway_2']);
+    expect(pathResolver.getVisitedEdges(shapeIds)).toEqual(['Flow_Gateway_1_Task_2_2', 'Flow_Task_2_2_IntermediateEvent_1', 'Flow_IntermediateEvent_1_Gateway_2']);
   });
 
   test.skip('Passing flow node and flow ids', () => {

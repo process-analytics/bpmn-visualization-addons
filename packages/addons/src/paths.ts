@@ -37,7 +37,7 @@ export class PathResolver {
       outgoingIds.push(...shape.outgoingIds);
     }
 
-    // remove duplicates
+    // find edges and remove duplicates
     return [...new Set(incomingIds.filter(incomingId => outgoingIds.includes(incomingId)))];
   }
 }

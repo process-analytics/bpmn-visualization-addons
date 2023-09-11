@@ -25,25 +25,26 @@ export class PathResolver {
   getVisitedEdges(shapeIds: string[]): string[] {
     const edgeIds = new Set<string>();
     for (const shapeId of shapeIds) {
-      const shapeElt = this.bpmnElementsRegistry.getElementsByIds(shapeId)[0];
+      const shapeElt = this.bpmnElementsRegistry.getModelElementsByIds(shapeId)[0];
       if (!shapeElt) {
         continue;
       }
 
-      const bpmnSemantic = shapeElt.bpmnSemantic as ShapeBpmnSemantic;
+      // TODO filter edge
+      const bpmnSemantic = shapeElt as ShapeBpmnSemantic;
       const incomingEdges = bpmnSemantic.incomingIds;
       const outgoingEdges = bpmnSemantic.outgoingIds;
       for (const edgeId of incomingEdges) {
-        const edgeElement = this.bpmnElementsRegistry.getElementsByIds(edgeId)[0];
-        const sourceRef = (edgeElement.bpmnSemantic as EdgeBpmnSemantic).sourceRefId;
+        const edgeElement = this.bpmnElementsRegistry.getModelElementsByIds(edgeId)[0];
+        const sourceRef = (edgeElement as EdgeBpmnSemantic).sourceRefId;
         if (shapeIds.includes(sourceRef)) {
           edgeIds.add(edgeId);
         }
       }
 
       for (const edgeId of outgoingEdges) {
-        const edgeElement = this.bpmnElementsRegistry.getElementsByIds(edgeId)[0];
-        const targetRef = (edgeElement.bpmnSemantic as EdgeBpmnSemantic).targetRefId;
+        const edgeElement = this.bpmnElementsRegistry.getModelElementsByIds(edgeId)[0];
+        const targetRef = (edgeElement as EdgeBpmnSemantic).targetRefId;
         if (shapeIds.includes(targetRef)) {
           edgeIds.add(edgeId);
         }

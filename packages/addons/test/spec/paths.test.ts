@@ -32,15 +32,26 @@ describe('getVisitedEdges', () => {
   });
 
   test('Passing flow node ids', () => {
-    // some connected
-    // other not connected
-    expect(pathResolver.getVisitedEdges(['Task_2_1'])).toBe(['ylo']);
+    const shapeIds = [
+      // some are connected
+      'Gateway_1',
+      'Task_2_2',
+      'IntermediateEvent_1',
+      'Gateway_2',
+      // others not connected
+      'StartEvent_1',
+      'EndEvent_1',
+    ];
+    expect(pathResolver.getVisitedEdges(shapeIds)).toBe(['Flow_Gateway_1_Task_2_2', 'Flow_Task_2_2_IntermediateEvent_1', 'Flow_IntermediateEvent_1_Gateway_2']);
   });
 
-  test('Passing flow node and flow ids', () => {
+  test.skip('Passing flow node and flow ids', () => {
     // TODO return the passed edges?
     expect(pathResolver.getVisitedEdges([])).toBe(['ylo']);
   });
 
-  // TODO edge ids only --> same array
+  test.skip('Passing flow ids only', () => {
+    // TODO edge ids only --> same array
+    expect(pathResolver.getVisitedEdges([])).toBe(['ylo']);
+  });
 });

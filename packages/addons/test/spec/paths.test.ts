@@ -69,4 +69,18 @@ describe('getVisitedEdges', () => {
     ensureElementsExistInModel(ids);
     expect(pathResolver.getVisitedEdges(ids)).toEqual([]);
   });
+
+  test('Passing the same shape ids several times', () => {
+    const ids = [
+      // shapes
+      'Task_1',
+      'StartEvent_1',
+      // again
+      'StartEvent_1',
+      'Task_1',
+      'Task_1',
+    ];
+    ensureElementsExistInModel(ids);
+    expect(pathResolver.getVisitedEdges(ids)).toEqual(['Flow_StartEvent_1_Task_1']);
+  });
 });

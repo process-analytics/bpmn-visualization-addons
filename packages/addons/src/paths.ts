@@ -25,7 +25,7 @@ export class PathResolver {
   /**
    * Currently, if the shapeIds parameter contains ids related to edges, these ids are ignored and not returned as part of the visited edges.
    *
-   * @param shapeIds
+   * @param shapeIds the ids used to compute the visited edges
    */
   getVisitedEdges(shapeIds: string[]): string[] {
     const incomingIds = [] as string[];
@@ -37,7 +37,7 @@ export class PathResolver {
       outgoingIds.push(...shape.outgoingIds);
     }
 
-    // TODO add test to show we manage duplicates
-    return incomingIds.filter(incomingId => outgoingIds.includes(incomingId));
+    // remove duplicates
+    return [...new Set(incomingIds.filter(incomingId => outgoingIds.includes(incomingId)))];
   }
 }

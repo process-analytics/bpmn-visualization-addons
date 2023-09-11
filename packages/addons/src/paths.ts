@@ -32,7 +32,7 @@ export class PathResolver {
     for (const shapeId of shapeIds) {
       const shapeElt = this.bpmnElementsRegistry.getModelElementsByIds(shapeId)[0];
       // filter non existing element and edge
-      if (!shapeElt || !shapeElt.isShape) {
+      if (!shapeElt?.isShape) {
         continue;
       }
 

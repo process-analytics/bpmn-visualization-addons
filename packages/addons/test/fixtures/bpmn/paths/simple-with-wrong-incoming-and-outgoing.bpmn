@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="Process_1" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_1" name="Start event">
+      <bpmn:outgoing>Flow_StartEvent_1_Task_1</bpmn:outgoing>
+      <!-- extra wrong outgoing -->
+      <bpmn:outgoing>Flow_Task_1_Task_2</bpmn:outgoing>
+      <!-- END OF extra wrong outgoing -->
+    </bpmn:startEvent>
+    <bpmn:task id="Task_1" name="Task 1">
+      <bpmn:incoming>Flow_StartEvent_1_Task_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_Task_1_Task_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_StartEvent_1_Task_1" sourceRef="StartEvent_1" targetRef="Task_1" />
+    <bpmn:sequenceFlow id="Flow_Task_1_Task_2" sourceRef="Task_1" targetRef="Task_2" />
+    <bpmn:sequenceFlow id="Flow_Task_2_Task_3" sourceRef="Task_2" targetRef="Task_3" />
+    <bpmn:endEvent id="EndEvent_1" name="End event">
+      <bpmn:incoming>Flow_Task_4_EndEvent_1</bpmn:incoming>
+      <!-- extra wrong incoming -->
+      <bpmn:incoming>Flow_Task_3_Task_4</bpmn:incoming>
+      <!-- END OF extra wrong incoming -->
+    </bpmn:endEvent>
+    <bpmn:userTask id="Task_2" name="Task 2">
+      <bpmn:incoming>Flow_Task_1_Task_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_Task_2_Task_3</bpmn:outgoing>
+      <!-- extra duplicated outgoing -->
+      <bpmn:outgoing>Flow_Task_2_Task_3</bpmn:outgoing>
+      <!-- END OF extra duplicated outgoing -->
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_3" name="Task 3">
+      <bpmn:incoming>Flow_Task_2_Task_3</bpmn:incoming>
+      <!-- extra duplicated incoming -->
+      <bpmn:incoming>Flow_Task_2_Task_3</bpmn:incoming>
+      <!-- END OF extra duplicated incoming -->
+      <bpmn:outgoing>Flow_Task_3_Task_4</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_Task_4_EndEvent_1" sourceRef="Task_4" targetRef="EndEvent_1" />
+    <bpmn:scriptTask id="Task_4" name="Task 4">
+      <bpmn:incoming>Flow_Task_3_Task_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_Task_4_EndEvent_1</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_Task_3_Task_4" sourceRef="Task_3" targetRef="Task_4" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="173" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="164" y="145" width="54" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_1_di" bpmnElement="Task_1">
+        <dc:Bounds x="260" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_2_di" bpmnElement="Task_2">
+        <dc:Bounds x="428" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_3_di" bpmnElement="Task_3">
+        <dc:Bounds x="598" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_4_di" bpmnElement="Task_4">
+        <dc:Bounds x="790" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1">
+        <dc:Bounds x="972" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="965" y="78" width="50" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_StartEvent_1_Task_1_di" bpmnElement="Flow_StartEvent_1_Task_1">
+        <di:waypoint x="209" y="120" />
+        <di:waypoint x="260" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Task_1_Task_2_di" bpmnElement="Flow_Task_1_Task_2">
+        <di:waypoint x="360" y="120" />
+        <di:waypoint x="428" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Task_3_Task_4_di" bpmnElement="Flow_Task_3_Task_4">
+        <di:waypoint x="698" y="120" />
+        <di:waypoint x="790" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Task_2_Task_3_di" bpmnElement="Flow_Task_2_Task_3">
+        <di:waypoint x="528" y="120" />
+        <di:waypoint x="598" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Task_4_EndEvent_1_di" bpmnElement="Flow_Task_4_EndEvent_1">
+        <di:waypoint x="890" y="120" />
+        <di:waypoint x="972" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

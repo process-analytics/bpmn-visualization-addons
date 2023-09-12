@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import type { BpmnElementsRegistry, EdgeBpmnSemantic, ShapeBpmnSemantic } from 'bpmn-visualization';
+import type { BpmnElementsRegistry, ShapeBpmnSemantic } from 'bpmn-visualization';
 
 /**
  * Experimental implementation for {@link https://github.com/process-analytics/bpmn-visualization-js/issues/930}
@@ -22,34 +22,22 @@ import type { BpmnElementsRegistry, EdgeBpmnSemantic, ShapeBpmnSemantic } from '
 export class PathResolver {
   constructor(private readonly bpmnElementsRegistry: BpmnElementsRegistry) {}
 
+  /**
+   * Currently, if the `shapeIds` parameter contains ids related to edges, these ids are ignored and not returned as part of the visited edges.
+   *
+   * @param shapeIds the ids used to compute the visited edges
+   */
   getVisitedEdges(shapeIds: string[]): string[] {
-    const edgeIds = new Set<string>();
-    for (const shapeId of shapeIds) {
-      const shapeElt = this.bpmnElementsRegistry.getElementsByIds(shapeId)[0];
-      if (!shapeElt) {
-        continue;
-      }
+    const incomingIds = [] as string[];
+    const outgoingIds = [] as string[];
 
-      const bpmnSemantic = shapeElt.bpmnSemantic as ShapeBpmnSemantic;
-      const incomingEdges = bpmnSemantic.incomingIds;
-      const outgoingEdges = bpmnSemantic.outgoingIds;
-      for (const edgeId of incomingEdges) {
-        const edgeElement = this.bpmnElementsRegistry.getElementsByIds(edgeId)[0];
-        const sourceRef = (edgeElement.bpmnSemantic as EdgeBpmnSemantic).sourceRefId;
-        if (shapeIds.includes(sourceRef)) {
-          edgeIds.add(edgeId);
-        }
-      }
-
-      for (const edgeId of outgoingEdges) {
-        const edgeElement = this.bpmnElementsRegistry.getElementsByIds(edgeId)[0];
-        const targetRef = (edgeElement.bpmnSemantic as EdgeBpmnSemantic).targetRefId;
-        if (shapeIds.includes(targetRef)) {
-          edgeIds.add(edgeId);
-        }
-      }
+    const shapes = this.bpmnElementsRegistry.getModelElementsByIds(shapeIds).filter(element => element.isShape) as ShapeBpmnSemantic[];
+    for (const shape of shapes) {
+      incomingIds.push(...shape.incomingIds);
+      outgoingIds.push(...shape.outgoingIds);
     }
 
-    return Array.from(edgeIds);
+    // find edges and remove duplicates
+    return [...new Set(incomingIds.filter(incomingId => outgoingIds.includes(incomingId)))];
   }
 }

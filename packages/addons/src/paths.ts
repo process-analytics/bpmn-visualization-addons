@@ -23,7 +23,7 @@ export class PathResolver {
   constructor(private readonly bpmnElementsRegistry: BpmnElementsRegistry) {}
 
   /**
-   * Currently, if the shapeIds parameter contains ids related to edges, these ids are ignored and not returned as part of the visited edges.
+   * Currently, if the `shapeIds` parameter contains ids related to edges, these ids are ignored and not returned as part of the visited edges.
    *
    * @param shapeIds the ids used to compute the visited edges
    */

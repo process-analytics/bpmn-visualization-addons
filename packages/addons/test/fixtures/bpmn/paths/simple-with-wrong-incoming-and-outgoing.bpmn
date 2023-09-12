@@ -23,9 +23,15 @@
     <bpmn:userTask id="Task_2" name="Task 2">
       <bpmn:incoming>Flow_Task_1_Task_2</bpmn:incoming>
       <bpmn:outgoing>Flow_Task_2_Task_3</bpmn:outgoing>
+      <!-- extra duplicated outgoing -->
+      <bpmn:outgoing>Flow_Task_2_Task_3</bpmn:outgoing>
+      <!-- END OF extra duplicated outgoing -->
     </bpmn:userTask>
     <bpmn:serviceTask id="Task_3" name="Task 3">
       <bpmn:incoming>Flow_Task_2_Task_3</bpmn:incoming>
+      <!-- extra duplicated incoming -->
+      <bpmn:incoming>Flow_Task_2_Task_3</bpmn:incoming>
+      <!-- END OF extra duplicated incoming -->
       <bpmn:outgoing>Flow_Task_3_Task_4</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_Task_4_EndEvent_1" sourceRef="Task_4" targetRef="EndEvent_1" />

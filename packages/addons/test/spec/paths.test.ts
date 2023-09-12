@@ -85,11 +85,13 @@ describe('getVisitedEdges', () => {
   });
 
   test('Using a diagram with wrong incoming and outgoing', () => {
-    //   start event  --> task 1 --> task 2 --> task 3 --> task 4 --> end event
+    // In this test, we verify the impact of wrong incoming and outgoing properties in the returned "edge ids"
+    // Model: start event  --> task 1 --> task 2 --> task 3 --> task 4 --> end event
     bpmnVisualization.load(readFileSync('./fixtures/bpmn/paths/simple-with-wrong-incoming-and-outgoing.bpmn'));
     const ids = [
       'Task_2',
       'Task_3',
+      // The following ids shouldn't be returned once https://github.com/process-analytics/bpmn-visualization-js/issues/2852 is implemented
       'StartEvent_1', // has extra outgoing flow from Task_1 to Task_2
       'EndEvent_1', // // has extra incoming flow from Task_3 to Task_4
     ];

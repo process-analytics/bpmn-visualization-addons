@@ -31,19 +31,18 @@ const bpmnVisualization = new BpmnVisualization({
 bpmnVisualization.load(diagram, { fit: { type: FitType.Center, margin: 20 } });
 
 // Add overlays
-const bpmnElementsRegistry = bpmnVisualization.bpmnElementsRegistry;
+const overlaysPlugin = bpmnVisualization.getPlugin<OverlaysPlugin>('overlays');
 const overlayStyle = { stroke: { color: 'chartreuse' }, fill: { color: 'chartreuse' }, font: { color: 'white', size: 18 } };
 // SRM subprocess
-bpmnElementsRegistry.addOverlays('Activity_0ec8azh', { label: '123', position: 'top-center', style: overlayStyle });
+overlaysPlugin.addOverlays('Activity_0ec8azh', { label: '123', position: 'top-center', style: overlayStyle });
 // Record Service Entry Sheet
-bpmnElementsRegistry.addOverlays('Activity_06cvihl', { label: '100', position: 'top-left', style: overlayStyle });
+overlaysPlugin.addOverlays('Activity_06cvihl', { label: '100', position: 'top-left', style: overlayStyle });
 // Record Invoice Receipt
-bpmnElementsRegistry.addOverlays('Activity_1u4jwkv', { label: '123', position: 'bottom-center', style: overlayStyle });
+overlaysPlugin.addOverlays('Activity_1u4jwkv', { label: '123', position: 'bottom-center', style: overlayStyle });
 // Remove Payment Block
-bpmnElementsRegistry.addOverlays('Activity_083jf01', { label: '147', position: 'top-right', style: overlayStyle });
+overlaysPlugin.addOverlays('Activity_083jf01', { label: '147', position: 'top-right', style: overlayStyle });
 
 // Configure button to hide/show overlays
-const overlaysPlugin = bpmnVisualization.getPlugin<OverlaysPlugin>('overlays');
 let isOverlaysVisible = true;
 const overlaysVisibilityButton = document.querySelector('#btn-overlays-visibility') as HTMLButtonElement;
 const handleOverlaysVisibility = (): void => {

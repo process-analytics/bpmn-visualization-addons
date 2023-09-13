@@ -14,10 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { describe, expect, test } from '@jest/globals';
+import { beforeEach, describe, expect, test } from '@jest/globals';
 import { BpmnVisualization, OverlaysPlugin } from '../../../src';
 import { insertBpmnContainerWithoutId } from '../../shared/dom-utils';
 import { readFileSync } from '../../shared/io-utils';
+import type { Overlay } from 'bpmn-visualization';
+import type { mxGraph, mxGraphModel } from 'mxgraph';
 
 /**
  * Information taken from bpmn-visualization QuerySelectors
@@ -168,5 +170,78 @@ describe('setVisible', () => {
     plugin.setVisible();
     plugin.setVisible(false);
     expect(new ContainersRetriever(bpmnVisualization).getOverlaysContainer()).not.toBeVisible();
+  });
+});
+
+class OverlaysExpectation {
+  private readonly model: mxGraphModel;
+  private graph: mxGraph;
+  constructor(bpmnVisualization: BpmnVisualization) {
+    this.graph = bpmnVisualization.graph;
+    this.model = bpmnVisualization.graph.model;
+  }
+
+  /* eslint-disable jest/no-standalone-expect -- util code, including expect calls */
+  expectNoOverlay(bpmnId: string): void {
+    expect(this.getOverlays(bpmnId)).toHaveLength(0);
+  }
+
+  private getOverlays(bpmnId: string): BpmnVisualizationOverlay[] {
+    const cell = this.model.getCell(bpmnId);
+    return (this.graph.getCellOverlays(cell) as unknown as BpmnVisualizationOverlay[]) ?? [];
+  }
+
+  // only verify label here, the whole implementation is tested in bpmn-visualization.
+  // here we only check that the underlying method is called.
+  expectOverlays(bpmnId: string, labels: string[]): void {
+    const overlays = this.getOverlays(bpmnId);
+    expect(overlays).toHaveLength(labels.length);
+    expect(overlays.map(overlay => overlay.label)).toEqual(labels);
+  }
+  /* eslint-enable jest/no-standalone-expect */
+}
+
+// The real type is "class MxGraphCustomOverlay extends mxgraph.mxCellOverlay" but it is not part of the API so create a convenient matching type here
+// class BpmnVisualizationOverlay extends mxCellOverlay {}
+// In tests in this file, we are only checking the label, so use a simple type matching the label property of the actual type.
+type BpmnVisualizationOverlay = {
+  label: string;
+};
+
+function createOverlay(label: string): Overlay {
+  return { label, position: 'top-center' };
+}
+
+describe('Add and remove Overlays', () => {
+  const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId(), plugins: [OverlaysPlugin] });
+  const overlaysPlugin = bpmnVisualization.getPlugin<OverlaysPlugin>('overlays');
+  const overlaysExpectation = new OverlaysExpectation(bpmnVisualization);
+
+  beforeEach(() => {
+    // remove all existing overlays
+    bpmnVisualization.load(readFileSync('./fixtures/bpmn/1_pool_custom_colors_with_1_text-annotation.bpmn'));
+  });
+
+  test('Add overlays', () => {
+    overlaysExpectation.expectNoOverlay('ServiceTask_1.2');
+    overlaysPlugin.addOverlays('ServiceTask_1.2', createOverlay('overlay 1'));
+    overlaysExpectation.expectOverlays('ServiceTask_1.2', ['overlay 1']);
+  });
+
+  test('Remove overlays', () => {
+    overlaysExpectation.expectNoOverlay('Activity_1wr0s0r');
+    overlaysExpectation.expectNoOverlay('StartEvent_0av7pgo');
+
+    // Create overlays
+    overlaysPlugin.addOverlays('Activity_1wr0s0r', [createOverlay('overlay 1.1'), createOverlay('overlay 1.2'), createOverlay('overlay 1.3')]);
+    overlaysExpectation.expectOverlays('Activity_1wr0s0r', ['overlay 1.1', 'overlay 1.2', 'overlay 1.3']);
+    overlaysPlugin.addOverlays('StartEvent_0av7pgo', createOverlay('overlay 2'));
+    overlaysExpectation.expectOverlays('StartEvent_0av7pgo', ['overlay 2']);
+
+    // Remove some overlays
+    overlaysPlugin.removeAllOverlays('Activity_1wr0s0r');
+    overlaysExpectation.expectNoOverlay('Activity_1wr0s0r');
+    // still there
+    overlaysExpectation.expectOverlays('StartEvent_0av7pgo', ['overlay 2']);
   });
 });

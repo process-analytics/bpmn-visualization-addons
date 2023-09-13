@@ -15,15 +15,18 @@ limitations under the License.
 */
 
 import type { BpmnVisualization, Plugin } from '../plugins-support';
+import type { Overlay, OverlaysRegistry } from 'bpmn-visualization';
 
-export class OverlaysPlugin implements Plugin {
+export class OverlaysPlugin implements Plugin, OverlaysRegistry {
   private readonly overlayPane: HTMLElement;
   private previousStyleDisplay?: string;
   private isVisible = true;
+  private overlaysRegistry: OverlaysRegistry;
 
   constructor(bpmnVisualization: BpmnVisualization) {
     const view = bpmnVisualization.graph.getView();
     this.overlayPane = view.getOverlayPane() as HTMLElement;
+    this.overlaysRegistry = bpmnVisualization.bpmnElementsRegistry;
   }
 
   setVisible(visible = true): void {
@@ -35,6 +38,14 @@ export class OverlaysPlugin implements Plugin {
       this.overlayPane.style.display = 'none';
       this.isVisible = false;
     }
+  }
+
+  addOverlays(bpmnElementId: string, overlays: Overlay | Overlay[]): void {
+    this.overlaysRegistry.addOverlays(bpmnElementId, overlays);
+  }
+
+  removeAllOverlays(bpmnElementId: string): void {
+    this.overlaysRegistry.removeAllOverlays(bpmnElementId);
   }
 
   getPluginId(): string {

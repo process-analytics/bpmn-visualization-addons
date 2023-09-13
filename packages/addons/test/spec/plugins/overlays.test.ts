@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { describe, expect, test } from '@jest/globals';
+import { beforeEach, describe, expect, test } from '@jest/globals';
 import { BpmnVisualization, OverlaysPlugin } from '../../../src';
 import { insertBpmnContainerWithoutId } from '../../shared/dom-utils';
 import { readFileSync } from '../../shared/io-utils';
@@ -201,7 +201,7 @@ class OverlaysExpectation {
   /* eslint-enable jest/no-standalone-expect */
 }
 
-// The real type is "class MxGraphCustomOverlay extends mxgraph.mxCellOverlay" but it is not part of the API so create a convenient matching type here{
+// The real type is "class MxGraphCustomOverlay extends mxgraph.mxCellOverlay" but it is not part of the API so create a convenient matching type here
 // class BpmnVisualizationOverlay extends mxCellOverlay {}
 // In tests in this file, we are only checking the label, so use a simple type matching the label property of the actual type.
 type BpmnVisualizationOverlay = {

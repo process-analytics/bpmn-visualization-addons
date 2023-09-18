@@ -94,16 +94,12 @@ describe('getVisitedEdges', () => {
     const ids = [
       'Task_2',
       'Task_3',
-      // The following ids shouldn't be returned once https://github.com/process-analytics/bpmn-visualization-js/issues/2852 is implemented
+      // The ids of the incoming/outgoing attributes are wrong in the following elements. They shouldn't be returned (see https://github.com/process-analytics/bpmn-visualization-js/issues/2852)
       'StartEvent_1', // has extra outgoing flow from Task_1 to Task_2
       'EndEvent_1', // // has extra incoming flow from Task_3 to Task_4
     ];
     ensureElementsExistInModel(ids);
-    expect(pathResolver.getVisitedEdges(ids)).toEqual([
-      'Flow_Task_1_Task_2', // from wrong outgoing StartEvent_1
-      'Flow_Task_2_Task_3',
-      'Flow_Task_3_Task_4', // from wrong incoming EndEvent_1
-    ]);
+    expect(pathResolver.getVisitedEdges(ids)).toEqual(['Flow_Task_2_Task_3']);
   });
 
   describe('Detect message flows', () => {

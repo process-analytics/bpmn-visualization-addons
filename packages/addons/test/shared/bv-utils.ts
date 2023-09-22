@@ -13,13 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import { BpmnVisualization } from '../../src';
 
-import { readFileSync as fsReadFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-// assume that this module/file is stored in a direct sub-folder of the test root
-const testRootFolder = join(__dirname, '..');
-
-export const readFileSync = (relativePathFromTestRootFolder: string): string => fsReadFileSync(join(testRootFolder, relativePathFromTestRootFolder), { encoding: 'utf8' });
+/**
+ * Returns an instance of the extended version of BpmnVisualization provided by the add-ons.
+ */
+export function createNewBpmnVisualizationWithoutContainer(): BpmnVisualization {
+  return new BpmnVisualization({ container: undefined! });
+}

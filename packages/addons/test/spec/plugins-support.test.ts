@@ -17,9 +17,10 @@ limitations under the License.
 import { describe, expect, test } from '@jest/globals';
 import type { Plugin } from '../../src';
 import { BpmnVisualization } from '../../src';
+import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils';
 
 test('No error when no plugin is defined', () => {
-  const bpmnVisualization = new BpmnVisualization({ container: null! });
+  const bpmnVisualization = createNewBpmnVisualizationWithoutContainer();
   expect(bpmnVisualization.getPlugin('unknown')).toBeUndefined();
 });
 
@@ -33,14 +34,14 @@ class MyCustomPlugin1 {
 }
 
 test('Load a typed plugin and use it', () => {
-  const bpmnVisualization = new BpmnVisualization({ container: null!, plugins: [MyCustomPlugin1] });
+  const bpmnVisualization = new BpmnVisualization({ container: undefined!, plugins: [MyCustomPlugin1] });
   const plugin = bpmnVisualization.getPlugin<MyCustomPlugin1>('custom-plugin-1');
   expect(plugin).toBeInstanceOf(MyCustomPlugin1);
   expect(plugin.doSomethingSpecial()).toBe(5);
 });
 
 test('Load a untyped plugin and use it', () => {
-  const bpmnVisualization = new BpmnVisualization({ container: null!, plugins: [MyCustomPlugin1] });
+  const bpmnVisualization = new BpmnVisualization({ container: undefined!, plugins: [MyCustomPlugin1] });
   const plugin = bpmnVisualization.getPlugin('custom-plugin-1');
   expect(plugin).toBeInstanceOf(MyCustomPlugin1);
   expect(plugin.getPluginId()).toBe('custom-plugin-1');
@@ -57,7 +58,7 @@ class MyCustomPlugin2 {
 }
 
 test('Load several plugins and use them', () => {
-  const bpmnVisualization = new BpmnVisualization({ container: null!, plugins: [MyCustomPlugin2, MyCustomPlugin1] });
+  const bpmnVisualization = new BpmnVisualization({ container: undefined!, plugins: [MyCustomPlugin2, MyCustomPlugin1] });
   const plugin1 = bpmnVisualization.getPlugin('custom-plugin-1');
   expect(plugin1).toBeInstanceOf(MyCustomPlugin1);
 
@@ -68,7 +69,7 @@ test('Load several plugins and use them', () => {
 
 describe('Prevent multiple plugins with the same ID from loading', () => {
   test('Load the same plugin twice', () => {
-    expect(() => new BpmnVisualization({ container: null!, plugins: [MyCustomPlugin1, MyCustomPlugin1] })).toThrow(
+    expect(() => new BpmnVisualization({ container: undefined!, plugins: [MyCustomPlugin1, MyCustomPlugin1] })).toThrow(
       "Plugin loading fails. It is not possible to register multiple plugins with the same 'custom-plugin-1' identifier.",
     );
   });
@@ -82,7 +83,7 @@ describe('Prevent multiple plugins with the same ID from loading', () => {
         return { prop: 'alpha' };
       }
     }
-    expect(() => new BpmnVisualization({ container: null!, plugins: [MyCustomPluginWithSameId, MyCustomPlugin1] })).toThrow(
+    expect(() => new BpmnVisualization({ container: undefined!, plugins: [MyCustomPluginWithSameId, MyCustomPlugin1] })).toThrow(
       "Plugin loading fails. It is not possible to register multiple plugins with the same 'custom-plugin-1' identifier.",
     );
   });
@@ -93,7 +94,7 @@ describe('Prevent multiple plugins with the same ID from loading', () => {
         return 'this is the end';
       }
     }
-    expect(() => new BpmnVisualization({ container: null!, plugins: [MyCustomPlugin2, MyCustomPlugin2SubClass] })).toThrow(
+    expect(() => new BpmnVisualization({ container: undefined!, plugins: [MyCustomPlugin2, MyCustomPlugin2SubClass] })).toThrow(
       "Plugin loading fails. It is not possible to register multiple plugins with the same 'custom-plugin-2' identifier.",
     );
   });

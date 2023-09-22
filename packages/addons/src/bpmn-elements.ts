@@ -33,7 +33,7 @@ export class BpmnElementsSearcher {
   private getElementByName(name: string): BpmnSemantic | undefined {
     // Split query by kind to avoid returning a big chunk of data
     for (const kind of allBpmnElementKinds) {
-      const candidate = this.elementsRegistry.getModelElementsByKinds(kind).filter(element => element.name === name)[0];
+      const candidate = this.elementsRegistry.getModelElementsByKinds(kind).find(element => element.name === name);
       if (candidate) {
         return candidate;
       }

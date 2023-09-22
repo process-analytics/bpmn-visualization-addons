@@ -48,10 +48,10 @@ const overlaysVisibilityButton = document.querySelector('#btn-overlays-visibilit
 const handleOverlaysVisibility = (): void => {
   isOverlaysVisible = !isOverlaysVisible;
   overlaysPlugin.setVisible(isOverlaysVisible);
-  overlaysVisibilityButton.innerText = isOverlaysVisible ? 'Hide overlays' : 'Show overlays';
+  overlaysVisibilityButton.textContent = isOverlaysVisible ? 'Hide overlays' : 'Show overlays';
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-overlaysVisibilityButton.addEventListener('click', _ev => {
+overlaysVisibilityButton.addEventListener('click', _event => {
   handleOverlaysVisibility();
 });

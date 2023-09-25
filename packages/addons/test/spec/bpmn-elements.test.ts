@@ -16,6 +16,7 @@ limitations under the License.
 
 import { describe, expect, test } from '@jest/globals';
 import { BpmnElementsIdentifier, BpmnElementsSearcher, BpmnVisualization } from '../../src';
+import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils';
 import { insertBpmnContainerWithoutId } from '../shared/dom-utils';
 import { readFileSync } from '../shared/io-utils';
 
@@ -59,7 +60,7 @@ describe('Find element ids by providing names', () => {
 });
 
 describe('Identify elements', () => {
-  const bpmnVisualization = new BpmnVisualization({ container: null! });
+  const bpmnVisualization = createNewBpmnVisualizationWithoutContainer();
   bpmnVisualization.load(readFileSync('./fixtures/bpmn/search-elements.bpmn'));
   const bpmnElementsIdentifier = new BpmnElementsIdentifier(bpmnVisualization.bpmnElementsRegistry);
 

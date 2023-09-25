@@ -64,28 +64,28 @@ const setupBpmnElementEventHandlers = (): void => {
   for (const item of getAllFlowNodes()) {
     const currentId = item.bpmnSemantic.id;
     const htmlElement = item.htmlElement;
-    htmlElement.onclick = () => {
+    htmlElement.addEventListener('click', () => {
       if (registerSelectedBpmnElement(currentId)) {
         bpmnElementsRegistry.updateStyle(currentId, { stroke: { color: 'blue' }, fill: { color: 'lightblue' } });
       } else {
         selectedBpmnElements.delete(currentId);
         bpmnElementsRegistry.resetStyle(currentId);
       }
-    };
+    });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    htmlElement.onmouseenter = _ev => {
+    htmlElement.addEventListener('mouseenter', _event => {
       htmlElement.style.cursor = 'pointer';
-    };
+    });
   }
 };
 
 const setupControlEventHandlers = (): void => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  document.querySelector('#btn-compute-path')?.addEventListener('click', _ev => {
+  document.querySelector('#btn-compute-path')?.addEventListener('click', _event => {
     computePath();
   });
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  document.querySelector('#bt-clear')?.addEventListener('click', _ev => {
+  document.querySelector('#bt-clear')?.addEventListener('click', _event => {
     clearPath();
   });
 };

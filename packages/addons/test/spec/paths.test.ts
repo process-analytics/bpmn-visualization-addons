@@ -15,11 +15,12 @@ limitations under the License.
 */
 
 import { beforeEach, describe, expect, test } from '@jest/globals';
-import { BpmnVisualization, PathResolver } from '../../src';
+import { PathResolver } from '../../src';
+import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils';
 import { readFileSync } from '../shared/io-utils';
 
 describe('getVisitedEdges', () => {
-  const bpmnVisualization = new BpmnVisualization({ container: null! });
+  const bpmnVisualization = createNewBpmnVisualizationWithoutContainer();
   const pathResolver = new PathResolver(bpmnVisualization.bpmnElementsRegistry);
 
   beforeEach(() => {

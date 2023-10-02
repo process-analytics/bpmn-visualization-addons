@@ -8,7 +8,7 @@
     "preview": "vite preview --base ./"
   },
   "dependencies": {
-    "bpmn-visualization": "~0.40.0"
+    "bpmn-visualization": "~0.41.0"
   },
   "devDependencies": {
     "vite": "~4.4.9"

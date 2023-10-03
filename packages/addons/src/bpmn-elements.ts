@@ -66,7 +66,6 @@ export class BpmnElementsSearcher {
         .getModelElementsByKinds(kind)
         .filter(element => element.name === name)
         .find(element => (deduplicateOptions?.filter ?? acceptAll)(element));
-
       if (candidate) {
         return candidate;
       }

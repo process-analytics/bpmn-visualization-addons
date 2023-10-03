@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://example.com/schema/bpmn">
   <bpmn:collaboration id="Collaboration_1jke0md">
-    <bpmn:participant id="Participant_0onpt9o" processRef="Process_1" />
-    <bpmn:participant id="Participant_0zym2fg" processRef="Process_0qq1mgm" />
+    <bpmn:participant id="Participant_1" processRef="Process_1" />
+    <bpmn:participant id="Participant_2" processRef="Process_2" />
     <bpmn:messageFlow id="messageFlow_1" name="message flow 1" sourceRef="Event_1fo3lwp" targetRef="Event_0wvq8ch" />
   </bpmn:collaboration>
   <bpmn:process id="Process_1" isExecutable="false">
     <bpmn:startEvent id="StartEvent_1" name="start event 1">
       <bpmn:outgoing>Flow_1yf7yd6</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:task id="Task_1" name="task 1">
+    <bpmn:task id="Task_1" name="task 1 with duplicate name">
       <bpmn:incoming>Flow_1yf7yd6</bpmn:incoming>
       <bpmn:outgoing>Flow_0th6cj1</bpmn:outgoing>
     </bpmn:task>
@@ -27,10 +27,10 @@
       <bpmn:incoming>Flow_1xozzqt</bpmn:incoming>
       <bpmn:outgoing>Flow_1cj2f9n</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Task_with_same_name_as_Task_1" name="task 1">
+    <bpmn:userTask id="UserTask_with_same_name_as_Task_1" name="task 1 with duplicate name">
       <bpmn:incoming>Flow_1a9vtky</bpmn:incoming>
       <bpmn:outgoing>Flow_0i4ule4</bpmn:outgoing>
-    </bpmn:task>
+    </bpmn:userTask>
     <bpmn:exclusiveGateway id="Gateway_0t7d2lu" name="gateway 2">
       <bpmn:incoming>Flow_0qnma25</bpmn:incoming>
       <bpmn:incoming>Flow_045a06d</bpmn:incoming>
@@ -46,10 +46,10 @@
     <bpmn:sequenceFlow id="Flow_0th6cj1" sourceRef="Task_1" targetRef="Gateway_1" />
     <bpmn:sequenceFlow id="Flow_18zkq4t" sourceRef="Gateway_1" targetRef="Task_2_1" />
     <bpmn:sequenceFlow id="Flow_1xozzqt" sourceRef="Gateway_1" targetRef="Activity_08z13ne" />
-    <bpmn:sequenceFlow id="Flow_1a9vtky" sourceRef="Gateway_1" targetRef="Task_with_same_name_as_Task_1" />
+    <bpmn:sequenceFlow id="Flow_1a9vtky" sourceRef="Gateway_1" targetRef="UserTask_with_same_name_as_Task_1" />
     <bpmn:sequenceFlow id="Flow_045a06d" sourceRef="Task_2_1" targetRef="Gateway_0t7d2lu" />
     <bpmn:sequenceFlow id="Flow_1cj2f9n" sourceRef="Activity_08z13ne" targetRef="Gateway_0t7d2lu" />
-    <bpmn:sequenceFlow id="Flow_0i4ule4" sourceRef="Task_with_same_name_as_Task_1" targetRef="Event_0wvq8ch" />
+    <bpmn:sequenceFlow id="Flow_0i4ule4" sourceRef="UserTask_with_same_name_as_Task_1" targetRef="Event_0wvq8ch" />
     <bpmn:sequenceFlow id="Flow_0qnma25" sourceRef="Event_0wvq8ch" targetRef="Gateway_0t7d2lu" />
     <bpmn:endEvent id="Event_1hr2hqx" name="end event 1">
       <bpmn:incoming>Flow_0p544v1</bpmn:incoming>
@@ -58,16 +58,16 @@
     <bpmn:textAnnotation id="TextAnnotation_1">
       <bpmn:text>Duplicated name on purpose</bpmn:text>
     </bpmn:textAnnotation>
-    <bpmn:association id="Association_0fwvz81" sourceRef="Task_with_same_name_as_Task_1" targetRef="TextAnnotation_1" />
+    <bpmn:association id="Association_0fwvz81" sourceRef="UserTask_with_same_name_as_Task_1" targetRef="TextAnnotation_1" />
   </bpmn:process>
-  <bpmn:process id="Process_0qq1mgm">
-    <bpmn:sequenceFlow id="sequenceFlow_10" name="seq flow 10" sourceRef="Event_1ndg0m5" targetRef="Activity_1rwjkd0" />
-    <bpmn:sequenceFlow id="sequenceFlow_11" name="seq flow 11" sourceRef="Activity_1rwjkd0" targetRef="Event_1fo3lwp" />
+  <bpmn:process id="Process_2">
+    <bpmn:sequenceFlow id="sequenceFlow_10" name="seq flow 10" sourceRef="Event_1ndg0m5" targetRef="Task_with_duplicated_name_with_textAnnotations" />
+    <bpmn:sequenceFlow id="sequenceFlow_11" name="seq flow 11" sourceRef="Task_with_duplicated_name_with_textAnnotations" targetRef="Event_1fo3lwp" />
     <bpmn:sequenceFlow id="sequenceFlow_with_same_name_as_sequenceFlow_11" name="seq flow 11" sourceRef="Event_1fo3lwp" targetRef="Event_0md1mpw" />
     <bpmn:startEvent id="Event_1ndg0m5">
       <bpmn:outgoing>sequenceFlow_10</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:task id="Activity_1rwjkd0">
+    <bpmn:task id="Task_with_duplicated_name_with_textAnnotations" name="Duplicated name on purpose">
       <bpmn:incoming>sequenceFlow_10</bpmn:incoming>
       <bpmn:outgoing>sequenceFlow_11</bpmn:outgoing>
     </bpmn:task>
@@ -79,14 +79,14 @@
       <bpmn:outgoing>sequenceFlow_with_same_name_as_sequenceFlow_11</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_03dnjxq" />
     </bpmn:intermediateThrowEvent>
-    <bpmn:textAnnotation id="TextAnnotation_13ptcyf">
+    <bpmn:textAnnotation id="TextAnnotation_2">
       <bpmn:text>Duplicated name on purpose</bpmn:text>
     </bpmn:textAnnotation>
-    <bpmn:association id="Association_1ovp59n" sourceRef="sequenceFlow_with_same_name_as_sequenceFlow_11" targetRef="TextAnnotation_13ptcyf" />
+    <bpmn:association id="Association_1ovp59n" sourceRef="sequenceFlow_with_same_name_as_sequenceFlow_11" targetRef="TextAnnotation_2" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1jke0md">
-      <bpmndi:BPMNShape id="Participant_0onpt9o_di" bpmnElement="Participant_0onpt9o" isHorizontal="true">
+      <bpmndi:BPMNShape id="Participant_1_di" bpmnElement="Participant_1" isHorizontal="true">
         <dc:Bounds x="119" y="58" width="939" height="450" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
@@ -113,7 +113,7 @@
         <dc:Bounds x="520" y="190" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_with_same_name_as_Task_1_di" bpmnElement="Task_with_same_name_as_Task_1">
+      <bpmndi:BPMNShape id="UserTask_with_same_name_as_Task_1_di" bpmnElement="UserTask_with_same_name_as_Task_1">
         <dc:Bounds x="520" y="310" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
@@ -184,14 +184,15 @@
         <di:waypoint x="532" y="390" />
         <di:waypoint x="494" y="430" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Participant_0zym2fg_di" bpmnElement="Participant_0zym2fg" isHorizontal="true">
+      <bpmndi:BPMNShape id="Participant_2_di" bpmnElement="Participant_2" isHorizontal="true">
         <dc:Bounds x="119" y="540" width="939" height="250" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1ndg0m5_di" bpmnElement="Event_1ndg0m5">
         <dc:Bounds x="172" y="672" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1rwjkd0_di" bpmnElement="Activity_1rwjkd0">
+      <bpmndi:BPMNShape id="Task_with_duplicated_name_with_textAnnotations_di" bpmnElement="Task_with_duplicated_name_with_textAnnotations">
         <dc:Bounds x="290" y="650" width="100" height="80" />
+        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0md1mpw_di" bpmnElement="Event_0md1mpw">
         <dc:Bounds x="872" y="672" width="36" height="36" />
@@ -202,7 +203,7 @@
       <bpmndi:BPMNShape id="Event_0qpts3g_di" bpmnElement="Event_1fo3lwp">
         <dc:Bounds x="682" y="672" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_13ptcyf_di" bpmnElement="TextAnnotation_13ptcyf">
+      <bpmndi:BPMNShape id="TextAnnotation_2_di" bpmnElement="TextAnnotation_2">
         <dc:Bounds x="780" y="730" width="100" height="55" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>

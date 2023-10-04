@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { BpmnVisualization } from 'bpmn-visualization';
 import { BpmnElementsIdentifier, PathResolver } from '@process-analytics/bv-experimental-add-ons';
+import { BpmnVisualization } from 'bpmn-visualization';
 
 // bpmn-visualization
 const bpmnVisualization = new BpmnVisualization({ container: 'bpmn-container' });

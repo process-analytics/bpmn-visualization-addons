@@ -14,8 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { describe, expect, test } from '@jest/globals';
 import type { Plugin } from '../../src';
+
+import { describe, expect, test } from '@jest/globals';
+
 import { BpmnVisualization } from '../../src';
 import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils';
 

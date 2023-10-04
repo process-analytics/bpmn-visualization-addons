@@ -15,8 +15,8 @@ limitations under the License.
 */
 
 import { readFileSync as fsReadFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // assume that this module/file is stored in a direct sub-folder of the test root

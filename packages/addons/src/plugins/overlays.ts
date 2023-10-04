@@ -19,9 +19,9 @@ import type { Overlay, OverlaysRegistry } from 'bpmn-visualization';
 
 export class OverlaysPlugin implements Plugin, OverlaysRegistry {
   private readonly overlayPane: HTMLElement;
+  private readonly overlaysRegistry: OverlaysRegistry;
   private previousStyleDisplay?: string;
   private isVisible = true;
-  private overlaysRegistry: OverlaysRegistry;
 
   constructor(bpmnVisualization: BpmnVisualization) {
     const view = bpmnVisualization.graph.getView();

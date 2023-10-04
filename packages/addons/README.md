@@ -41,7 +41,10 @@ myPlugin.aMethod();
 
 #### Available plugins
 
-- `OverlaysPlugin`: let show/hide overlays created with `BpmnElementsRegistry.addOverlays`.
+- `ElementsPlugin`: provides all `BpmnElementsRegistry` methods for retrieving `BpmnElement` and `BpmnSemantic` objects.
+- `OverlaysPlugin`:
+  - let show/hide overlays created with `BpmnElementsRegistry.addOverlays`.
+  - provides all `BpmnElementsRegistry` methods relating to overlays.
 
 
 ### `BpmnElementsIdentifier`

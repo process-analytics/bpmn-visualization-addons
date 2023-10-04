@@ -14,9 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { join, dirname, parse, resolve } from 'node:path';
 import { readdirSync } from 'node:fs';
+import { join, dirname, parse, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
 import { defineConfig } from 'vite';
 
 // =====================================================================================================================

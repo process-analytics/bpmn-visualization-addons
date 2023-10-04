@@ -19,9 +19,10 @@ limitations under the License.
  */
 module.exports = {
   root: true,
-  plugins: ['notice', 'unicorn'],
+  plugins: ['import', 'notice', 'unicorn'],
   parser: '@typescript-eslint/parser', // Specifies the ESLint parser
   extends: [
+    'plugin:import/recommended',
     'plugin:unicorn/recommended',
     'plugin:prettier/recommended', // Enables eslint-plugin-prettier and eslint-config-prettier. This will display prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
   ],
@@ -32,6 +33,21 @@ module.exports = {
   rules: {
     'notice/notice': ['error', { templateFile: 'config/license-header.js', onNonMatchingHeader: 'replace' }],
     'no-console': ['error', { allow: ['warn', 'error'] }],
+    // as defined in `bpmn-visualization` b122995c
+    'import/newline-after-import': ['error', { count: 1 }],
+    'import/first': 'error',
+    'import/order': [
+      'error',
+      {
+        groups: ['type', 'builtin', 'external', 'parent', 'sibling', 'index', 'internal'],
+        'newlines-between': 'always',
+        alphabetize: {
+          order: 'asc',
+          orderImportKind: 'asc',
+          caseInsensitive: true,
+        },
+      },
+    ],
   },
   overrides: [
     // typescript
@@ -39,8 +55,17 @@ module.exports = {
       files: ['*.ts'],
       extends: [
         'plugin:@typescript-eslint/recommended', // Uses the recommended rules from the @typescript-eslint/eslint-plugin
+        'plugin:import/typescript',
         'plugin:prettier/recommended', // Enables eslint-plugin-prettier and eslint-config-prettier. This will display prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
       ],
+      settings: {
+        'import/resolver': {
+          typescript: {
+            alwaysTryTypes: true, // always try to resolve types under `<root>@types` directory even it doesn't contain any source code, like `@types/unist`
+            project: '**/tsconfig.json',
+          },
+        },
+      },
       parserOptions: {
         // This setting is required if you want to use rules which require type information
         // https://typescript-eslint.io/packages/parser/#project

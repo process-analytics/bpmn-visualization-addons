@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { beforeEach, describe, expect, test } from '@jest/globals';
+
 import { PathResolver } from '../../src';
 import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils';
 import { readFileSync } from '../shared/io-utils';

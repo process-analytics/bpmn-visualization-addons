@@ -14,49 +14,123 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import type { ShapeBpmnSemantic } from 'bpmn-visualization';
+
 import { describe, expect, test } from '@jest/globals';
+import { ShapeBpmnElementKind } from 'bpmn-visualization';
 
 import { BpmnElementsIdentifier, BpmnElementsSearcher, BpmnVisualization } from '../../src';
 import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils';
 import { insertBpmnContainerWithoutId } from '../shared/dom-utils';
 import { readFileSync } from '../shared/io-utils';
 
-describe('Find element ids by providing names', () => {
+describe('Find elements by providing names', () => {
   const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId() });
   bpmnVisualization.load(readFileSync('./fixtures/bpmn/search-elements.bpmn'));
   const bpmnElementsSearcher = new BpmnElementsSearcher(bpmnVisualization.bpmnElementsRegistry);
 
-  const getModelElementName = (bpmnElementId: string): string => bpmnVisualization.bpmnElementsRegistry.getModelElementsByIds(bpmnElementId).map(element => element.name)[0];
+  const expectElementsHavingTheSameName = (bpmnElementIds: string[], expectedName: string): void => {
+    for (const bpmnElementId of bpmnElementIds) {
+      const elementName = bpmnVisualization.bpmnElementsRegistry.getModelElementsByIds(bpmnElementId).map(element => element.name)[0];
+      expect(elementName).toBe(expectedName);
+    }
+  };
 
-  test.each([
-    { name: 'start event 1', expectedId: 'StartEvent_1' },
-    { name: 'gateway 1', expectedId: 'Gateway_1' },
-    { name: 'seq flow 10', expectedId: 'sequenceFlow_10' },
-    { name: 'message flow 1', expectedId: 'messageFlow_1' },
-  ])('an existing element - $name', ({ name, expectedId }: { name: string; expectedId: string }) => {
-    expect(bpmnElementsSearcher.getElementIdByName(name)).toBe(expectedId);
+  describe('Retrieve ids only', () => {
+    test.each([
+      { name: 'start event 1', expectedId: 'StartEvent_1' },
+      { name: 'gateway 1', expectedId: 'Gateway_1' },
+      { name: 'seq flow 10', expectedId: 'sequenceFlow_10' },
+      { name: 'message flow 1', expectedId: 'messageFlow_1' },
+    ])('an existing element - $name', ({ name, expectedId }: { name: string; expectedId: string }) => {
+      expect(bpmnElementsSearcher.getElementIdByName(name)).toBe(expectedId);
+    });
+
+    test('several existing tasks with the same name', () => {
+      expectElementsHavingTheSameName(['Task_1', 'UserTask_with_same_name_as_Task_1'], 'task 1 with duplicate name');
+
+      // Retrieve the first one
+      expect(bpmnElementsSearcher.getElementIdByName('task 1 with duplicate name')).toBe('Task_1');
+    });
+
+    test('several existing sequence flows with the same name', () => {
+      expectElementsHavingTheSameName(['sequenceFlow_11', 'sequenceFlow_with_same_name_as_sequenceFlow_11'], 'seq flow 11');
+
+      // Retrieve the first one
+      expect(bpmnElementsSearcher.getElementIdByName('seq flow 11')).toBe('sequenceFlow_11');
+    });
+
+    test('unknown element', () => {
+      expect(bpmnElementsSearcher.getElementIdByName('nobody knows me')).toBeUndefined();
+    });
   });
 
-  test('several existing tasks with the same name', () => {
-    // Verify that several elements have the same names
-    expect(getModelElementName('Task_1')).toBe('task 1');
-    expect(getModelElementName('Task_with_same_name_as_Task_1')).toBe('task 1');
+  describe('Retrieve objects', () => {
+    test('Several existing tasks with the same name with default options', () => {
+      expectElementsHavingTheSameName(['Task_1', 'UserTask_with_same_name_as_Task_1'], 'task 1 with duplicate name');
 
-    // Retrieve the first one
-    expect(bpmnElementsSearcher.getElementIdByName('task 1')).toBe('Task_1');
-  });
+      // Retrieve the first one
+      expect(bpmnElementsSearcher.getElementByName('task 1 with duplicate name')).toEqual({
+        id: 'Task_1',
+        incomingIds: ['Flow_1yf7yd6'],
+        isShape: true,
+        kind: ShapeBpmnElementKind.TASK,
+        name: 'task 1 with duplicate name',
+        outgoingIds: ['Flow_0th6cj1'],
+        parentId: 'Participant_1',
+      } as ShapeBpmnSemantic);
+    });
 
-  test('several existing sequence flows with the same name', () => {
-    // Verify that several elements have the same names
-    expect(getModelElementName('sequenceFlow_11')).toBe('seq flow 11');
-    expect(getModelElementName('sequenceFlow_with_same_name_as_sequenceFlow_11')).toBe('seq flow 11');
+    test('Several existing tasks with the same name - deduplicate with kinds', () => {
+      expectElementsHavingTheSameName(['Task_1', 'UserTask_with_same_name_as_Task_1'], 'task 1 with duplicate name');
 
-    // Retrieve the first one
-    expect(bpmnElementsSearcher.getElementIdByName('seq flow 11')).toBe('sequenceFlow_11');
-  });
+      expect(bpmnElementsSearcher.getElementByName('task 1 with duplicate name', { kinds: [ShapeBpmnElementKind.TASK_USER] })).toEqual({
+        id: 'UserTask_with_same_name_as_Task_1',
+        incomingIds: ['Flow_1a9vtky'],
+        isShape: true,
+        kind: ShapeBpmnElementKind.TASK_USER,
+        name: 'task 1 with duplicate name',
+        outgoingIds: ['Flow_0i4ule4', 'Association_0fwvz81'],
+        parentId: 'Participant_1',
+      } as ShapeBpmnSemantic);
+    });
 
-  test('unknown element', () => {
-    expect(bpmnElementsSearcher.getElementIdByName('nobody knows me')).toBeUndefined();
+    test('Several existing tasks with the same name - deduplicate with the filtering function', () => {
+      expectElementsHavingTheSameName(['Task_1', 'UserTask_with_same_name_as_Task_1'], 'task 1 with duplicate name');
+
+      expect(
+        bpmnElementsSearcher.getElementByName('task 1 with duplicate name', {
+          filter: bpmnSemantic => bpmnSemantic.isShape && (bpmnSemantic as ShapeBpmnSemantic).outgoingIds.includes('Association_0fwvz81'),
+        }),
+      ).toEqual({
+        id: 'UserTask_with_same_name_as_Task_1',
+        incomingIds: ['Flow_1a9vtky'],
+        isShape: true,
+        kind: ShapeBpmnElementKind.TASK_USER,
+        name: 'task 1 with duplicate name',
+        outgoingIds: ['Flow_0i4ule4', 'Association_0fwvz81'],
+        parentId: 'Participant_1',
+      } as ShapeBpmnSemantic);
+    });
+
+    test('Several existing tasks with the same name - deduplicate with both kinds and the filtering function', () => {
+      expectElementsHavingTheSameName(['TextAnnotation_1', 'TextAnnotation_2', 'Task_with_duplicated_name_with_textAnnotations'], 'Duplicated name on purpose');
+
+      expect(
+        bpmnElementsSearcher.getElementByName('Duplicated name on purpose', {
+          kinds: [ShapeBpmnElementKind.TEXT_ANNOTATION],
+          filter: bpmnSemantic => bpmnSemantic.isShape && (bpmnSemantic as ShapeBpmnSemantic).parentId == 'Participant_2',
+        }),
+      ).toEqual({
+        id: 'TextAnnotation_2',
+        incomingIds: ['Association_1ovp59n'],
+        isShape: true,
+        kind: ShapeBpmnElementKind.TEXT_ANNOTATION,
+        name: 'Duplicated name on purpose',
+        outgoingIds: [],
+        parentId: 'Participant_2',
+      } as ShapeBpmnSemantic);
+    });
   });
 });
 

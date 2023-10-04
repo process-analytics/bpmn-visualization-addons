@@ -21,20 +21,52 @@ import { FlowKind, ShapeBpmnElementKind, ShapeUtil as BaseShapeUtil } from 'bpmn
 const allBpmnElementKinds: BpmnElementKind[] = [...Object.values(ShapeBpmnElementKind), ...Object.values(FlowKind)];
 
 /**
+ * Options to deduplicate elements when several names match.
+ */
+export type DeduplicateNamesOptions = {
+  /** If not set, use all `BpmnElementKind` values. */
+  kinds?: BpmnElementKind[];
+  /** Apply custom function to filter duplicates. */
+  filter?: (bpmnSemantic: BpmnSemantic) => boolean;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const acceptAll = (_bpmnSemantic: BpmnSemantic): boolean => true;
+
+/**
  * Provides workarounds for {@link https://github.com/process-analytics/bpmn-visualization-js/issues/2453}.
  */
 export class BpmnElementsSearcher {
   constructor(private readonly elementsRegistry: ElementsRegistry) {}
 
+  /**
+   * Find the ID of the first element that matches the provided name.
+   * @param name the name of the element to retrieve.
+   */
   getElementIdByName(name: string): string | undefined {
     return this.getElementByName(name)?.id;
   }
 
-  // not optimize, do a full lookup at each call
-  private getElementByName(name: string): BpmnSemantic | undefined {
+  /**
+   * Find the element that matches the provided name.
+   *
+   * Use the `deduplicateOptions` parameter to modify the default behavior of deduplication processing.
+   *
+   * The deduplication process is done in this order:
+   * - look for elements matching the provided kinds. If not specified, use all `BpmnElementKind` values.
+   * - apply the deduplication filter if provided, otherwise take the first element corresponding to the name provided.
+   *
+   * @param name the name of the element to retrieve.
+   * @param deduplicateOptions if not defined, or if the object doesn't define any properties, duplicates are filtered out by selecting the first element corresponding to the name provided.
+   */
+  getElementByName(name: string, deduplicateOptions?: DeduplicateNamesOptions): BpmnSemantic | undefined {
+    // Not optimized, do a full lookup at each call
     // Split query by kind to avoid returning a big chunk of data
-    for (const kind of allBpmnElementKinds) {
-      const candidate = this.elementsRegistry.getModelElementsByKinds(kind).find(element => element.name === name);
+    for (const kind of deduplicateOptions?.kinds ?? allBpmnElementKinds) {
+      const candidate = this.elementsRegistry
+        .getModelElementsByKinds(kind)
+        .filter(element => element.name === name)
+        .find(element => (deduplicateOptions?.filter ?? acceptAll)(element));
       if (candidate) {
         return candidate;
       }

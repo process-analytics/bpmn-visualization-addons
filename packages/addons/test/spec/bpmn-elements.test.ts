@@ -14,14 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import type { ShapeBpmnSemantic } from 'bpmn-visualization';
+
 import { describe, expect, test } from '@jest/globals';
+import { ShapeBpmnElementKind } from 'bpmn-visualization';
 
 import { BpmnElementsIdentifier, BpmnElementsSearcher, BpmnVisualization } from '../../src';
 import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils';
 import { insertBpmnContainerWithoutId } from '../shared/dom-utils';
 import { readFileSync } from '../shared/io-utils';
-import type { ShapeBpmnSemantic } from 'bpmn-visualization';
-import { ShapeBpmnElementKind } from 'bpmn-visualization';
 
 describe('Find elements by providing names', () => {
   const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId() });

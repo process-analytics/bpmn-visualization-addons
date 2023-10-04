@@ -14,9 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import './assets/path-resolver.css';
-import { FitType } from 'bpmn-visualization';
+import './assets/shared.css';
+import './assets/overlays.css';
+import type { FitOptions } from 'bpmn-visualization';
+
 import { BpmnVisualization, OverlaysPlugin } from '@process-analytics/bv-experimental-add-ons';
+import { FitType, ZoomType } from 'bpmn-visualization';
+
 // This is simple example of the BPMN diagram, loaded as string. The '?.raw' extension support is provided by Vite.
 // For other load methods, see https://github.com/process-analytics/bpmn-visualization-examples
 import diagram from './assets/diagram.bpmn?raw';
@@ -24,11 +28,12 @@ import diagram from './assets/diagram.bpmn?raw';
 // Instantiate BpmnVisualization, and pass the OverlaysPlugin
 const bpmnVisualization = new BpmnVisualization({
   container: 'bpmn-container',
-  navigation: { enabled: false },
+  navigation: { enabled: true },
   plugins: [OverlaysPlugin],
 });
 // Load the BPMN diagram defined above
-bpmnVisualization.load(diagram, { fit: { type: FitType.Center, margin: 20 } });
+const fitOptions: FitOptions = { type: FitType.Center, margin: 20 };
+bpmnVisualization.load(diagram, { fit: fitOptions });
 
 // Add overlays
 const overlaysPlugin = bpmnVisualization.getPlugin<OverlaysPlugin>('overlays');
@@ -51,7 +56,17 @@ const handleOverlaysVisibility = (): void => {
   overlaysVisibilityButton.textContent = isOverlaysVisible ? 'Hide overlays' : 'Show overlays';
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-overlaysVisibilityButton.addEventListener('click', _event => {
+overlaysVisibilityButton.addEventListener('click', () => {
   handleOverlaysVisibility();
+});
+
+// Zoom box
+(document.querySelector('.zoomBox .sideButton.float-left') as HTMLButtonElement).addEventListener('click', () => {
+  bpmnVisualization.navigation.zoom(ZoomType.Out);
+});
+(document.querySelector('.zoomBox .sideButton.float-right') as HTMLButtonElement).addEventListener('click', () => {
+  bpmnVisualization.navigation.zoom(ZoomType.In);
+});
+(document.querySelector('.zoomBox .mainButton') as HTMLButtonElement).addEventListener('click', () => {
+  bpmnVisualization.navigation.fit(fitOptions);
 });

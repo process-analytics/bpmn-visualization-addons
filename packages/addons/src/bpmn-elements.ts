@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import type { BpmnElementKind, BpmnSemantic, ElementsRegistry } from 'bpmn-visualization';
+
 import { FlowKind, ShapeBpmnElementKind, ShapeUtil as BaseShapeUtil } from 'bpmn-visualization';
 
 const allBpmnElementKinds: BpmnElementKind[] = [...Object.values(ShapeBpmnElementKind), ...Object.values(FlowKind)];

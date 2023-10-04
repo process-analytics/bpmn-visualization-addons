@@ -14,12 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import type { Overlay } from 'bpmn-visualization';
+import type { mxGraph, mxGraphModel } from 'mxgraph';
+
 import { beforeEach, describe, expect, test } from '@jest/globals';
+
 import { BpmnVisualization, OverlaysPlugin } from '../../../src';
 import { insertBpmnContainerWithoutId } from '../../shared/dom-utils';
 import { readFileSync } from '../../shared/io-utils';
-import type { Overlay } from 'bpmn-visualization';
-import type { mxGraph, mxGraphModel } from 'mxgraph';
 
 /**
  * Information taken from bpmn-visualization QuerySelectors

@@ -73,6 +73,29 @@ export class BpmnElementsSearcher {
     }
     return undefined;
   }
+
+  /**
+   * Returns all elements matching the names passed in parameter.
+   *
+   * The number of elements returned may differ from the number of names passed in parameter:
+   * - if there are no elements matching the names
+   * - if one of the names does not correspond to any elements
+   * - if a name corresponds to several elements (duplicates)
+   *
+   * @param names the names of the elements to retrieve.
+   */
+  getElementsByNames(names: string[]): BpmnSemantic[] {
+    const elements: BpmnSemantic[] = [];
+    for (const kind of allBpmnElementKinds) {
+      elements.push(
+        ...this.elementsRegistry
+          .getModelElementsByKinds(kind)
+          .filter(element => names.includes(element.name))
+          .flat(),
+      );
+    }
+    return elements;
+  }
 }
 
 export class BpmnElementsIdentifier {

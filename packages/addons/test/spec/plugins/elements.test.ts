@@ -41,7 +41,7 @@ describe('Check ElementsPlugin methods', () => {
       kind: ShapeBpmnElementKind.GATEWAY_EXCLUSIVE,
       name: 'gateway 2',
       outgoingIds: ['Flow_0p544v1'],
-      parentId: 'Participant_0onpt9o',
+      parentId: 'Participant_1',
     } as ShapeBpmnSemantic);
   });
 
@@ -60,7 +60,7 @@ describe('Check ElementsPlugin methods', () => {
       kind: ShapeBpmnElementKind.EVENT_END,
       name: 'end event 1',
       outgoingIds: [],
-      parentId: 'Participant_0onpt9o',
+      parentId: 'Participant_1',
     } as ShapeBpmnSemantic);
 
     const bpmnElement2 = bpmnElements[1];
@@ -73,7 +73,7 @@ describe('Check ElementsPlugin methods', () => {
       kind: ShapeBpmnElementKind.EVENT_END,
       name: 'end event 10',
       outgoingIds: [],
-      parentId: 'Participant_0zym2fg',
+      parentId: 'Participant_2',
     } as ShapeBpmnSemantic);
   });
 
@@ -88,7 +88,7 @@ describe('Check ElementsPlugin methods', () => {
       kind: ShapeBpmnElementKind.TASK,
       name: 'task 2.2',
       outgoingIds: ['Flow_1cj2f9n'],
-      parentId: 'Participant_0onpt9o',
+      parentId: 'Participant_1',
     } as ShapeBpmnSemantic);
   });
 
@@ -104,17 +104,17 @@ describe('Check ElementsPlugin methods', () => {
       kind: ShapeBpmnElementKind.TEXT_ANNOTATION,
       name: 'Duplicated name on purpose',
       outgoingIds: [],
-      parentId: 'Participant_0onpt9o',
+      parentId: 'Participant_1',
     } as ShapeBpmnSemantic);
 
     expect(elements[1]).toEqual({
-      id: 'TextAnnotation_13ptcyf',
+      id: 'TextAnnotation_2',
       incomingIds: ['Association_1ovp59n'],
       isShape: true,
       kind: ShapeBpmnElementKind.TEXT_ANNOTATION,
       name: 'Duplicated name on purpose',
       outgoingIds: [],
-      parentId: 'Participant_0zym2fg',
+      parentId: 'Participant_2',
     } as ShapeBpmnSemantic);
   });
 });

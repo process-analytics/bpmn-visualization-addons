@@ -17,7 +17,7 @@ limitations under the License.
 import type { ShapeBpmnSemantic } from 'bpmn-visualization';
 
 import { describe, expect, test } from '@jest/globals';
-import { ShapeBpmnElementKind } from 'bpmn-visualization';
+import { ShapeBpmnElementKind, ShapeBpmnEventDefinitionKind } from 'bpmn-visualization';
 
 import { BpmnElementsIdentifier, BpmnElementsSearcher, BpmnVisualization } from '../../src';
 import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils';
@@ -65,7 +65,7 @@ describe('Find elements by providing names', () => {
     });
   });
 
-  describe('Retrieve objects', () => {
+  describe('Retrieve an single object', () => {
     test('Several existing tasks with the same name with default options', () => {
       expectElementsHavingTheSameName(['Task_1', 'UserTask_with_same_name_as_Task_1'], 'task 1 with duplicate name');
 
@@ -129,6 +129,85 @@ describe('Find elements by providing names', () => {
         name: 'Duplicated name on purpose',
         outgoingIds: [],
         parentId: 'Participant_2',
+      } as ShapeBpmnSemantic);
+    });
+  });
+
+  describe('Retrieve several objects from several names', () => {
+    test('Pass several names that are not duplicated across elements', () => {
+      const elements = bpmnElementsSearcher.getElementsByNames(['gateway 1', 'start event 1']);
+      expect(elements).toHaveLength(2);
+      expect(elements[0]).toEqual({
+        id: 'Gateway_1',
+        incomingIds: ['Flow_0th6cj1'],
+        isShape: true,
+        kind: ShapeBpmnElementKind.GATEWAY_EXCLUSIVE,
+        name: 'gateway 1',
+        outgoingIds: ['Flow_18zkq4t', 'Flow_1xozzqt', 'Flow_1a9vtky'],
+        parentId: 'Participant_1',
+      } as ShapeBpmnSemantic);
+      expect(elements[1]).toEqual({
+        eventDefinitionKind: ShapeBpmnEventDefinitionKind.NONE,
+        id: 'StartEvent_1',
+        incomingIds: [],
+        isShape: true,
+        kind: ShapeBpmnElementKind.EVENT_START,
+        name: 'start event 1',
+        outgoingIds: ['Flow_1yf7yd6'],
+        parentId: 'Participant_1',
+      } as ShapeBpmnSemantic);
+    });
+
+    test('Pass several names whose some have no match', () => {
+      const elements = bpmnElementsSearcher.getElementsByNames(['unknown element 1', 'task 2.1', 'unknown element 2']);
+      expect(elements).toHaveLength(1);
+      expect(elements[0]).toEqual({
+        id: 'Task_2_1',
+        incomingIds: ['Flow_18zkq4t'],
+        isShape: true,
+        kind: ShapeBpmnElementKind.TASK,
+        name: 'task 2.1',
+        outgoingIds: ['Flow_045a06d'],
+        parentId: 'Participant_1',
+      } as ShapeBpmnSemantic);
+    });
+
+    test('Pass several names without any match', () => {
+      const elements = bpmnElementsSearcher.getElementsByNames(['unknown element 1', 'another unknown element', 'unknown element 2']);
+      expect(elements).toHaveLength(0);
+    });
+
+    test('Pass several names whose some relate to several elements (duplicate names)', () => {
+      expectElementsHavingTheSameName(['Task_1', 'UserTask_with_same_name_as_Task_1'], 'task 1 with duplicate name');
+
+      const elements = bpmnElementsSearcher.getElementsByNames(['task 2.2', 'task 1 with duplicate name']);
+      expect(elements).toHaveLength(3);
+      expect(elements[0]).toEqual({
+        id: 'Task_1',
+        incomingIds: ['Flow_1yf7yd6'],
+        isShape: true,
+        kind: ShapeBpmnElementKind.TASK,
+        name: 'task 1 with duplicate name',
+        outgoingIds: ['Flow_0th6cj1'],
+        parentId: 'Participant_1',
+      } as ShapeBpmnSemantic);
+      expect(elements[1]).toEqual({
+        id: 'Activity_08z13ne',
+        incomingIds: ['Flow_1xozzqt'],
+        isShape: true,
+        kind: ShapeBpmnElementKind.TASK,
+        name: 'task 2.2',
+        outgoingIds: ['Flow_1cj2f9n'],
+        parentId: 'Participant_1',
+      } as ShapeBpmnSemantic);
+      expect(elements[2]).toEqual({
+        id: 'UserTask_with_same_name_as_Task_1',
+        incomingIds: ['Flow_1a9vtky'],
+        isShape: true,
+        kind: ShapeBpmnElementKind.TASK_USER,
+        name: 'task 1 with duplicate name',
+        outgoingIds: ['Flow_0i4ule4', 'Association_0fwvz81'],
+        parentId: 'Participant_1',
       } as ShapeBpmnSemantic);
     });
   });

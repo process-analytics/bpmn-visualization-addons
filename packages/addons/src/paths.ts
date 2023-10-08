@@ -95,7 +95,7 @@ export type CasePathResolverInput = {
   /**
    * The IDs of elements (flowNodes/shapes and flows/edges) that are already completed. Non-existing ids will be silently ignored.
    *
-   * `Completed` means that the element has been fully executed or definitively cancelled (for BPM engine that supports it and allow instance continuation of cancelled elements).
+   * `Completed` means that the element has been fully executed or definitively cancelled (for BPM engines that support this and allow cancelled elements to be continued).
    * No further user action or automation will update the element.
    */
   completedIds: string[];

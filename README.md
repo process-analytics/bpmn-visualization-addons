@@ -47,7 +47,8 @@ As far as possible, we maintain compatibility for some minor versions.
 
 See the dedicated [README](packages/addons/README.md).
 
-A live demo is available at ⏩ https://process-analytics.github.io/bv-experimental-add-ons/
+A live demo is available at ⏩ https://process-analytics.github.io/bv-experimental-add-ons/.
+The sources of the demo are available in the [demo](./packages/demo) folder.
 
 
 ## ⚒️ Development Setup

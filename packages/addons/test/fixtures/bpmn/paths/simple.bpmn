@@ -6,41 +6,41 @@
     </bpmn:startEvent>
     <bpmn:task id="Task_1" name="Task 1">
       <bpmn:incoming>Flow_StartEvent_1_Task_1</bpmn:incoming>
-      <bpmn:outgoing>Flow_12pv067</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Task_1_Gateway_1</bpmn:outgoing>
     </bpmn:task>
     <bpmn:sequenceFlow id="Flow_StartEvent_1_Task_1" sourceRef="StartEvent_1" targetRef="Task_1" />
     <bpmn:exclusiveGateway id="Gateway_1">
-      <bpmn:incoming>Flow_12pv067</bpmn:incoming>
-      <bpmn:outgoing>Flow_1qsbuis</bpmn:outgoing>
+      <bpmn:incoming>Flow_Task_1_Gateway_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_Gateway_1_Task_2_1</bpmn:outgoing>
       <bpmn:outgoing>Flow_Gateway_1_Task_2_2</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_12pv067" sourceRef="Task_1" targetRef="Gateway_1" />
-    <bpmn:sequenceFlow id="Flow_1qsbuis" sourceRef="Gateway_1" targetRef="Task_2_1" />
+    <bpmn:sequenceFlow id="Flow_Task_1_Gateway_1" sourceRef="Task_1" targetRef="Gateway_1" />
+    <bpmn:sequenceFlow id="Flow_Gateway_1_Task_2_1" sourceRef="Gateway_1" targetRef="Task_2_1" />
     <bpmn:sequenceFlow id="Flow_Gateway_1_Task_2_2" sourceRef="Gateway_1" targetRef="Task_2_2" />
     <bpmn:sequenceFlow id="Flow_Task_2_2_IntermediateEvent_1" sourceRef="Task_2_2" targetRef="IntermediateEvent_1" />
     <bpmn:exclusiveGateway id="Gateway_2">
       <bpmn:incoming>Flow_IntermediateEvent_1_Gateway_2</bpmn:incoming>
-      <bpmn:incoming>Flow_112r0jv</bpmn:incoming>
-      <bpmn:outgoing>Flow_122udrp</bpmn:outgoing>
+      <bpmn:incoming>Flow_Task_2_1_Gateway_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_Gateway_2_Task_3</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_IntermediateEvent_1_Gateway_2" sourceRef="IntermediateEvent_1" targetRef="Gateway_2" />
-    <bpmn:sequenceFlow id="Flow_112r0jv" sourceRef="Task_2_1" targetRef="Gateway_2" />
-    <bpmn:sequenceFlow id="Flow_122udrp" sourceRef="Gateway_2" targetRef="Task_3" />
+    <bpmn:sequenceFlow id="Flow_Task_2_1_Gateway_2" sourceRef="Task_2_1" targetRef="Gateway_2" />
+    <bpmn:sequenceFlow id="Flow_Gateway_2_Task_3" sourceRef="Gateway_2" targetRef="Task_3" />
     <bpmn:endEvent id="EndEvent_1" name="End event">
-      <bpmn:incoming>Flow_1q25pru</bpmn:incoming>
+      <bpmn:incoming>Flow_Task_3_EndEvent_1</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_1q25pru" sourceRef="Task_3" targetRef="EndEvent_1" />
+    <bpmn:sequenceFlow id="Flow_Task_3_EndEvent_1" sourceRef="Task_3" targetRef="EndEvent_1" />
     <bpmn:userTask id="Task_2_1" name="Task 2.1">
-      <bpmn:incoming>Flow_1qsbuis</bpmn:incoming>
-      <bpmn:outgoing>Flow_112r0jv</bpmn:outgoing>
+      <bpmn:incoming>Flow_Gateway_1_Task_2_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_Task_2_1_Gateway_2</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:scriptTask id="Task_2_2" name="Task 2.2">
       <bpmn:incoming>Flow_Gateway_1_Task_2_2</bpmn:incoming>
       <bpmn:outgoing>Flow_Task_2_2_IntermediateEvent_1</bpmn:outgoing>
     </bpmn:scriptTask>
     <bpmn:serviceTask id="Task_3" name="Task 3">
-      <bpmn:incoming>Flow_122udrp</bpmn:incoming>
-      <bpmn:outgoing>Flow_1q25pru</bpmn:outgoing>
+      <bpmn:incoming>Flow_Gateway_2_Task_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_Task_3_EndEvent_1</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:intermediateCatchEvent id="IntermediateEvent_1" name="Timer intermediate event">
       <bpmn:incoming>Flow_Task_2_2_IntermediateEvent_1</bpmn:incoming>
@@ -94,11 +94,11 @@
         <di:waypoint x="209" y="120" />
         <di:waypoint x="260" y="120" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_12pv067_di" bpmnElement="Flow_12pv067">
+      <bpmndi:BPMNEdge id="Flow_Task_1_Gateway_1_di" bpmnElement="Flow_Task_1_Gateway_1">
         <di:waypoint x="360" y="120" />
         <di:waypoint x="415" y="120" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1qsbuis_di" bpmnElement="Flow_1qsbuis">
+      <bpmndi:BPMNEdge id="Flow_Gateway_1_Task_2_1_di" bpmnElement="Flow_Gateway_1_Task_2_1">
         <di:waypoint x="465" y="120" />
         <di:waypoint x="520" y="120" />
       </bpmndi:BPMNEdge>
@@ -116,15 +116,15 @@
         <di:waypoint x="790" y="230" />
         <di:waypoint x="790" y="145" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_112r0jv_di" bpmnElement="Flow_112r0jv">
+      <bpmndi:BPMNEdge id="Flow_Task_2_1_Gateway_2_di" bpmnElement="Flow_Task_2_1_Gateway_2">
         <di:waypoint x="620" y="120" />
         <di:waypoint x="765" y="120" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_122udrp_di" bpmnElement="Flow_122udrp">
+      <bpmndi:BPMNEdge id="Flow_Gateway_2_Task_3_di" bpmnElement="Flow_Gateway_2_Task_3">
         <di:waypoint x="815" y="120" />
         <di:waypoint x="870" y="120" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1q25pru_di" bpmnElement="Flow_1q25pru">
+      <bpmndi:BPMNEdge id="Flow_Task_3_EndEvent_1_di" bpmnElement="Flow_Task_3_EndEvent_1">
         <di:waypoint x="970" y="120" />
         <di:waypoint x="1032" y="120" />
       </bpmndi:BPMNEdge>

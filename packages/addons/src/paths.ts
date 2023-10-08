@@ -99,11 +99,6 @@ export type CasePathResolverInput = {
    * No further user action or automation will update the element.
    */
   completedIds: string[];
-  // TODO move in another PR
-  /**
-   * The IDs of elements (flowNodes/shapes and flows/edges) that are pending or in progress. Non-existing ids will be silently ignored.
-   */
-  pendingIds?: string[];
 };
 
 export type CasePathResolverOutput = {

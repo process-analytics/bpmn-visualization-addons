@@ -66,12 +66,24 @@ Limitations
 - There is no guarantee that names are unique in the BPMN source. In case that there are several matches, `BpmnElementsSearcher` returns the first matching id.
 
 
-### `PathResolver`
-
-Infer BPMN path. Currently, only infer edges/flows given a list of flow node ids.
+### Available implementations for `Path Resolution`
 
 **WARNING**: this is front-end processing. It's more efficient for this type of processing to be carried out in the backend.
 Use it to bypass the limitations of the tools and algorithms provided in the backend.
+
+The `Path Resolution` infers a BPMN path from elements known to be completed or pending.
+
+#### `PathResolver`
+
+As it is generic and covers general use cases, its capabilities are limited.
+
+It only infers edges/flows given a list of flowNode/shape ids.
+
+#### `CasePathResolver`
+
+Provides path resolution for a single process instance/case.
+
+It is an enhanced implementation of `PathResolver` with resolution options and returns categorized `BpmnSemantic` objects.
 
 
 ### `ShapeUtil`

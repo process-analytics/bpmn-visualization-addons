@@ -14,23 +14,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { beforeEach, describe, expect, test } from '@jest/globals';
+import type { BpmnSemantic, EdgeBpmnSemantic, ShapeBpmnSemantic } from 'bpmn-visualization';
 
-import { PathResolver } from '../../src';
+import { beforeEach, describe, expect, test } from '@jest/globals';
+import { FlowKind, ShapeBpmnElementKind, ShapeBpmnEventDefinitionKind } from 'bpmn-visualization';
+
+import { CasePathResolver, PathResolver } from '../../src';
 import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils';
 import { readFileSync } from '../shared/io-utils';
 
-describe('getVisitedEdges', () => {
-  const bpmnVisualization = createNewBpmnVisualizationWithoutContainer();
+const bpmnVisualization = createNewBpmnVisualizationWithoutContainer();
+const ensureElementsExistInModel = (ids: string[]): void => {
+  expect(bpmnVisualization.bpmnElementsRegistry.getModelElementsByIds(ids)).toHaveLength(ids.length);
+};
+
+describe('PathResolver', () => {
   const pathResolver = new PathResolver(bpmnVisualization.bpmnElementsRegistry);
 
   beforeEach(() => {
     bpmnVisualization.load(readFileSync('./fixtures/bpmn/paths/simple.bpmn'));
   });
-
-  const ensureElementsExistInModel = (ids: string[]): void => {
-    expect(bpmnVisualization.bpmnElementsRegistry.getModelElementsByIds(ids)).toHaveLength(ids.length);
-  };
 
   test('Passing a single flow node id', () => {
     const ids = ['Task_2_1'];
@@ -70,7 +73,7 @@ describe('getVisitedEdges', () => {
   });
 
   test('Passing edge ids only', () => {
-    const ids = ['Flow_StartEvent_1_Task_1', 'Flow_12pv067'];
+    const ids = ['Flow_StartEvent_1_Task_1', 'Flow_Task_1_Gateway_1'];
     ensureElementsExistInModel(ids);
     expect(pathResolver.getVisitedEdges(ids)).toEqual([]);
   });
@@ -137,5 +140,181 @@ describe('getVisitedEdges', () => {
         'Flow_1eb0isl', // sourceRef="IntermediateEvent_Catch_Message_1" targetRef="Activity_1n685qk"
       ]);
     });
+  });
+});
+
+const mapToIds = (elements: BpmnSemantic[]): string[] => elements.map(element => element.id);
+
+describe('CasePathResolver', () => {
+  const pathResolver = new CasePathResolver(bpmnVisualization.bpmnElementsRegistry);
+
+  beforeEach(() => {
+    bpmnVisualization.load(readFileSync('./fixtures/bpmn/paths/simple.bpmn'));
+  });
+
+  test('Pass empty input for completedIds, so nothing to compute', () => {
+    const path = pathResolver.compute({ completedIds: [] });
+
+    const providedElementsCompleted = path.provided.completed;
+    expect(providedElementsCompleted.shapes).toEqual([]);
+    expect(providedElementsCompleted.edges).toEqual([]);
+
+    const computedElementsCompleted = path.computed.completed;
+    expect(computedElementsCompleted.shapes).toEqual([]);
+    expect(computedElementsCompleted.edges).toEqual([]);
+  });
+
+  test('Pass shapes only for completedIds, so compute only edges', () => {
+    // StartEvent_1 --> Task_1 --> Gateway_1 --> Task_2_1 --> Gateway_2 --> Task_3 --> EndEvent_1
+    const completedIds = ['Task_1', 'StartEvent_1', 'Task_3', 'EndEvent_1'];
+    ensureElementsExistInModel(completedIds);
+
+    const path = pathResolver.compute({ completedIds: completedIds });
+
+    const providedElementsCompleted = path.provided.completed;
+    expect(mapToIds(providedElementsCompleted.shapes)).toEqual(['Task_1', 'StartEvent_1', 'Task_3', 'EndEvent_1']);
+    expect(providedElementsCompleted.edges).toEqual([]);
+
+    const computedElementsCompleted = path.computed.completed;
+    expect(computedElementsCompleted.shapes).toEqual([]);
+    expect(mapToIds(computedElementsCompleted.edges)).toEqual(['Flow_StartEvent_1_Task_1', 'Flow_Task_3_EndEvent_1']);
+    // only check the properties for one element, assuming that remaining elements are retrieved in the same way
+    expect(computedElementsCompleted.edges[1]).toEqual({
+      id: 'Flow_Task_3_EndEvent_1',
+      isShape: false,
+      kind: FlowKind.SEQUENCE_FLOW,
+      sourceRefId: 'Task_3',
+      targetRefId: 'EndEvent_1',
+    } as EdgeBpmnSemantic);
+  });
+
+  test('Pass edges only for completedIds, so compute only shapes', () => {
+    // StartEvent_1 --> Task_1 --> Gateway_1 --> Task_2_1 ----------------------> Gateway_2 --> Task_3 --> EndEvent_1
+    //                                |--------> Task_2_2 --> IntermediateEvent_1 ---|
+    const completedIds = ['Flow_Task_1_Gateway_1', 'Flow_Task_2_2_IntermediateEvent_1'];
+    ensureElementsExistInModel(completedIds);
+
+    const path = pathResolver.compute({ completedIds: completedIds });
+
+    const providedElementsCompleted = path.provided.completed;
+    expect(providedElementsCompleted.shapes).toEqual([]);
+    expect(mapToIds(providedElementsCompleted.edges)).toEqual(['Flow_Task_1_Gateway_1', 'Flow_Task_2_2_IntermediateEvent_1']);
+
+    const computedElementsCompleted = path.computed.completed;
+    expect(computedElementsCompleted.edges).toEqual([]);
+    expect(mapToIds(computedElementsCompleted.shapes)).toEqual(['Task_1', 'Gateway_1', 'Task_2_2', 'IntermediateEvent_1']);
+    // only check the properties for one element, assuming that remaining elements are retrieved in the same way
+    expect(computedElementsCompleted.shapes[3]).toEqual({
+      eventDefinitionKind: ShapeBpmnEventDefinitionKind.TIMER,
+      id: 'IntermediateEvent_1',
+      incomingIds: ['Flow_Task_2_2_IntermediateEvent_1'],
+      isShape: true,
+      kind: ShapeBpmnElementKind.EVENT_INTERMEDIATE_CATCH,
+      name: 'Timer intermediate event',
+      outgoingIds: ['Flow_IntermediateEvent_1_Gateway_2'],
+    } as ShapeBpmnSemantic);
+  });
+
+  test('Pass 2 consecutive edges only for completedIds, so compute only shapes without duplicates', () => {
+    // StartEvent_1 --> Task_1 --> Gateway_1 --> Task_2_1 ----------------------> Gateway_2 --> Task_3 --> EndEvent_1
+    //                                |--------> Task_2_2 --> IntermediateEvent_1 ---|
+    const completedIds = ['Flow_Task_1_Gateway_1', 'Flow_StartEvent_1_Task_1'];
+    ensureElementsExistInModel(completedIds);
+
+    const path = pathResolver.compute({ completedIds: completedIds });
+
+    const computedElementsCompleted = path.computed.completed;
+    expect(computedElementsCompleted.edges).toEqual([]);
+    expect(mapToIds(computedElementsCompleted.shapes)).toEqual(['Task_1', 'Gateway_1', 'StartEvent_1']);
+  });
+
+  test('Pass duplicated shapes and edges for completedIds', () => {
+    // StartEvent_1 --> Task_1 --> Gateway_1 --> Task_2_1 --> Gateway_2 --> Task_3 --> EndEvent_1
+    const completedIds = [
+      'Task_1',
+      'StartEvent_1',
+      'Flow_Gateway_1_Task_2_1',
+      // duplicates
+      'Flow_Gateway_1_Task_2_1',
+      'Task_1',
+      'Flow_Gateway_1_Task_2_1',
+      'Task_1',
+      'StartEvent_1',
+    ];
+    ensureElementsExistInModel(completedIds);
+
+    const path = pathResolver.compute({ completedIds: completedIds });
+
+    const providedElementsCompleted = path.provided.completed;
+    expect(mapToIds(providedElementsCompleted.shapes)).toEqual(['Task_1', 'StartEvent_1']);
+    expect(mapToIds(providedElementsCompleted.edges)).toEqual(['Flow_Gateway_1_Task_2_1']);
+
+    const computedElementsCompleted = path.computed.completed;
+    expect(mapToIds(computedElementsCompleted.shapes)).toEqual(['Gateway_1', 'Task_2_1']);
+    expect(mapToIds(computedElementsCompleted.edges)).toEqual(['Flow_StartEvent_1_Task_1']);
+  });
+
+  test('Passing both existing and non existing ids for completedIds, both shapes and edges', () => {
+    const existingIds = ['Task_2_1', 'Flow_StartEvent_1_Task_1', 'Gateway_1', 'Flow_IntermediateEvent_1_Gateway_2'];
+    ensureElementsExistInModel(existingIds);
+
+    const path = pathResolver.compute({ completedIds: [...existingIds, 'not_existing_1', 'not_existing_2'] });
+
+    const providedElementsCompleted = path.provided.completed;
+    expect(mapToIds(providedElementsCompleted.shapes)).toEqual(['Task_2_1', 'Gateway_1']);
+    expect(mapToIds(providedElementsCompleted.edges)).toEqual(['Flow_StartEvent_1_Task_1', 'Flow_IntermediateEvent_1_Gateway_2']);
+    // only check the properties for one element, assuming that remaining elements are retrieved in the same way
+    expect(providedElementsCompleted.shapes[0]).toEqual({
+      id: 'Task_2_1',
+      incomingIds: ['Flow_Gateway_1_Task_2_1'],
+      isShape: true,
+      kind: ShapeBpmnElementKind.TASK_USER,
+      name: 'Task 2.1',
+      outgoingIds: ['Flow_Task_2_1_Gateway_2'],
+    } as ShapeBpmnSemantic);
+    expect(providedElementsCompleted.edges[0]).toEqual({
+      id: 'Flow_StartEvent_1_Task_1',
+      isShape: false,
+      kind: FlowKind.SEQUENCE_FLOW,
+      sourceRefId: 'StartEvent_1',
+      targetRefId: 'Task_1',
+    } as EdgeBpmnSemantic);
+
+    const computedElementsCompleted = path.computed.completed;
+    expect(mapToIds(computedElementsCompleted.shapes)).toEqual(['StartEvent_1', 'Task_1', 'IntermediateEvent_1', 'Gateway_2']);
+    // only check the properties for one element, assuming that remaining elements are retrieved in the same way
+    expect(computedElementsCompleted.shapes[3]).toEqual({
+      id: 'Gateway_2',
+      incomingIds: ['Flow_IntermediateEvent_1_Gateway_2', 'Flow_Task_2_1_Gateway_2'],
+      isShape: true,
+      kind: ShapeBpmnElementKind.GATEWAY_EXCLUSIVE,
+      outgoingIds: ['Flow_Gateway_2_Task_3'],
+    } as ShapeBpmnSemantic);
+
+    expect(mapToIds(computedElementsCompleted.edges)).toEqual(['Flow_Gateway_1_Task_2_1']);
+    expect(computedElementsCompleted.edges[0]).toEqual({
+      id: 'Flow_Gateway_1_Task_2_1',
+      isShape: false,
+      kind: FlowKind.SEQUENCE_FLOW,
+      sourceRefId: 'Gateway_1',
+      targetRefId: 'Task_2_1',
+    } as EdgeBpmnSemantic);
+  });
+
+  test('Do not return computed elements that are already provided, both shapes and edges', () => {
+    const completedIds = ['Task_1', 'Flow_StartEvent_1_Task_1', 'StartEvent_1'];
+    ensureElementsExistInModel(completedIds);
+
+    const path = pathResolver.compute({ completedIds: completedIds });
+
+    const providedElementsCompleted = path.provided.completed;
+    expect(mapToIds(providedElementsCompleted.shapes)).toEqual(['Task_1', 'StartEvent_1']);
+    expect(mapToIds(providedElementsCompleted.edges)).toEqual(['Flow_StartEvent_1_Task_1']);
+
+    const computedElementsCompleted = path.computed.completed;
+    // Already provided: 'StartEvent_1', 'Task_1'
+    expect(mapToIds(computedElementsCompleted.shapes)).toEqual([]);
+    // Already provide: Flow_StartEvent_1_Task_1
+    expect(mapToIds(computedElementsCompleted.edges)).toEqual([]);
   });
 });

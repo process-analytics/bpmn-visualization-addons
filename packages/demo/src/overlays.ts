@@ -24,12 +24,13 @@ import { FitType, ZoomType } from 'bpmn-visualization';
 // This is simple example of the BPMN diagram, loaded as string. The '?.raw' extension support is provided by Vite.
 // For other load methods, see https://github.com/process-analytics/bpmn-visualization-examples
 import diagram from './assets/diagram.bpmn?raw';
+import { OverlaysByStatusPlugin } from './plugins/custom-overlays';
 
 // Instantiate BpmnVisualization, and pass the OverlaysPlugin
 const bpmnVisualization = new BpmnVisualization({
   container: 'bpmn-container',
   navigation: { enabled: true },
-  plugins: [OverlaysPlugin],
+  plugins: [OverlaysPlugin, OverlaysByStatusPlugin],
 });
 // Load the BPMN diagram defined above
 const fitOptions: FitOptions = { type: FitType.Center, margin: 20 };
@@ -75,8 +76,8 @@ overlaysVisibilityButton.addEventListener('click', () => {
 // CUSTOM CODE
 // =================================================================================================================================================================================
 // Add overlays "by status"
-// const overlaysByStatusPlugin = bpmnVisualization.getPlugin<OverlaysByStatusPlugin>('overlays-by-status');
-// SRM subprocess
-// overlaysByStatusPlugin.addOverlayForSuccess('Activity_0ec8azh', 123);
+const overlaysByStatusPlugin = bpmnVisualization.getPlugin<OverlaysByStatusPlugin>('overlays-by-status');
+// // SRM subprocess
+overlaysByStatusPlugin.addOverlayForSuccess('Activity_0ec8azh', 123);
 // Record Service Entry Sheet
-// overlaysByStatusPlugin.addOverlayForError('Activity_06cvihl', 100);
+overlaysByStatusPlugin.addOverlayForError('Activity_06cvihl', 100);

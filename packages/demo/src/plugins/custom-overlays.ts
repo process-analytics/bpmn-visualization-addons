@@ -28,27 +28,27 @@ export class OverlaysByStatusPlugin implements Plugin {
     return 'overlays-by-status';
   }
 
-  addOverlayForSuccess(bpmnElementId: string, executionCount: number): void {
-    this.overlaysRegistry.addOverlays(bpmnElementId, {
-      position: 'top-left',
-      label: `${executionCount}`,
-      style: {
-        font: { color: 'white', size: 24 },
-        fill: { color: 'DarkSeaGreen' },
-        stroke: { color: 'DarkSeaGreen', width: 2 },
-      },
-    });
-  }
-
-  addOverlayForError(bpmnElementId: string, executionCount: number): void {
-    this.overlaysRegistry.addOverlays(bpmnElementId, {
-      position: 'top-right',
-      label: `${executionCount}`,
-      style: {
-        font: { color: 'white', size: 28 },
-        fill: { color: 'Red' },
-        stroke: { color: 'Red', width: 2 },
-      },
-    });
-  }
+  // addOverlayForSuccess(bpmnElementId: string, executionCount: number): void {
+  //   this.overlaysRegistry.addOverlays(bpmnElementId, {
+  //     position: 'top-left',
+  //     label: `${executionCount}`,
+  //     style: {
+  //       font: { color: 'white', size: 24 },
+  //       fill: { color: 'DarkSeaGreen' },
+  //       stroke: { color: 'DarkSeaGreen', width: 2 },
+  //     },
+  //   });
+  // }
+  //
+  // addOverlayForError(bpmnElementId: string, executionCount: number): void {
+  //   this.overlaysRegistry.addOverlays(bpmnElementId, {
+  //     position: 'top-right',
+  //     label: `${executionCount}`,
+  //     style: {
+  //       font: { color: 'white', size: 28 },
+  //       fill: { color: 'Red' },
+  //       stroke: { color: 'Red', width: 2 },
+  //     },
+  //   });
+  // }
 }

@@ -17,7 +17,7 @@ limitations under the License.
 import type { BpmnVisualization, Plugin } from '@process-analytics/bv-experimental-add-ons';
 import type { OverlaysRegistry } from 'bpmn-visualization';
 
-export class OverlaysByPlugin implements Plugin {
+export class OverlaysByStatusPlugin implements Plugin {
   private readonly overlaysRegistry: OverlaysRegistry;
 
   constructor(bpmnVisualization: BpmnVisualization) {
@@ -26,5 +26,29 @@ export class OverlaysByPlugin implements Plugin {
 
   getPluginId(): string {
     return 'overlays-by-status';
+  }
+
+  addOverlayForSuccess(bpmnElementId: string, executionCount: number): void {
+    this.overlaysRegistry.addOverlays(bpmnElementId, {
+      position: 'top-left',
+      label: `${executionCount}`,
+      style: {
+        font: { color: 'white', size: 24 },
+        fill: { color: 'DarkSeaGreen' },
+        stroke: { color: 'DarkSeaGreen', width: 2 },
+      },
+    });
+  }
+
+  addOverlayForError(bpmnElementId: string, executionCount: number): void {
+    this.overlaysRegistry.addOverlays(bpmnElementId, {
+      position: 'top-right',
+      label: `${executionCount}`,
+      style: {
+        font: { color: 'white', size: 28 },
+        fill: { color: 'Red' },
+        stroke: { color: 'Red', width: 2 },
+      },
+    });
   }
 }

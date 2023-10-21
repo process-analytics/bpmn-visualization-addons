@@ -25,7 +25,8 @@ import { readFileSync } from '../shared/io-utils';
 
 const bpmnVisualization = createNewBpmnVisualizationWithoutContainer();
 const ensureElementsExistInModel = (ids: string[]): void => {
-  expect(bpmnVisualization.bpmnElementsRegistry.getModelElementsByIds(ids)).toHaveLength(ids.length);
+  const uniqueIds = [...new Set(ids)];
+  expect(bpmnVisualization.bpmnElementsRegistry.getModelElementsByIds(ids)).toHaveLength(uniqueIds.length);
 };
 
 describe('PathResolver', () => {

@@ -44,7 +44,7 @@
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --runInBand"
   },
   "peerDependencies": {
-    "bpmn-visualization": ">=0.40.0"
+    "bpmn-visualization": ">=0.42.0"
   },
   "devDependencies": {
     "@jest/globals": "~29.7.0",

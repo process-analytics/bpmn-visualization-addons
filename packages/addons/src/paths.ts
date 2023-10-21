@@ -16,9 +16,6 @@ limitations under the License.
 
 import type { EdgeBpmnSemantic, ElementsRegistry, ShapeBpmnSemantic } from 'bpmn-visualization';
 
-// bpmn-visualization does not filter duplicates when passing an ids several times
-const filterDuplicates = (ids: string[]): string[] => [...new Set(ids)];
-
 const inferEdgeIds = (shapes: ShapeBpmnSemantic[]): string[] => {
   const incomingIds: string[] = [];
   const outgoingIds: string[] = [];
@@ -45,7 +42,7 @@ export class PathResolver {
    * @param shapeIds the ids used to compute the visited edges
    */
   getVisitedEdges(shapeIds: string[]): string[] {
-    const shapes = this.elementsRegistry.getModelElementsByIds(filterDuplicates(shapeIds)).filter(element => element.isShape) as ShapeBpmnSemantic[];
+    const shapes = this.elementsRegistry.getModelElementsByIds(shapeIds).filter(element => element.isShape) as ShapeBpmnSemantic[];
     return inferEdgeIds(shapes);
   }
 }
@@ -59,7 +56,7 @@ export class CasePathResolver {
   constructor(private readonly elementsRegistry: ElementsRegistry) {}
 
   compute(input: CasePathResolverInput): CasePathResolverOutput {
-    const completedElements = this.elementsRegistry.getModelElementsByIds(filterDuplicates(input.completedIds));
+    const completedElements = this.elementsRegistry.getModelElementsByIds(input.completedIds);
 
     const completedShapes = completedElements.filter(element => element.isShape) as ShapeBpmnSemantic[];
     const completedEdges = completedElements.filter(element => !element.isShape) as EdgeBpmnSemantic[];
@@ -72,7 +69,7 @@ export class CasePathResolver {
 
     // infer shapes from edges
     const computedCompletedShapeIds = completedEdges.flatMap(edge => [edge.sourceRefId, edge.targetRefId]).filter(id => !inputElementIds.has(id));
-    const computedCompletedShapes = this.elementsRegistry.getModelElementsByIds(filterDuplicates(computedCompletedShapeIds)) as ShapeBpmnSemantic[];
+    const computedCompletedShapes = this.elementsRegistry.getModelElementsByIds(computedCompletedShapeIds) as ShapeBpmnSemantic[];
 
     return {
       provided: {

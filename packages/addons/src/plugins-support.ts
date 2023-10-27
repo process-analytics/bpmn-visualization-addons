@@ -16,10 +16,26 @@ limitations under the License.
 
 import { BpmnVisualization as BaseBpmnVisualization, type GlobalOptions as BaseGlobalOptions } from 'bpmn-visualization';
 
+/**
+ * Enforce the Plugin constructor signature.
+ * Inspired from https://www.typescriptlang.org/docs/handbook/interfaces.html#difference-between-the-static-and-instance-sides-of-classes (deprecated page, but sill working).
+ */
 export type PluginConstructor = new (bpmnVisualization: BpmnVisualization, options: GlobalOptions) => Plugin;
 
+/**
+ * Plugin lifecycle:
+ *   - construct
+ *   - configure
+ */
 export interface Plugin {
+  /** Returns the unique identifier of the plugin. It is not possible to use several plugins having the same identifier. */
   getPluginId(): string;
+
+  /**
+   * Implement this method to configure the plugin after initialization.
+   * @param options The options passed to the BpmnVisualization instance, used to configure the plugin.
+   */
+  configure?: (options: GlobalOptions) => void;
 }
 
 /**
@@ -29,7 +45,7 @@ export interface Plugin {
  * In this case, proceed as in the following example to add the plugins configuration to the custom `GlobalOptions`.
  *
  * ```ts
- * // Assuming you have a `CustomGlobalOptions`
+ * // Assuming you have a `CustomGlobalOptions` type extending the bpmn-visualization `GlobalOptions` type
  * type GlobalOptionsWithPluginsSupport = CustomGlobalOptions & PluginOptionExtension;
  * ```
  *
@@ -46,7 +62,15 @@ export class BpmnVisualization extends BaseBpmnVisualization {
 
   constructor(options: GlobalOptions) {
     super(options);
+    this.registerPlugins(options);
+  }
 
+  getPlugin<T extends Plugin>(id: string): T {
+    return this.plugins.get(id) as T;
+  }
+
+  private registerPlugins = (options: GlobalOptions): void => {
+    // construct
     for (const constructor of options.plugins ?? []) {
       const plugin = new constructor(this, options);
       const pluginId = plugin.getPluginId();
@@ -55,9 +79,10 @@ export class BpmnVisualization extends BaseBpmnVisualization {
       }
       this.plugins.set(pluginId, plugin);
     }
-  }
 
-  getPlugin<T extends Plugin>(id: string): T {
-    return this.plugins.get(id) as T;
-  }
+    // configure
+    for (const plugin of this.plugins.values()) {
+      plugin.configure?.(options);
+    }
+  };
 }

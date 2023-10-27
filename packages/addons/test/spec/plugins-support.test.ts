@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import type { Plugin } from '../../src';
+import type { GlobalOptions } from 'bpmn-visualization';
 
 import { describe, expect, test } from '@jest/globals';
 
@@ -26,7 +27,7 @@ test('No error when no plugin is defined', () => {
   expect(bpmnVisualization.getPlugin('unknown')).toBeUndefined();
 });
 
-class MyCustomPlugin1 {
+class MyCustomPlugin1 implements Plugin {
   getPluginId(): string {
     return 'custom-plugin-1';
   }
@@ -50,7 +51,7 @@ test('Load a untyped plugin and use it', () => {
   expect((plugin as MyCustomPlugin1).doSomethingSpecial()).toBe(5);
 });
 
-class MyCustomPlugin2 {
+class MyCustomPlugin2 implements Plugin {
   getPluginId(): string {
     return 'custom-plugin-2';
   }
@@ -99,5 +100,44 @@ describe('Prevent multiple plugins with the same ID from loading', () => {
     expect(() => new BpmnVisualization({ container: undefined!, plugins: [MyCustomPlugin2, MyCustomPlugin2SubClass] })).toThrow(
       "Plugin loading fails. It is not possible to register multiple plugins with the same 'custom-plugin-2' identifier.",
     );
+  });
+});
+
+describe('Ensure that plugins are configured', () => {
+  type CustomGlobalOptions = GlobalOptions & {
+    customValue?: string;
+  };
+  class ConfigurablePlugin implements Plugin {
+    #isConfigured = false;
+    #customValue = 'not configured';
+
+    get isConfigured(): boolean {
+      return this.#isConfigured;
+    }
+    get customValue(): string {
+      return this.#customValue;
+    }
+
+    configure(options: CustomGlobalOptions): void {
+      this.#isConfigured = true;
+      this.#customValue = options.customValue ?? 'no passed in options';
+    }
+
+    getPluginId(): string {
+      return 'custom-configurable-plugin';
+    }
+  }
+
+  test('Check the properties of the configurable plugin after construction', () => {
+    const configurablePlugin = new ConfigurablePlugin();
+    expect(configurablePlugin.isConfigured).toBeFalsy();
+    expect(configurablePlugin.customValue).toBe('not configured');
+  });
+
+  test('Ensure that the configurable plugin is configured after BpmnVisualization initialization', () => {
+    const bpmnVisualization = new BpmnVisualization({ container: undefined!, customValue: 'custom in options', plugins: [ConfigurablePlugin] } as CustomGlobalOptions);
+    const configurablePlugin = bpmnVisualization.getPlugin<ConfigurablePlugin>('custom-configurable-plugin');
+    expect(configurablePlugin.isConfigured).toBeTruthy();
+    expect(configurablePlugin.customValue).toBe('custom in options'); // ensure that the options are passed to the plugin configuration
   });
 });

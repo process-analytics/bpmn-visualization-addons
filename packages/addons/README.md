@@ -46,6 +46,14 @@ myPlugin.aMethod();
   - let show/hide overlays created with `BpmnElementsRegistry.addOverlays`.
   - provides all `BpmnElementsRegistry` methods relating to overlays.
 
+#### Writing a custom plugin
+
+A plugin is defined as a class:
+- It must implement the `Plugin` interface.
+- Its constructor must satisfy the `PluginConstructor` type.
+- It can implement the `configure` method to configure the plugin after construction.
+- It can provide new methods to extend existing API or introduce new behavior .
+
 
 ### `BpmnElementsIdentifier`
 

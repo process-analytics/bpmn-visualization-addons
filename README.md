@@ -1,4 +1,4 @@
-<h1 align="center">bpmn-visualization experimental add-ons</h1>
+<h1 align="center">bpmn-visualization add-ons</h1>
 <div align="center">
     <p align="center"> 
         <a href="https://npmjs.org/package/@process-analytics/bv-experimental-add-ons">
@@ -27,16 +27,14 @@
 </div>  
 <br>
 
-Experimental add-ons for [bpmn-visualization](https://github.com/process-analytics/bpmn-visualization-js).
 
+## 🔆 Presentation
 
-## 🔆 Project Status
+`bv-experimental-add-ons` offers new functionalities to [bpmn-visualization](https://github.com/process-analytics/bpmn-visualization-js) in the form of add-ons.
 
-`bv-experimental-add-ons` is at an early stage of development.
-
-It provides new experimental features for `bpmn-visualization`.
-
+`bv-experimental-add-ons` is being actively developed.
 Before the release of version `1.0.0`, there may be some breaking changes.
+
 <!--
 We avoid these as much as possible, and carefully document them in the release notes.
 As far as possible, we maintain compatibility for some minor versions.

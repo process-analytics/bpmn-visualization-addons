@@ -1,6 +1,6 @@
-# bpmn-visualization experimental add-ons
+# bpmn-visualization add-ons
 
-Experimental add-ons for [bpmn-visualization](https://github.com/process-analytics/bpmn-visualization-js).
+`bv-experimental-add-ons` offers new functionalities to [bpmn-visualization](https://github.com/process-analytics/bpmn-visualization-js) in the form of add-ons.
 
 
 ## 📌 Usage

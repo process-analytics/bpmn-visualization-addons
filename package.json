@@ -6,11 +6,11 @@
     "./packages/*"
   ],
   "scripts": {
+    "dev:demo": "concurrently -n lib,demo \"npm run dev -w packages/addons\" \"npm run dev -w packages/demo\"",
     "lint": "eslint \"**/*.{js,cjs,mjs,ts,cts,mts}\" --max-warnings 0 --quiet --fix",
     "lint-check": "eslint \"**/*.{js,cjs,mjs,ts,cts,mts}\" --max-warnings 0",
     "prepare": "run-s prepare:*",
-    "prepare:husky": "husky install",
-    "start": "concurrently -n lib,demo \"npm run dev -w packages/addons\" \"npm run dev -w packages/demo\""
+    "prepare:husky": "husky install"
   },
   "devDependencies": {
     "@types/eslint": "~8.44.7",

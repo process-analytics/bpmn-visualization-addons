@@ -57,7 +57,7 @@ This project uses [npm workspaces](https://docs.npmjs.com/cli/v9/using-npm/works
 
 Install dependencies: `npm install`
 
-Develop the lib and live update the demo: run `npm start`. The demo is accessible at http://localhost:5173/
+Develop the lib and live update the demo: run `npm run dev:demo`. The demo is accessible at http://localhost:5173/
 
 
 ## 📃 License

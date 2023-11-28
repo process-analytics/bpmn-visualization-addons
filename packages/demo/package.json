@@ -11,6 +11,6 @@
     "bpmn-visualization": "~0.42.0"
   },
   "devDependencies": {
-    "vite": "~5.0.2"
+    "vite": "~5.0.3"
   }
 }

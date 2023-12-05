@@ -5,6 +5,7 @@ on:
     branches:
       - main
     paths:
+      - '.github/actions/build-setup/**/*'
       - '.github/workflows/build.yml'
       - 'packages/addons/src/**/*'
       - 'packages/addons/test/**/*'
@@ -19,6 +20,7 @@ on:
     branches:
       - main
     paths:
+      - '.github/actions/build-setup/**/*'
       - '.github/workflows/build.yml'
       - 'packages/addons/src/**/*'
       - 'packages/addons/test/**/*'

@@ -1,0 +1,67 @@
+/* The "Zoom Box" style is taken and adapted from https://github.com/process-analytics/bpmn-visualization-examples/blob/v0.41.0/projects/typescript-vue/src/style.css */
+.zoomBox {
+  position: absolute;
+  right: 1.75rem;
+  bottom: 2rem;
+
+  border-radius: 20px;
+  box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.15), 0 2px 2px 0 rgba(0, 0, 0, 0.2);
+  display: inline-block;
+  vertical-align: middle;
+  border: 0;
+}
+
+.zoomBox .sideButton {
+  position: relative;
+  background-color: #fff;
+  color: #333;
+  line-height: inherit;
+  text-align: center;
+  padding: 4px 6px;
+  font-size: 12px;
+  height: 25px;
+  border: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.sideButton.float-left {
+  float: left;
+  border-radius: 20px 0 0 20px;
+}
+.sideButton.float-right {
+  float: right;
+  border-radius: 0 20px 20px 0;
+}
+
+.zoomBox .sideButton svg {
+  height: 80%;
+}
+
+.zoomBox .sideButton:hover {
+  color: #14a9d5;
+  box-shadow: 0 0 3px #14a9d5;
+  z-index: 2;
+}
+
+.zoomBox .mainButton {
+  overflow: visible;
+  vertical-align: middle;
+  padding: 4px 6px;
+  font-size: 12px;
+  height: 25px;
+  background-color: #fff;
+  color: #333;
+  line-height: inherit;
+  position: relative;
+  float: left;
+  border: 0;
+  width: 30px;
+  cursor: pointer;
+}
+
+.zoomBox .mainButton:hover {
+  color: #333;
+  box-shadow: 0 0 3px #14a9d5;
+  z-index: 2;
+}

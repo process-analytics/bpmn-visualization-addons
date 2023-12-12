@@ -19,11 +19,12 @@ import './assets/overlays.css';
 import type { FitOptions } from 'bpmn-visualization';
 
 import { BpmnVisualization, OverlaysPlugin } from '@process-analytics/bv-experimental-add-ons';
-import { FitType, ZoomType } from 'bpmn-visualization';
+import { FitType } from 'bpmn-visualization';
 
 // This is simple example of the BPMN diagram, loaded as string. The '?.raw' extension support is provided by Vite.
 // For other load methods, see https://github.com/process-analytics/bpmn-visualization-examples
 import diagram from './assets/diagram.bpmn?raw';
+import { ZoomComponent } from './shared/zoom-component';
 
 // Instantiate BpmnVisualization, and pass the OverlaysPlugin
 const bpmnVisualization = new BpmnVisualization({
@@ -61,12 +62,4 @@ overlaysVisibilityButton.addEventListener('click', () => {
 });
 
 // Zoom box
-(document.querySelector('.zoomBox .sideButton.float-left') as HTMLButtonElement).addEventListener('click', () => {
-  bpmnVisualization.navigation.zoom(ZoomType.Out);
-});
-(document.querySelector('.zoomBox .sideButton.float-right') as HTMLButtonElement).addEventListener('click', () => {
-  bpmnVisualization.navigation.zoom(ZoomType.In);
-});
-(document.querySelector('.zoomBox .mainButton') as HTMLButtonElement).addEventListener('click', () => {
-  bpmnVisualization.navigation.fit(fitOptions);
-});
+new ZoomComponent(bpmnVisualization, fitOptions).render();

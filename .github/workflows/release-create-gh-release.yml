@@ -34,7 +34,7 @@ jobs:
             - explain the impact (use case, usage, impact a lot of user or only few, ....)
             - add references to issue or pull request to help users to understand the breaking change
 
-            ## Removal of deprecated API
+            ### Removal of deprecated API
 
             **TODO: keep if relevant and follow the guidelines below**
 

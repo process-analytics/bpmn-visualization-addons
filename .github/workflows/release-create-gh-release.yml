@@ -1,0 +1,49 @@
+name: Create GitHub release
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  create_release:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write # create the GH release
+    steps:
+      - name: Set env
+        run: |
+          echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          body: |
+            **Adapt this one liner summary**
+            ⚡ This new version improves ... ⚡
+
+            _If appropriate, briefly explain the contents of the new version._
+
+            **Update the milestone URL**
+            List of issues: [milestone ${{ env.VERSION }}](https://github.com/process-analytics/bv-experimental-add-ons/milestone/x?closed=1)
+
+            ## Breaking changes
+
+            **Fill this paragraph if relevant, otherwise remove it!**
+
+            ## Highlights
+            _Note_: use [release 0.2.0](https://github.com/process-analytics/bv-experimental-add-ons/releases/tag/v0.2.0) and [release 0.6.0](https://github.com/process-analytics/bv-experimental-add-ons/releases/tag/v0.6.0)  as examples
+
+            **Add screenshots, animations or videos to make your description more user-friendly!**
+
+            ### Minimal version of `bpmn-visualization`
+            _Note_: add this paragraph if the version changed
+
+            You must now use `bpmn-visualization` **0.xx.0** or higher with `bv-experimental-add-ons`. The previous version required `bpmn-visualization` _0.yy.0_ or higher.
+
+            ℹ️ For more details, see #<PR_NUMBER>.
+
+            ### Other changes.... adapt and create more paragraphs
+          draft: true
+          generateReleaseNotes: true
+          name: ${{ env.VERSION }}
+          token: ${{ secrets.GH_RELEASE_TOKEN }}

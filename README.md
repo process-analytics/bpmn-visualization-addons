@@ -72,7 +72,10 @@ When all updates have been completed, you are ready to publish a new release.
 
 Go to the [release workflow](https://github.com/process-analytics/bv-experimental-add-ons/actions/workflows/release.yml) in GitHub Actions and run it by choosing the type of release.
 
-This workflow will create a Git tag and trigger the publishing of the npm package.
+This workflow:
+- Creates a Git tag
+- Triggers the publishing of the npm package
+- Creates a draft GitHub release
 
 Manage Milestone:
 - **Note:** we always put issues related to a version in a Milestone whose name matches the version.
@@ -80,17 +83,9 @@ Manage Milestone:
 - Clean this opened milestone if some issues are still opened (move them to a new one or discard milestone from them)
 - Close the milestone
 
-Create a new GitHub release by following the [GitHub help](https://help.github.com/en/github/administering-a-repository/managing-releases-in-a-repository#creating-a-release):
-- Create a new [Draft release](https://github.com/process-analytics/bv-experimental-add-ons/releases/new)
-- `Tag version`: use a value of the tag that has just been created
-- `Name`: same value as the tag, without the `v` prefix i.e. if the tag is `v0.2.0`, the name is `0.2.0`
-- Description
-    - _Note_: use [release 0.2.0](https://github.com/process-analytics/bv-experimental-add-ons/releases/tag/v0.2.0) as an example
-    - briefly explain the contents of the new version
-    - if the minimal version of `bpmn-visualization` changes, mention it clearly
-    - if relevant, create a **Highlight** paragraph and add screenshots, animations or videos to make the changes more user-friendly
-    - reference the GitHub milestone
-    - make GitHub generates the [release notes automatically](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes)
+The release workflow has initiated a new draft GitHub release, which needs to be updated and published :
+- For more details about GitHub release, follow the [GitHub help](https://help.github.com/en/github/administering-a-repository/managing-releases-in-a-repository#creating-a-release):
+- The release notes has been [automatically generated](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes). Review and adjust it if necessary.
 - Publish the GitHub release
 
 

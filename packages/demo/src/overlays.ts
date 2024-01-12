@@ -57,9 +57,7 @@ const handleOverlaysVisibility = (): void => {
   overlaysVisibilityButton.textContent = isOverlaysVisible ? 'Hide overlays' : 'Show overlays';
 };
 
-overlaysVisibilityButton.addEventListener('click', () => {
-  handleOverlaysVisibility();
-});
+overlaysVisibilityButton.addEventListener('click', handleOverlaysVisibility);
 
 // Zoom box
 new ZoomComponent(bpmnVisualization, fitOptions).render();

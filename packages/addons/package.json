@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@jest/globals": "~29.7.0",
-    "@testing-library/jest-dom": "~6.2.1",
+    "@testing-library/jest-dom": "~6.4.0",
     "cross-env": "~7.0.3",
     "eslint-plugin-jest": "~27.6.3",
     "eslint-plugin-jest-dom": "~5.1.0",

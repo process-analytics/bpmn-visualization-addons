@@ -70,7 +70,7 @@ Instead, the application knows the name of the elements. `BpmnElementsSearcher` 
 This is useful for example in "Process Discovery" scenario. The elements are identified by name only. Ids may be generated
 and not fully linked with the name of the elements.
 
-IMPORTANT: There is no guarantee that names are unique in the BPMN source. In case that there are several matches, `BpmnElementsSearcher` is doing filtering (see below).
+IMPORTANT: There is no guarantee that names are unique in the BPMN source. In case that there are several matches, `BpmnElementsSearcher` may do filtering (see below).
 
 #### Retrieving `ids`
 

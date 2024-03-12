@@ -81,7 +81,9 @@ Limitations
 
 #### Retrieving the whole `BpmnSemantic`
 
-`BpmnElementsSearcher` also lets retrieve the whole BpmnSemantic objects `DeduplicateNamesOptions`
+`BpmnElementsSearcher` also provides a method to retrieve the whole BpmnSemantic objects.
+
+In this case, it allows to provide ways to choose the elements if there are several matches for a given name. See `DeduplicateNamesOptions` for more details.
 
 
 

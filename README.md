@@ -59,6 +59,23 @@ Install dependencies: `npm install`
 
 Develop the lib and live update the demo: run `npm run dev:demo`. The demo is accessible at http://localhost:5173/
 
+### Husky settings when using Node Version Managers
+
+Husky runs the pre-commit hook before each commit to ensure that the code meets the standards.
+
+On commit, if you use a Node Manager, the pre-commit hook may generate an `Command not found` error.
+If so, create a [startup file](https://typicode.github.io/husky/how-to.html#startup-files) and add the following content (this example is given for Linux or macOS when using nvm):
+```bash
+# This loads nvm.sh and sets the correct PATH before running hook
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+```
+
+For more details, see
+- https://typicode.github.io/husky/how-to.html#node-version-managers-and-guis
+- https://github.com/typicode/husky/issues/912
+
+
 
 ## 📃 License
 

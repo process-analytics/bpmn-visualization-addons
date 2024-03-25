@@ -62,16 +62,29 @@ Convenient tools to know the type/kind of BPMN elements.
 
 ### `BpmnElementsSearcher`
 
-`bpmn-visualization`only provides APIs that take BPMN element ids as parameters.
+`bpmn-visualization` only provides APIs that take BPMN element ids as parameters.
 However, there are scenario where the ids in the BPMN source/model have been generated and are unknown by the application.
 
-Instead, the app knows the name of the elements. `BpmnElementsSearcher` provides a way to retrieve the ids of elements related to their names.
+Instead, the application knows the name of the elements. `BpmnElementsSearcher` provides a way to retrieve elements given their names.
 
 This is useful for example in "Process Discovery" scenario. The elements are identified by name only. Ids may be generated
 and not fully linked with the name of the elements.
 
+IMPORTANT: There is no guarantee that names are unique in the BPMN source. In case that there are several matches, `BpmnElementsSearcher` may do filtering (see below).
+
+#### Retrieving `ids`
+
+Once you get the ids of elements related to their names, you can then call regular `bpmn-visualization` API by passing the resulting ids.
+
 Limitations
-- There is no guarantee that names are unique in the BPMN source. In case that there are several matches, `BpmnElementsSearcher` returns the first matching id.
+- If there are several matching names, `BpmnElementsSearcher` returns the first matching identifier.
+
+#### Retrieving the whole `BpmnSemantic`
+
+`BpmnElementsSearcher` also provides a method to retrieve the whole BpmnSemantic objects.
+
+In this case, it allows to provide ways to choose the elements if there are several matches for a given name. See `DeduplicateNamesOptions` for more details.
+
 
 
 ### Available implementations for `Path Resolution`

@@ -13,9 +13,9 @@
     "prepare:husky": "husky"
   },
   "devDependencies": {
-    "@types/eslint": "~8.56.6",
-    "@typescript-eslint/eslint-plugin": "~7.4.0",
-    "@typescript-eslint/parser": "~7.4.0",
+    "@types/eslint": "~8.56.7",
+    "@typescript-eslint/eslint-plugin": "~7.5.0",
+    "@typescript-eslint/parser": "~7.5.0",
     "concurrently": "~8.2.2",
     "eslint": "~8.57.0",
     "eslint-config-prettier": "~9.1.0",

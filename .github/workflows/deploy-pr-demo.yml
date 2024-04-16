@@ -39,7 +39,7 @@ jobs:
         with:
           name: demo-pr-${{github.event.pull_request.number}}-${{github.sha}}
           path: packages/demo/dist
-      - uses: bonitasoft/actions/packages/surge-preview-tools@v2
+      - uses: bonitasoft/actions/packages/surge-preview-tools@v3
         id: surge-preview-tools
         with:
           surge-token: ${{ secrets.SURGE_TOKEN }}

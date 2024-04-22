@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { readdirSync } from 'node:fs';
-import { join, dirname, parse, resolve } from 'node:path';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { defineConfig } from 'vite';
@@ -24,17 +24,17 @@ import { defineConfig } from 'vite';
 // Taken from bpmn-visualization test/shared/file-helper.ts
 /** Returns the files in the given directory. The function doesn't do any recursion in subdirectories. */
 function findFiles(relativePathToSourceDirectory: string): string[] {
-  return readdirSync(join(dirname(fileURLToPath(import.meta.url)), relativePathToSourceDirectory));
+  return readdirSync(path.join(path.dirname(fileURLToPath(import.meta.url)), relativePathToSourceDirectory));
 }
 // =====================================================================================================================
 
 function generateInput(): { [p: string]: string } {
   const pages = findFiles('pages');
   const input: { [p: string]: string } = {
-    index: resolve(dirname(fileURLToPath(import.meta.url)), 'index.html'),
+    index: path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'index.html'),
   };
   for (const page of pages) {
-    input[parse(page).name] = resolve(dirname(fileURLToPath(import.meta.url)), `pages/${page}`);
+    input[path.parse(page).name] = path.resolve(path.dirname(fileURLToPath(import.meta.url)), `pages/${page}`);
   }
   return input;
 }

@@ -15,11 +15,11 @@ limitations under the License.
 */
 
 import { readFileSync as fsReadFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // assume that this module/file is stored in a direct sub-folder of the test root
-const testRootFolder = join(__dirname, '..');
+const testRootFolder = path.join(__dirname, '..');
 
-export const readFileSync = (relativePathFromTestRootFolder: string): string => fsReadFileSync(join(testRootFolder, relativePathFromTestRootFolder), { encoding: 'utf8' });
+export const readFileSync = (relativePathFromTestRootFolder: string): string => fsReadFileSync(path.join(testRootFolder, relativePathFromTestRootFolder), { encoding: 'utf8' });

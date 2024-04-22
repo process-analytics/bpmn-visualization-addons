@@ -31,11 +31,14 @@ updates:
             - "cssnano"
             - "postcss*"
             - "tailwindcss"
-       lint:
+       # TMP will be restored in the lint group when all plugins support eslint v9
+       eslint:
           patterns:
             - "@types/eslint"
-            - "@typescript-eslint/*"
             - "eslint"
+       lint:
+          patterns:
+            - "@typescript-eslint/*"
             - "eslint-*"
             - "lint-staged"
             - "prettier"

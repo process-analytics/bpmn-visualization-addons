@@ -18,8 +18,8 @@ import './assets/shared.css';
 import './assets/path-resolver.css';
 import type { BpmnElement } from 'bpmn-visualization';
 
-import { PathResolver, ShapeUtil } from '@process-analytics/bv-experimental-add-ons';
-import { BpmnVisualization, FitType } from 'bpmn-visualization';
+import { BpmnVisualization, ElementsPlugin, PathResolver, ShapeUtil } from '@process-analytics/bv-experimental-add-ons';
+import { FitType } from 'bpmn-visualization';
 
 // This is simple example of the BPMN diagram, loaded as string. The '?.raw' extension support is provided by Vite.
 // For other load methods, see https://github.com/process-analytics/bpmn-visualization-examples
@@ -28,10 +28,12 @@ import diagram from './assets/diagram.bpmn?raw';
 // Instantiate BpmnVisualization, pass the container HTMLElement - present in path-resolver.html
 const bpmnVisualization = new BpmnVisualization({
   container: 'bpmn-container',
+  plugins: [ElementsPlugin],
 });
 // Load the BPMN diagram defined above
 bpmnVisualization.load(diagram, { fit: { type: FitType.Center, margin: 20 } });
 const bpmnElementsRegistry = bpmnVisualization.bpmnElementsRegistry;
+const elementsPlugin = bpmnVisualization.getPlugin<ElementsPlugin>('elements');
 
 const pathResolver = new PathResolver(bpmnElementsRegistry);
 
@@ -61,7 +63,7 @@ function clearPath(): void {
   computedFlows.length = 0;
 }
 
-const getAllFlowNodes = (): BpmnElement[] => bpmnElementsRegistry.getElementsByKinds(ShapeUtil.flowNodeKinds().filter(kind => !ShapeUtil.isBpmnArtifact(kind)));
+const getAllFlowNodes = (): BpmnElement[] => elementsPlugin.getElementsByKinds(ShapeUtil.flowNodeKinds().filter(kind => !ShapeUtil.isBpmnArtifact(kind)));
 
 const setupBpmnElementEventHandlers = (): void => {
   for (const item of getAllFlowNodes()) {

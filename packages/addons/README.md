@@ -24,17 +24,16 @@ The `@process-analytics/bv-experimental-add-ons` npm package includes type defin
 
 The plugins infrastructure provides a way to register extension points.
 
-Important (to continue)
+> [!IMPORTANT]  
+> To be able to register and use the plugins, you need to import `BpmnVisualization` from the `addons` package, and not from `bpmn-visualization`.
 ```diff
 - import {BpmnVisualization} from "bpmn-visualization";
 + import {BpmnVisualization} from "@process-analytics/bv-experimental-add-ons";
 ```
 
-
 Example of use:
 
 ```ts
-// use BpmnVisualization from addons not from bpmn-visualization
 import {BpmnVisualization} from "@process-analytics/bv-experimental-add-ons";
 
 const bpmnVisualization = new BpmnVisualization({

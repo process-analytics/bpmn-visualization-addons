@@ -84,7 +84,6 @@ describe('StyleByNamePlugin', () => {
     });
   });
 
-  // TODO Add the same test for resetStyle + a test when passing undefined or no parameter
   describe('resetStyle', () => {
     test('Pass a single name related to an existing element', () => {
       styleByNamePlugin.resetStyle('gateway 2');

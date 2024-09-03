@@ -16,3 +16,4 @@ limitations under the License.
 
 export * from './elements';
 export * from './overlays';
+export * from './style';

@@ -24,10 +24,16 @@ The `@process-analytics/bv-experimental-add-ons` npm package includes type defin
 
 The plugins infrastructure provides a way to register extension points.
 
+> [!IMPORTANT]  
+> To be able to register and use the plugins, you need to import `BpmnVisualization` from the `addons` package, and not from `bpmn-visualization`.
+```diff
+- import {BpmnVisualization} from "bpmn-visualization";
++ import {BpmnVisualization} from "@process-analytics/bv-experimental-add-ons";
+```
+
 Example of use:
 
 ```ts
-// use BpmnVisualization from addons not from bpmn-visualization
 import {BpmnVisualization} from "@process-analytics/bv-experimental-add-ons";
 
 const bpmnVisualization = new BpmnVisualization({
@@ -45,6 +51,8 @@ myPlugin.aMethod();
 - `OverlaysPlugin`:
   - let show/hide overlays created with `BpmnElementsRegistry.addOverlays`.
   - provides all `BpmnElementsRegistry` methods relating to overlays.
+- `StyleByNamePlugin`: provides all `BpmnElementsRegistry` methods relating to style, identifying the BPMN elements by name.
+
 
 #### Writing a custom plugin
 
@@ -84,7 +92,6 @@ Limitations
 `BpmnElementsSearcher` also provides a method to retrieve the whole BpmnSemantic objects.
 
 In this case, it allows to provide ways to choose the elements if there are several matches for a given name. See `DeduplicateNamesOptions` for more details.
-
 
 
 ### Available implementations for `Path Resolution`

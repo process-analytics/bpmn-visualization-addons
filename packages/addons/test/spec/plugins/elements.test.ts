@@ -17,8 +17,7 @@ limitations under the License.
 import { describe, expect, test } from '@jest/globals';
 import { ShapeBpmnElementKind, ShapeBpmnEventDefinitionKind, type ShapeBpmnSemantic } from 'bpmn-visualization';
 
-import { BpmnVisualization } from '../../../src';
-import { ElementsPlugin } from '../../../src/plugins/elements';
+import { BpmnVisualization, ElementsPlugin } from '../../../src';
 import { insertBpmnContainerWithoutId } from '../../shared/dom-utils';
 import { readFileSync } from '../../shared/io-utils';
 

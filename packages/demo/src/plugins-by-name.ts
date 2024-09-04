@@ -25,6 +25,21 @@ import { ZoomComponent } from './shared/zoom-component';
 
 const diagram = await fetch('/bpmn/diagram.bpmn').then(response => response.text());
 
+// function load(bpmn: string): Promise<void> {
+//   return new Promise<string>(resolve => {
+//     resolve(bpmn);
+//   }).then((bpmn: string) => {
+//     bpmnVisualization.load(bpmn, { fit: fitOptions });
+//   });
+// }
+//
+// async function loadAsync(bpmn: string): Promise<void> {
+//   const bpmnContent = await new Promise<string>(resolve => {
+//     resolve(bpmn);
+//   });
+//   bpmnVisualization.load(bpmnContent, { fit: fitOptions });
+// }
+
 // Instantiate BpmnVisualization, and pass the OverlaysPlugin
 const bpmnVisualization = new BpmnVisualization({
   container: 'bpmn-container',

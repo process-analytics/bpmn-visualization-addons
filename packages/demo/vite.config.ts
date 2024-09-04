@@ -52,6 +52,9 @@ export default defineConfig(() => {
         },
       },
       chunkSizeWarningLimit: 838, // mxgraph
+      // see https://github.com/vitejs/vite/issues/6985#issuecomment-1044375490
+      // see https://vitejs.dev/config/build-options#build-target
+      target: ['esnext'],
     },
   };
 });

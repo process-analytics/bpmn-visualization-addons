@@ -21,10 +21,10 @@ import type { FitOptions, StyleUpdate } from 'bpmn-visualization';
 import { BpmnVisualization, StyleByNamePlugin } from '@process-analytics/bv-experimental-add-ons';
 import { FitType } from 'bpmn-visualization';
 
+import { fetchDiagram } from './shared/diagrams';
 import { ZoomComponent } from './shared/zoom-component';
 
-const diagram = await fetch('/bpmn/EC-purchase-orders-collapsed.bpmn').then(response => response.text());
-
+// TODO remove this TMP code
 // function load(bpmn: string): Promise<void> {
 //   return new Promise<string>(resolve => {
 //     resolve(bpmn);
@@ -47,6 +47,7 @@ const bpmnVisualization = new BpmnVisualization({
   plugins: [StyleByNamePlugin],
 });
 // Load the BPMN diagram defined above
+const diagram = await fetchDiagram();
 const fitOptions: FitOptions = { type: FitType.Center, margin: 20 };
 bpmnVisualization.load(diagram, { fit: fitOptions });
 

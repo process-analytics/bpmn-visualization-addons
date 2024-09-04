@@ -20,8 +20,7 @@ import type { BpmnElement } from 'bpmn-visualization';
 import { BpmnVisualization, ElementsPlugin, PathResolver, ShapeUtil } from '@process-analytics/bv-experimental-add-ons';
 import { FitType } from 'bpmn-visualization';
 
-// TODO use common function?
-const diagram = await fetch('/bpmn/EC-purchase-orders-collapsed.bpmn').then(response => response.text());
+import { fetchDiagram } from './shared/diagrams';
 
 // Instantiate BpmnVisualization, pass the container HTMLElement - present in path-resolver.html
 const bpmnVisualization = new BpmnVisualization({
@@ -29,6 +28,7 @@ const bpmnVisualization = new BpmnVisualization({
   plugins: [ElementsPlugin],
 });
 // Load the BPMN diagram defined above
+const diagram = await fetchDiagram();
 bpmnVisualization.load(diagram, { fit: { type: FitType.Center, margin: 20 } });
 const bpmnElementsRegistry = bpmnVisualization.bpmnElementsRegistry;
 const elementsPlugin = bpmnVisualization.getPlugin<ElementsPlugin>('elements');

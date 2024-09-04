@@ -80,3 +80,15 @@ const setupControlEventHandlers = (): void => {
   });
 };
 setupControlEventHandlers();
+
+// function getImageUrl(name) {
+//   return new URL(`./dir/${name}.png`, import.meta.url).href;
+// }
+// console.log('##compute image url', getImageUrl('my-image'));
+//
+// const logoContent = await fetch('./github-logo.svg').then(response => response.text());
+// console.log('##gh logo content', logoContent);
+
+// diagram.bpmn
+const bpmnContent = await fetch('/bpmn/diagram.bpmn').then(response => response.text());
+console.log('##bpmn content', bpmnContent);

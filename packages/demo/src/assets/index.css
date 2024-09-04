@@ -1,48 +1,22 @@
-/*TODO duplicated with path-resolver.css*/
-:root {
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-    font-weight: 400;
-    line-height: 1.5;
-}
+/*
+Copyright 2023 Bonitasoft S.A.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+@import 'shared/base.css';
 
 body {
-/*TODO duplicated with path-resolver.css*/
-    /*margin: 0;*/
-    min-width: 320px;
-    min-height: 100vh;
-    color: #2c3e50;
-    /*display: flex;*/
-    /*place-items: center;*/
-    /*flex-direction: column;*/
-/* Specific */
     margin-left: 2rem;
     margin-top: .5rem;
-}
-
-/*TODO duplicated with path-resolver.css*/
-header {
-    display: flex;
-    align-items: center;
-    /*justify-content: space-evenly;*/
-}
-
-/*TODO duplicated with path-resolver.css*/
-.logo {
-    height: 3rem;
-    width: 3rem;
-    margin-right: .5rem;
-}
-
-.source-code {
-    display: flex;
-    align-items: center;
-}
-
-.gh-logo {
-    display: flex;
-    text-decoration: none;
-    margin-left: .5rem;
-}
-.gh-logo img {
-    width: 2rem;
 }

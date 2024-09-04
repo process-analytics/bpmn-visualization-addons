@@ -1,5 +1,5 @@
 /*
-Copyright 2023 Bonitasoft S.A.
+Copyright 2024 Bonitasoft S.A.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,5 +14,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-@import 'shared/common-page.css';
-@import 'shared/bpmn-container.css';
+/* Used in all pages, including index.html */
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  color: #2c3e50;
+}
+
+header {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 3rem;
+  width: 3rem;
+  margin-right: .5rem;
+}

@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import './assets/shared.css';
 import './assets/overlays.css';
 import type { FitOptions } from 'bpmn-visualization';
 

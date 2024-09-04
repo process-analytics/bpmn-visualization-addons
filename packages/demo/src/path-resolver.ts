@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import './assets/shared.css';
 import './assets/path-resolver.css';
 import type { BpmnElement } from 'bpmn-visualization';
 

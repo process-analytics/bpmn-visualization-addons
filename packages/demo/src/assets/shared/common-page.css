@@ -14,17 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  font-weight: 400;
-  line-height: 1.5;
-}
+/* Used in all pages, except index.html */
+
+@import 'base.css';
 
 body {
   margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  color: #2c3e50;
 
   display: flex;
   place-items: center;
@@ -32,15 +27,7 @@ body {
 }
 
 header {
-  display: flex;
-  align-items: center;
   justify-content: space-evenly;
-}
-
-.logo {
-  height: 3rem;
-  width: 3rem;
-  margin-right: .5rem;
 }
 
 .presentation {

@@ -14,28 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-.bpmn-wrapping-container {
-  display: flex;
-  flex-direction: column;
-  align-self: stretch;
-  flex-grow: 1;
-  margin: 1.25rem 1.25rem 1.5rem;
+@import 'shared/common-page.css';
+@import 'shared/bpmn-container.css';
 
-  border-style: solid;
-  border-color: #b0b0b0;
-  border-width: .1rem;
-  border-radius: .2rem;
-}
-
-.enclosing-container {
-  /* relative position is required by the bpmn-container to make its absolute position work */
-  position: relative;
-  flex-grow: 1;
-}
-
-.bpmn-container {
-  overflow: hidden;
-  /* set absolute and no inset, as mxGraph needs absolute dimension to make the fit work and to fit the whole parent container */
-  position: absolute;
-  inset: 0;
-}

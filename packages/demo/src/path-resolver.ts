@@ -20,9 +20,8 @@ import type { BpmnElement } from 'bpmn-visualization';
 import { BpmnVisualization, ElementsPlugin, PathResolver, ShapeUtil } from '@process-analytics/bv-experimental-add-ons';
 import { FitType } from 'bpmn-visualization';
 
-// This is simple example of the BPMN diagram, loaded as string. The '?.raw' extension support is provided by Vite.
-// For other load methods, see https://github.com/process-analytics/bpmn-visualization-examples
-import diagram from './assets/diagram.bpmn?raw';
+// TODO use common function?
+const diagram = await fetch('/bpmn/diagram.bpmn').then(response => response.text());
 
 // Instantiate BpmnVisualization, pass the container HTMLElement - present in path-resolver.html
 const bpmnVisualization = new BpmnVisualization({

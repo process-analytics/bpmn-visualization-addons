@@ -21,10 +21,9 @@ import type { FitOptions, StyleUpdate } from 'bpmn-visualization';
 import { BpmnVisualization, StyleByNamePlugin } from '@process-analytics/bv-experimental-add-ons';
 import { FitType } from 'bpmn-visualization';
 
-// This is simple example of the BPMN diagram, loaded as string. The '?.raw' extension support is provided by Vite.
-// For other load methods, see https://github.com/process-analytics/bpmn-visualization-examples
-import diagram from './assets/diagram.bpmn?raw';
 import { ZoomComponent } from './shared/zoom-component';
+
+const diagram = await fetch('/bpmn/diagram.bpmn').then(response => response.text());
 
 // Instantiate BpmnVisualization, and pass the OverlaysPlugin
 const bpmnVisualization = new BpmnVisualization({
@@ -80,15 +79,3 @@ const setupControlEventHandlers = (): void => {
   });
 };
 setupControlEventHandlers();
-
-// function getImageUrl(name) {
-//   return new URL(`./dir/${name}.png`, import.meta.url).href;
-// }
-// console.log('##compute image url', getImageUrl('my-image'));
-//
-// const logoContent = await fetch('./github-logo.svg').then(response => response.text());
-// console.log('##gh logo content', logoContent);
-
-// diagram.bpmn
-const bpmnContent = await fetch('/bpmn/diagram.bpmn').then(response => response.text());
-console.log('##bpmn content', bpmnContent);

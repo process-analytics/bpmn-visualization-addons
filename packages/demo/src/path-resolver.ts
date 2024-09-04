@@ -21,7 +21,7 @@ import { BpmnVisualization, ElementsPlugin, PathResolver, ShapeUtil } from '@pro
 import { FitType } from 'bpmn-visualization';
 
 // TODO use common function?
-const diagram = await fetch('/bpmn/diagram.bpmn').then(response => response.text());
+const diagram = await fetch('/bpmn/EC-purchase-orders-collapsed.bpmn').then(response => response.text());
 
 // Instantiate BpmnVisualization, pass the container HTMLElement - present in path-resolver.html
 const bpmnVisualization = new BpmnVisualization({

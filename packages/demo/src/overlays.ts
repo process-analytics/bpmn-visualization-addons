@@ -22,7 +22,7 @@ import { FitType } from 'bpmn-visualization';
 
 import { ZoomComponent } from './shared/zoom-component';
 
-const diagram = await fetch('/bpmn/diagram.bpmn').then(response => response.text());
+const diagram = await fetch('/bpmn/EC-purchase-orders-collapsed.bpmn').then(response => response.text());
 
 // Instantiate BpmnVisualization, and pass the OverlaysPlugin
 const bpmnVisualization = new BpmnVisualization({

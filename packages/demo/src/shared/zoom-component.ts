@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import '../assets/zoom-box.css';
+import '../assets/components/zoom-box.css';
 import type { BpmnVisualization, FitOptions } from 'bpmn-visualization';
 
 import { ZoomType } from 'bpmn-visualization';

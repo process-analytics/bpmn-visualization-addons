@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bv-addons "Plugins by name" demo</title>
+    <script type="module" src="/src/plugins-by-name.ts"></script>
+  </head>
+  <body>
+    <header>
+      <a href="../"><img src="/assets/logo.svg" id="logo" alt="The Process Analytics project logo" class="logo" title="Back to home"></a>
+      <h1>"Plugins by name" demo</h1>
+    </header>
+    <section class="presentation">
+      <div class="description">Show how to use plugins providing an API on BPMN elements identified by their name, and demonstrate their features.</div>
+      <div class="controls">
+        <button id="btn-highlight-element">Highlight an element</button>
+        <button id="bt-clear">Clear</button>
+      </div>
+    </section>
+    <div class="bpmn-wrapping-container">
+      <div class="enclosing-container">
+        <div id="bpmn-container" class="bpmn-container">
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

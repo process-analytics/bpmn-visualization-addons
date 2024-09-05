@@ -17,7 +17,7 @@ limitations under the License.
 import './assets/path-resolver.css';
 import type { BpmnElement } from 'bpmn-visualization';
 
-import { BpmnVisualization, ElementsPlugin, PathResolver, ShapeUtil } from '@process-analytics/bv-experimental-add-ons';
+import { BpmnVisualization, ElementsPlugin, PathResolver, ShapeUtil, StylePlugin } from '@process-analytics/bv-experimental-add-ons';
 import { FitType } from 'bpmn-visualization';
 
 // This is simple example of the BPMN diagram, loaded as string. The '?.raw' extension support is provided by Vite.
@@ -27,14 +27,14 @@ import diagram from './assets/diagram.bpmn?raw';
 // Instantiate BpmnVisualization, pass the container HTMLElement - present in path-resolver.html
 const bpmnVisualization = new BpmnVisualization({
   container: 'bpmn-container',
-  plugins: [ElementsPlugin],
+  plugins: [ElementsPlugin, StylePlugin],
 });
 // Load the BPMN diagram defined above
 bpmnVisualization.load(diagram, { fit: { type: FitType.Center, margin: 20 } });
-const bpmnElementsRegistry = bpmnVisualization.bpmnElementsRegistry;
 const elementsPlugin = bpmnVisualization.getPlugin<ElementsPlugin>('elements');
+const stylePlugin = bpmnVisualization.getPlugin<StylePlugin>('style');
 
-const pathResolver = new PathResolver(bpmnElementsRegistry);
+const pathResolver = new PathResolver(elementsPlugin);
 
 const selectedBpmnElements = new Set<string>();
 const registerSelectedBpmnElement = (id: string): boolean => {
@@ -48,16 +48,16 @@ const computedFlows: string[] = [];
 
 function computePath(): void {
   // reset style of previously computed flows
-  bpmnElementsRegistry.resetStyle(computedFlows);
+  stylePlugin.resetStyle(computedFlows);
   computedFlows.length = 0;
 
   const visitedEdges = pathResolver.getVisitedEdges([...selectedBpmnElements]);
   computedFlows.push(...visitedEdges);
-  bpmnElementsRegistry.updateStyle(computedFlows, { stroke: { color: 'orange', width: 3 } });
+  stylePlugin.updateStyle(computedFlows, { stroke: { color: 'orange', width: 3 } });
 }
 
 function clearPath(): void {
-  bpmnElementsRegistry.resetStyle([...selectedBpmnElements, ...computedFlows]);
+  stylePlugin.resetStyle([...selectedBpmnElements, ...computedFlows]);
   selectedBpmnElements.clear();
   computedFlows.length = 0;
 }
@@ -70,10 +70,10 @@ const setupBpmnElementEventHandlers = (): void => {
     const htmlElement = item.htmlElement;
     htmlElement.addEventListener('click', () => {
       if (registerSelectedBpmnElement(currentId)) {
-        bpmnElementsRegistry.updateStyle(currentId, { stroke: { color: 'blue' }, fill: { color: 'lightblue' } });
+        stylePlugin.updateStyle(currentId, { stroke: { color: 'blue' }, fill: { color: 'lightblue' } });
       } else {
         selectedBpmnElements.delete(currentId);
-        bpmnElementsRegistry.resetStyle(currentId);
+        stylePlugin.resetStyle(currentId);
       }
     });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

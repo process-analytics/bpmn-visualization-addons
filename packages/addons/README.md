@@ -4,7 +4,6 @@
 
 
 ## 📌 Usage
-<!-- ### 📌 Usage in applications and projects -->
 
 Install `bv-experimental-add-ons` and [bpmn-visualization](https://github.com/process-analytics/bpmn-visualization-js/):
 ```shell script
@@ -51,7 +50,8 @@ myPlugin.aMethod();
 - `OverlaysPlugin`:
   - let show/hide overlays created with `BpmnElementsRegistry.addOverlays`.
   - provides all `BpmnElementsRegistry` methods relating to overlays.
-- `StyleByNamePlugin`: provides all `BpmnElementsRegistry` methods relating to style, identifying the BPMN elements by name.
+- `StylePlugin`: provides all `BpmnElementsRegistry` methods for manipulating the style of BPMN elements.
+- `StyleByNamePlugin`: provides all `BpmnElementsRegistry` methods for manipulating the style of BPMN elements, identifying the BPMN elements by name.
 
 
 #### Writing a custom plugin

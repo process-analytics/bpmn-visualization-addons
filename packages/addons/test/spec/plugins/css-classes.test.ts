@@ -13,10 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { BpmnElementsRegistry } from 'bpmn-visualization';
 
-import { BpmnVisualization, CssClassesPlugin, StyleByNamePlugin, StylePlugin } from '../../../src';
+import { BpmnVisualization, CssClassesPlugin } from '../../../src';
 import { insertBpmnContainerWithoutId } from '../../shared/dom-utils';
 
 // jest mock configuration

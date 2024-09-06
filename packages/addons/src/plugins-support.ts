@@ -63,8 +63,9 @@ export type GlobalOptions = BaseGlobalOptions & PluginOptionExtension;
  * @since 0.7.0
  */
 // TODO review the type name
-export type DefaultPlugins = 'css' | 'elements' | 'overlays' | 'style' | 'style-by-name';
-export type PluginIds = DefaultPlugins & string;
+type DefaultPlugins = 'css' | 'elements' | 'overlays' | 'style' | 'style-by-name';
+type AdditionalPlugins = Exclude<string, DefaultPlugins>;
+export type PluginIds = DefaultPlugins | AdditionalPlugins;
 
 export class BpmnVisualization extends BaseBpmnVisualization {
   private readonly plugins: Map<string, Plugin> = new Map();

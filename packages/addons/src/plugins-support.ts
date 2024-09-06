@@ -64,8 +64,14 @@ export type GlobalOptions = BaseGlobalOptions & PluginOptionExtension;
  */
 // TODO review the type name
 type DefaultPlugins = 'css' | 'elements' | 'overlays' | 'style' | 'style-by-name';
-type AdditionalPlugins = Exclude<string, DefaultPlugins>;
-export type PluginIds = DefaultPlugins | AdditionalPlugins;
+// type AdditionalPlugins = Exclude<string, DefaultPlugins>;
+// export type PluginIds = DefaultPlugins | AdditionalPlugins;
+
+export type PluginIds = DefaultPlugins | (string & Record<never, never>);
+
+// type WithReserved<T, R> = T & (T extends R ? never : T);
+// export type PluginIds = WithReserved<string, DefaultPlugins>;
+// type NotDefaultPlugins<T> = T extends DefaultPlugins ? never : T;
 
 export class BpmnVisualization extends BaseBpmnVisualization {
   private readonly plugins: Map<string, Plugin> = new Map();

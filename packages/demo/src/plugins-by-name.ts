@@ -24,22 +24,6 @@ import { FitType } from 'bpmn-visualization';
 import { fetchDiagram } from './shared/diagrams';
 import { ZoomComponent } from './shared/zoom-component';
 
-// TODO remove this TMP code
-// function load(bpmn: string): Promise<void> {
-//   return new Promise<string>(resolve => {
-//     resolve(bpmn);
-//   }).then((bpmn: string) => {
-//     bpmnVisualization.load(bpmn, { fit: fitOptions });
-//   });
-// }
-//
-// async function loadAsync(bpmn: string): Promise<void> {
-//   const bpmnContent = await new Promise<string>(resolve => {
-//     resolve(bpmn);
-//   });
-//   bpmnVisualization.load(bpmnContent, { fit: fitOptions });
-// }
-
 // Instantiate BpmnVisualization, and pass the OverlaysPlugin
 const bpmnVisualization = new BpmnVisualization({
   container: 'bpmn-container',

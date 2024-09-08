@@ -14,7 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// This is simple example of the BPMN diagram, loaded from a URL. The '?.url' extension support is provided by Vite.
+// See https://vitejs.dev/guide/assets#importing-asset-as-url
+// For other load methods, see https://github.com/process-analytics/bpmn-visualization-examples
+import diagramUrl from '../assets/bpmn/EC-purchase-orders-collapsed.xml?url';
+
 export async function fetchDiagram(): Promise<string> {
-  const response = await fetch('/bpmn/EC-purchase-orders-collapsed.bpmn');
+  const response = await fetch(diagramUrl);
   return await response.text();
 }

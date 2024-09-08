@@ -20,3 +20,17 @@ body {
     margin-left: 2rem;
     margin-top: .5rem;
 }
+
+.source-code {
+  display: flex;
+  align-items: center;
+}
+
+.gh-logo {
+  display: flex;
+  text-decoration: none;
+  margin-left: .5rem;
+}
+.gh-logo img {
+  width: 2rem;
+}

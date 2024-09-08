@@ -20,6 +20,7 @@ import type { FitOptions } from 'bpmn-visualization';
 import { BpmnVisualization, OverlaysPlugin } from '@process-analytics/bv-experimental-add-ons';
 import { FitType } from 'bpmn-visualization';
 
+import { fetchDiagram } from './shared/diagrams';
 import { ZoomComponent } from './shared/zoom-component';
 
 // Instantiate BpmnVisualization, and pass the OverlaysPlugin
@@ -29,10 +30,6 @@ const bpmnVisualization = new BpmnVisualization({
   plugins: [OverlaysPlugin],
 });
 // Load the BPMN diagram defined above
-async function fetchDiagram(): Promise<string> {
-  const response = await fetch('./bpmn/EC-purchase-orders-collapsed.bpmn');
-  return await response.text();
-}
 const diagram = await fetchDiagram();
 const fitOptions: FitOptions = { type: FitType.Center, margin: 20 };
 bpmnVisualization.load(diagram, { fit: fitOptions });

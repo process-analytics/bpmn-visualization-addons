@@ -17,7 +17,7 @@ limitations under the License.
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { BpmnElementsRegistry } from 'bpmn-visualization';
 
-import { BpmnVisualization, StyleByNamePlugin } from '../../../src';
+import { BpmnVisualization, StyleByNamePlugin, StylePlugin } from '../../../src';
 import { insertBpmnContainerWithoutId } from '../../shared/dom-utils';
 import { readFileSync } from '../../shared/io-utils';
 
@@ -28,6 +28,51 @@ const mockBvUpdateStyleByIds = jest.spyOn(BpmnElementsRegistry.prototype, 'updat
 beforeEach(() => {
   mockBvResetStyleByIds.mockClear();
   mockBvUpdateStyleByIds.mockClear();
+});
+
+// The actual implementation is in `bpmn-visualization`. Here, we only validate that the `bpmn-visualization` code is called.
+describe('StylePlugin', () => {
+  const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId(), plugins: [StylePlugin] });
+  const stylePlugin = bpmnVisualization.getPlugin<StylePlugin>('style');
+
+  describe('updateStyle', () => {
+    test('Pass a single id', () => {
+      stylePlugin.updateStyle('Gateway_0t7d2lu', { stroke: { color: 'red' } });
+
+      expect(mockBvUpdateStyleByIds).toHaveBeenCalledWith('Gateway_0t7d2lu', { stroke: { color: 'red' } });
+      expect(mockBvUpdateStyleByIds).toHaveBeenCalledTimes(1);
+    });
+
+    test('Pass several ids', () => {
+      stylePlugin.updateStyle(['Gateway_0t7d2lu', 'Activity_08z13ne'], { stroke: { color: 'red' } });
+
+      expect(mockBvUpdateStyleByIds).toHaveBeenCalledWith(['Gateway_0t7d2lu', 'Activity_08z13ne'], { stroke: { color: 'red' } });
+      expect(mockBvUpdateStyleByIds).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('resetStyle', () => {
+    test('Pass a single id', () => {
+      stylePlugin.resetStyle('Gateway_0t7d2lu');
+
+      expect(mockBvResetStyleByIds).toHaveBeenCalledWith('Gateway_0t7d2lu');
+      expect(mockBvResetStyleByIds).toHaveBeenCalledTimes(1);
+    });
+
+    test('Pass several ids', () => {
+      stylePlugin.resetStyle(['Gateway_0t7d2lu', 'Activity_08z13ne']);
+
+      expect(mockBvResetStyleByIds).toHaveBeenCalledWith(['Gateway_0t7d2lu', 'Activity_08z13ne']);
+      expect(mockBvResetStyleByIds).toHaveBeenCalledTimes(1);
+    });
+
+    test('Pass nullish parameter', () => {
+      stylePlugin.resetStyle();
+
+      expect(mockBvResetStyleByIds).toHaveBeenCalledWith(undefined);
+      expect(mockBvResetStyleByIds).toHaveBeenCalledTimes(1);
+    });
+  });
 });
 
 // The actual implementation is in `bpmn-visualization`. Here, we only validate that the `bpmn-visualization` code is called.

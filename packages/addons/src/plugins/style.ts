@@ -19,6 +19,36 @@ import type { StyleRegistry, StyleUpdate } from 'bpmn-visualization';
 
 import { BpmnElementsSearcher } from '../bpmn-elements';
 
+/**
+ * Provide style operations on BPMN elements.
+ *
+ * This plugin is a wrapper that delegates the actual style operations to {@link BpmnElementsRegistry}.
+ *
+ * @since 0.7.0
+ */
+export class StylePlugin implements Plugin, StyleRegistry {
+  private readonly styleRegistry: StyleRegistry;
+
+  constructor(bpmnVisualization: BpmnVisualization) {
+    this.styleRegistry = bpmnVisualization.bpmnElementsRegistry;
+  }
+
+  getPluginId(): string {
+    return 'style';
+  }
+
+  updateStyle(bpmnElementIds: string | string[], styleUpdate: StyleUpdate): void {
+    this.styleRegistry.updateStyle(bpmnElementIds, styleUpdate);
+  }
+
+  resetStyle(bpmnElementIds?: string | string[]): void {
+    this.styleRegistry.resetStyle(bpmnElementIds);
+  }
+}
+
+/**
+ * @since 0.7.0
+ */
 export interface StyleRegistryByName extends StyleRegistry {
   /**
    * Update the style of the BPMN elements with the given names.
@@ -43,11 +73,14 @@ export interface StyleRegistryByName extends StyleRegistry {
 /**
  * Provide style operations on BPMN elements, identifying them by name.
  *
- * This plugin is a wrapper that delegates the actual style operations to {@link StyleRegistry}. It uses the {@link BpmnElementsSearcher} to map names to ids.
+ * This plugin is a wrapper that delegates the actual style operations to {@link BpmnElementsRegistry}.
+ * It uses the {@link BpmnElementsSearcher} to map names to ids.
  *
  * **IMPORTANT**: The mapping is currently not cached, nor pre-fetched after the BPMN source has been loaded.
  * So the implementation is not very effective. Caching and pre-fetch features will be implemented in the future.
  * See https://github.com/process-analytics/bv-experimental-add-ons/issues/4 for improvement.
+ *
+ * @since 0.7.0
  */
 export class StyleByNamePlugin implements Plugin, StyleRegistryByName {
   private readonly searcher: BpmnElementsSearcher;

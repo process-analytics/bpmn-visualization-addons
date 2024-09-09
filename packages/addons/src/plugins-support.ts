@@ -57,6 +57,17 @@ export type PluginOptionExtension = {
 
 export type GlobalOptions = BaseGlobalOptions & PluginOptionExtension;
 
+/**
+ * The identifiers of the plugins provided by `bv-experimental-add-ons`.
+ * @since 0.7.0
+ */
+export type DefaultPlugins = 'css' | 'elements' | 'overlays' | 'style' | 'style-by-name';
+/**
+ * All possible identifiers that can be used to identify a plugin.
+ * @since 0.7.0
+ */
+export type PluginIds = DefaultPlugins | (string & Record<never, never>);
+
 export class BpmnVisualization extends BaseBpmnVisualization {
   private readonly plugins: Map<string, Plugin> = new Map();
 
@@ -65,7 +76,7 @@ export class BpmnVisualization extends BaseBpmnVisualization {
     this.registerPlugins(options);
   }
 
-  getPlugin<T extends Plugin>(id: string): T {
+  getPlugin<T extends Plugin>(id: PluginIds): T {
     return this.plugins.get(id) as T;
   }
 

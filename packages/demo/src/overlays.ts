@@ -20,9 +20,7 @@ import type { FitOptions } from 'bpmn-visualization';
 import { BpmnVisualization, OverlaysPlugin } from '@process-analytics/bv-experimental-add-ons';
 import { FitType } from 'bpmn-visualization';
 
-// This is simple example of the BPMN diagram, loaded as string. The '?.raw' extension support is provided by Vite.
-// For other load methods, see https://github.com/process-analytics/bpmn-visualization-examples
-import diagram from './assets/diagram.bpmn?raw';
+import { fetchDiagram } from './shared/diagrams';
 import { ZoomComponent } from './shared/zoom-component';
 
 // Instantiate BpmnVisualization, and pass the OverlaysPlugin
@@ -32,6 +30,7 @@ const bpmnVisualization = new BpmnVisualization({
   plugins: [OverlaysPlugin],
 });
 // Load the BPMN diagram defined above
+const diagram = await fetchDiagram();
 const fitOptions: FitOptions = { type: FitType.Center, margin: 20 };
 bpmnVisualization.load(diagram, { fit: fitOptions });
 

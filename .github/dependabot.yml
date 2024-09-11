@@ -24,6 +24,9 @@ updates:
       #    https://github.com/process-analytics/bv-experimental-add-ons/pull/90
       #    https://github.com/process-analytics/bv-experimental-add-ons/pull/92
       - dependency-name: "typescript"
+      # We must use an old version in packages/check-ts-support that works with the typescript version used in this package.
+      # As the typescript version is old, it requires an old version of "@types/node".
+      - dependency-name: "@types/node"
     groups:
        css:
           patterns:

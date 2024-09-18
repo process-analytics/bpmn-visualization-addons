@@ -20,8 +20,8 @@ import type { FitOptions } from 'bpmn-visualization';
 import { BpmnVisualization, OverlaysPlugin } from '@process-analytics/bv-experimental-add-ons';
 import { FitType } from 'bpmn-visualization';
 
-import { fetchDiagram } from './shared/diagrams';
-import { ZoomComponent } from './shared/zoom-component';
+import { fetchDiagram } from './shared/diagrams.js';
+import { ZoomComponent } from './shared/zoom-component.js';
 
 // Instantiate BpmnVisualization, and pass the OverlaysPlugin
 const bpmnVisualization = new BpmnVisualization({

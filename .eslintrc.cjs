@@ -19,7 +19,7 @@ limitations under the License.
  */
 module.exports = {
   root: true,
-  plugins: ['import', 'notice', 'unicorn'],
+  plugins: ['import', 'n', 'notice', 'unicorn'],
   parser: '@typescript-eslint/parser', // Specifies the ESLint parser
   extends: [
     'plugin:import/recommended',
@@ -48,6 +48,7 @@ module.exports = {
         },
       },
     ],
+    'n/file-extension-in-import': ['error', 'always'],
   },
   overrides: [
     // typescript

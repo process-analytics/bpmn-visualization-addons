@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export * from './bpmn-elements';
-export * from './paths';
-export * from './plugins';
-export * from './plugins-support';
+export * from './bpmn-elements.js';
+export * from './paths.js';
+export * from './plugins/index.js';
+export * from './plugins-support.js';

@@ -13,7 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import { BpmnVisualization } from '../../src';
+
+import { BpmnVisualization } from '../../src/index.js';
 
 /**
  * Returns an instance of the extended version of BpmnVisualization provided by the add-ons.

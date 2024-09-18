@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import type { BpmnVisualization, Plugin } from '../plugins-support';
+import type { BpmnVisualization, Plugin } from '../plugins-support.js';
 import type { BpmnElement, BpmnElementKind, BpmnSemantic, ElementsRegistry } from 'bpmn-visualization';
 
 export class ElementsPlugin implements Plugin, ElementsRegistry {

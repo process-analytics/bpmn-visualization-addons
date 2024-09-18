@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export * from './css-classes';
-export * from './elements';
-export * from './overlays';
-export * from './style';
+export * from './css-classes.js';
+export * from './elements.js';
+export * from './overlays.js';
+export * from './style.js';

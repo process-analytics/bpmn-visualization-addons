@@ -17,9 +17,9 @@ limitations under the License.
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { BpmnElementsRegistry } from 'bpmn-visualization';
 
-import { BpmnVisualization, StyleByNamePlugin, StylePlugin } from '../../../src';
-import { insertBpmnContainerWithoutId } from '../../shared/dom-utils';
-import { readFileSync } from '../../shared/io-utils';
+import { BpmnVisualization, StyleByNamePlugin, StylePlugin } from '../../../src/index.js';
+import { insertBpmnContainerWithoutId } from '../../shared/dom-utils.js';
+import { readFileSync } from '../../shared/io-utils.js';
 
 // jest mock configuration
 const mockBvResetStyleByIds = jest.spyOn(BpmnElementsRegistry.prototype, 'resetStyle');

@@ -19,9 +19,9 @@ import type { BpmnSemantic, EdgeBpmnSemantic, ShapeBpmnSemantic } from 'bpmn-vis
 import { beforeEach, describe, expect, test } from '@jest/globals';
 import { FlowKind, ShapeBpmnElementKind, ShapeBpmnEventDefinitionKind } from 'bpmn-visualization';
 
-import { CasePathResolver, PathResolver } from '../../src';
-import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils';
-import { readFileSync } from '../shared/io-utils';
+import { CasePathResolver, PathResolver } from '../../src/index.js';
+import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils.js';
+import { readFileSync } from '../shared/io-utils.js';
 
 const bpmnVisualization = createNewBpmnVisualizationWithoutContainer();
 const ensureElementsExistInModel = (ids: string[]): void => {

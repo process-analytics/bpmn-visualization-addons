@@ -21,11 +21,15 @@ const config = {
   extensionsToTreatAsEsm: ['.ts'],
   // https://jestjs.io/docs/configuration#modulefileextensions-arraystring
   moduleFileExtensions: ['ts', 'js', 'mjs', 'cjs', 'jsx', 'tsx', 'json', 'node'],
+  // Make usage of .js extension in import work, see https://github.com/swc-project/jest/issues/64#issuecomment-1029753225
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
   setupFilesAfterEnv: ['<rootDir>/config/jest-setup.js'],
   testEnvironment: 'jsdom', // let access to the browser objects
   testMatch: ['**/test/**/?(*.)+(spec|test).[tj]s?(x)'],
   transform: {
-    '^.+\\.ts?$': [
+    '^.+\\.tsx?$': [
       'ts-jest',
       {
         useESM: true,

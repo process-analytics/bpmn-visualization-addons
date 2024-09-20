@@ -1,7 +1,8 @@
 {
   "extends": "./tsconfig",
   "compilerOptions": {
-    "module": "es2020", // this is the minimum version required to use the 'import.meta' meta-property
+    "skipLibCheck": true, // some lib used in tests (transitive dependencies) have invalid types, for example 'aria-query'
+    "module": "es2020", // this is the minimum version required to use the 'import.meta' meta-property. To keep in sync with swc config in jest.config.js
     "sourceMap": true,
   },
   "include": ["test/**/*.ts"],

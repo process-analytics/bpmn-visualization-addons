@@ -49,6 +49,7 @@ updates:
          patterns:
            - "@jest/*"
            - "@testing-library/*"
+           - "@swc/*"
            - "jest"
            - "jest-*"
            - "ts-jest"

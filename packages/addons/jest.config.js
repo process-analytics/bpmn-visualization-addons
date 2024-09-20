@@ -14,7 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-/** @type {import('ts-jest').JestConfigWithTsJest} */
+// TODO can we use a type to help developers
+/** @type {import('jest').JestConfigWithTsJest} */
 const config = {
   collectCoverageFrom: ['src/**/*.{ts,js}'],
   coverageReporters: ['html', 'text-summary'],
@@ -25,11 +26,13 @@ const config = {
   testEnvironment: 'jsdom', // let access to the browser objects
   testMatch: ['**/test/**/?(*.)+(spec|test).[tj]s?(x)'],
   transform: {
+    // Adapted from https://swc.rs/docs/usage/jest
     '^.+\\.ts?$': [
-      'ts-jest',
+      '@swc/jest',
       {
-        useESM: true,
-        tsconfig: '<rootDir>/tsconfig.test.json',
+        jsc: {
+          target: 'es2020', // keep in sync with tsconfig.test.json
+        },
       },
     ],
   },

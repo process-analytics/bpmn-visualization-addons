@@ -43,7 +43,9 @@ jobs:
         run: npm run build -w packages/addons
       - name: Test
         id: 'test'
-        run: npm test -w packages/addons -- --coverage
+        run: |
+          npm run test-check -w packages/addons
+          npm test -w packages/addons -- --coverage
       - name: Upload coverage report
         if: ${{ steps.test.outcome == 'success' || steps.test.outcome == 'failure' }} # when tests have been run
         uses: actions/upload-artifact@v4

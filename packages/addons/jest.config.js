@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// TODO can we use a type to help developers
-/** @type {import('jest').JestConfigWithTsJest} */
+// The type provided here could provide more guidance if it included types from @swc/jest
+/** @type {import('@jest/types').Config.InitialOptions} */
 const config = {
   collectCoverageFrom: ['src/**/*.{ts,js}'],
   coverageReporters: ['html', 'text-summary'],
@@ -31,6 +31,10 @@ const config = {
       '@swc/jest',
       {
         jsc: {
+          parser: {
+            syntax: 'typescript',
+            tsx: false,
+          },
           target: 'es2020', // keep in sync with tsconfig.test.json
         },
       },

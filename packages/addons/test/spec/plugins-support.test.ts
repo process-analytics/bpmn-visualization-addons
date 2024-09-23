@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import type { Plugin } from '../../src';
+import type { Plugin } from '../../src/index.js';
 import type { GlobalOptions } from 'bpmn-visualization';
 
 import { describe, expect, test } from '@jest/globals';
 
-import { BpmnVisualization } from '../../src';
-import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils';
+import { BpmnVisualization } from '../../src/index.js';
+import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils.js';
 
 test('No error when no plugin is defined', () => {
   const bpmnVisualization = createNewBpmnVisualizationWithoutContainer();

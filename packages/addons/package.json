@@ -1,6 +1,6 @@
 {
   "name": "@process-analytics/bv-experimental-add-ons",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "private": false,
   "type": "module",
   "sideEffects": false,

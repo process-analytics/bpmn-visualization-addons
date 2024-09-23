@@ -14,7 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-/** @type {import('ts-jest').JestConfigWithTsJest} */
+// The type provided here could provide more guidance if it included types from @swc/jest
+/** @type {import('@jest/types').Config.InitialOptions} */
 const config = {
   collectCoverageFrom: ['src/**/*.{ts,js}'],
   coverageReporters: ['html', 'text-summary'],
@@ -30,10 +31,15 @@ const config = {
   testMatch: ['**/test/**/?(*.)+(spec|test).[tj]s?(x)'],
   transform: {
     '^.+\\.tsx?$': [
-      'ts-jest',
+      '@swc/jest',
       {
-        useESM: true,
-        tsconfig: '<rootDir>/tsconfig.test.json',
+        jsc: {
+          parser: {
+            syntax: 'typescript',
+            tsx: false,
+          },
+          target: 'es2020', // keep in sync with tsconfig.test.json
+        },
       },
     ],
   },

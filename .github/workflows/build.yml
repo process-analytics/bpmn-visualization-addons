@@ -41,6 +41,8 @@ jobs:
         uses: ./.github/actions/build-setup
       - name: Build Library
         run: npm run build -w packages/addons
+      - name: Test compilation
+        run: npm run test-check -w packages/addons
       - name: Test
         id: 'test'
         run: npm test -w packages/addons -- --coverage

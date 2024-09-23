@@ -20,7 +20,7 @@ import type { BpmnElement } from 'bpmn-visualization';
 import { BpmnVisualization, ElementsPlugin, PathResolver, ShapeUtil, StylePlugin } from '@process-analytics/bv-experimental-add-ons';
 import { FitType } from 'bpmn-visualization';
 
-import { fetchDiagram } from './shared/diagrams';
+import { fetchDiagram } from './shared/diagrams.js';
 
 // Instantiate BpmnVisualization, pass the container HTMLElement - present in path-resolver.html
 const bpmnVisualization = new BpmnVisualization({

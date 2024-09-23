@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import type { BpmnVisualization, Plugin } from '../plugins-support';
+import type { BpmnVisualization, Plugin } from '../plugins-support.js';
 import type { StyleRegistry, StyleUpdate } from 'bpmn-visualization';
 
-import { BpmnElementsSearcher } from '../bpmn-elements';
+import { BpmnElementsSearcher } from '../bpmn-elements.js';
 
 /**
  * Provide style operations on BPMN elements.

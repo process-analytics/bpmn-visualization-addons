@@ -1,11 +1,11 @@
-# bpmn-visualization add-ons
+# bpmn-visualization-addons
 
-`bv-experimental-add-ons` offers new functionalities to [bpmn-visualization](https://github.com/process-analytics/bpmn-visualization-js) in the form of add-ons.
+`bpmn-visualization-addons` offers new functionalities to [bpmn-visualization](https://github.com/process-analytics/bpmn-visualization-js) in the form of addons.
 
 
 ## 📌 Usage
 
-Install `bv-experimental-add-ons` and [bpmn-visualization](https://github.com/process-analytics/bpmn-visualization-js/):
+Install `bpmn-visualization-addons` and [bpmn-visualization](https://github.com/process-analytics/bpmn-visualization-js/):
 ```shell script
 npm i @process-analytics/bv-experimental-add-ons bpmn-visualization
 ```
@@ -14,7 +14,7 @@ npm i @process-analytics/bv-experimental-add-ons bpmn-visualization
 ## 📜 TypeScript Support
 
 The `@process-analytics/bv-experimental-add-ons` npm package includes type definitions, so the integration works out of the box in TypeScript projects and applications.
-`bv-experimental-add-ons` requires **TypeScript 4.5** or greater.
+`bpmn-visualization-addons` requires **TypeScript 4.5** or greater.
 
 
 ## 🎨 Features
@@ -124,5 +124,5 @@ Add new methods to the `ShapeUtil` class provided by `bpmn-visualization`.
 
 ## 📃 License
 
-`bv-experimental-add-ons` is released under the [Apache 2.0](LICENSE) license.  
+`bpmn-visualization-addons` is released under the [Apache 2.0](LICENSE) license.  
 Copyright &copy; 2023-present, Bonitasoft S.A.

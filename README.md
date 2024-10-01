@@ -1,17 +1,17 @@
-<h1 align="center">bpmn-visualization add-ons</h1>
+<h1 align="center">bpmn-visualization-addons</h1>
 <div align="center">
     <p align="center"> 
         <a href="https://npmjs.org/package/@process-analytics/bv-experimental-add-ons">
           <img alt="npm package" src="https://img.shields.io/npm/v/@process-analytics/bv-experimental-add-ons.svg?color=orange"> 
         </a> 
-        <a href="https://github.com/process-analytics/bv-experimental-add-ons/releases">
-          <img alt="GitHub release (latest by date including pre-releases)" src="https://img.shields.io/github/v/release/process-analytics/bv-experimental-add-ons?label=changelog&include_prereleases"> 
+        <a href="https://github.com/process-analytics/bpmn-visualization-addons/releases">
+          <img alt="GitHub release (latest by date including pre-releases)" src="https://img.shields.io/github/v/release/process-analytics/bpmn-visualization-addons?label=changelog&include_prereleases"> 
         </a> 
-        <a href="https://process-analytics.github.io/bv-experimental-add-ons/">
+        <a href="https://process-analytics.github.io/bpmn-visualization-addons/">
           <img alt="Live Demo" src="https://img.shields.io/badge/demo-online-blueviolet.svg"> 
         </a> 
-        <a href="https://github.com/process-analytics/bv-experimental-add-ons/actions">
-          <img alt="Build" src="https://github.com/process-analytics/bv-experimental-add-ons/workflows/Build/badge.svg"> 
+        <a href="https://github.com/process-analytics/bpmn-visualization-addons/actions">
+          <img alt="Build" src="https://github.com/process-analytics/bpmn-visualization-addons/workflows/Build/badge.svg"> 
         </a>
         <a href="https://sonarcloud.io/project/overview?id=process-analytics_bv-experimental-add-ons">
           <img alt="Coverage" src="https://sonarcloud.io/api/project_badges/measure?project=process-analytics_bv-experimental-add-ons&metric=code_smells">
@@ -21,7 +21,7 @@
           <img alt="Contributor Covenant" src="https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg"> 
         </a> 
         <a href="LICENSE">
-          <img alt="License" src="https://img.shields.io/github/license/process-analytics/bv-experimental-add-ons?color=blue"> 
+          <img alt="License" src="https://img.shields.io/github/license/process-analytics/bpmn-visualization-addons?color=blue"> 
         </a>
     </p>
 </div>  
@@ -30,9 +30,9 @@
 
 ## 🔆 Presentation
 
-`bv-experimental-add-ons` offers new functionalities to [bpmn-visualization](https://github.com/process-analytics/bpmn-visualization-js) in the form of add-ons.
+`bpmn-visualization-addons` offers new functionalities to [bpmn-visualization](https://github.com/process-analytics/bpmn-visualization-js) in the form of addons.
 
-`bv-experimental-add-ons` is being actively developed.
+`bpmn-visualization-addons` is being actively developed.
 Before the release of version `1.0.0`, there may be some breaking changes.
 
 <!--
@@ -45,7 +45,7 @@ As far as possible, we maintain compatibility for some minor versions.
 
 See the dedicated [README](packages/addons/README.md).
 
-A live demo is available at ⏩ https://process-analytics.github.io/bv-experimental-add-ons/.
+A live demo is available at ⏩ https://process-analytics.github.io/bpmn-visualization-addons/.
 The sources of the demo are available in the [demo](./packages/demo) folder.
 
 
@@ -79,7 +79,7 @@ For more details, see
 
 ## 📃 License
 
-`bv-experimental-add-ons` is released under the [Apache 2.0](LICENSE) license.  
+`bpmn-visualization-addons` is released under the [Apache 2.0](LICENSE) license.  
 Copyright &copy; 2023-present, Bonitasoft S.A.
 
 
@@ -87,7 +87,7 @@ Copyright &copy; 2023-present, Bonitasoft S.A.
 
 When all updates have been completed, you are ready to publish a new release.
 
-Go to the [release workflow](https://github.com/process-analytics/bv-experimental-add-ons/actions/workflows/release.yml) in GitHub Actions and run it by choosing the type of release.
+Go to the [release workflow](https://github.com/process-analytics/bpmn-visualization-addons/actions/workflows/release.yml) in GitHub Actions and run it by choosing the type of release.
 
 This workflow:
 - Creates a Git tag

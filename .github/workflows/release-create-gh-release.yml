@@ -24,7 +24,7 @@ jobs:
             _If appropriate, briefly explain the contents of the new version._
 
             **Update the milestone URL**
-            List of issues: [milestone ${{ env.VERSION }}](https://github.com/process-analytics/bv-experimental-add-ons/milestone/x?closed=1)
+            List of issues: [milestone ${{ env.VERSION }}](https://github.com/process-analytics/bpmn-visualization-addons/milestone/x?closed=1)
 
             ## Breaking changes
 
@@ -52,14 +52,14 @@ jobs:
               - ensure that an issue exists to track the removal (one by version is OK) and it is attached to a milestone related to the version
 
             ## Highlights
-            _Note_: use [release 0.2.0](https://github.com/process-analytics/bv-experimental-add-ons/releases/tag/v0.2.0) and [release 0.6.0](https://github.com/process-analytics/bv-experimental-add-ons/releases/tag/v0.6.0)  as examples
+            _Note_: use [release 0.2.0](https://github.com/process-analytics/bpmn-visualization-addons/releases/tag/v0.2.0) and [release 0.6.0](https://github.com/process-analytics/bpmn-visualization-addons/releases/tag/v0.6.0)  as examples
 
             **Add screenshots, animations or videos to make your description more user-friendly!**
 
             ### Minimal version of `bpmn-visualization`
             _Note_: add this paragraph if the version changed
 
-            You must now use `bpmn-visualization` **0.xx.0** or higher with `bv-experimental-add-ons`. The previous version required `bpmn-visualization` _0.yy.0_ or higher.
+            You must now use `bpmn-visualization` **0.xx.0** or higher with `bpmn-visualization-addons`. The previous version required `bpmn-visualization` _0.yy.0_ or higher.
 
             ℹ️ For more details, see #<PR_NUMBER>.
 

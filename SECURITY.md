@@ -26,5 +26,5 @@ declined, etc.
 
 To report a security vulnerability, please open a [draft security advisory] on GitHub.
 
-[latest]: https://github.com/process-analytics/bv-experimental-add-ons/releases/latest
-[draft security advisory]: https://github.com/process-analytics/bv-experimental-add-ons/security/advisories/new
+[latest]: https://github.com/process-analytics/bpmn-visualization-addons/releases/latest
+[draft security advisory]: https://github.com/process-analytics/bpmn-visualization-addons/security/advisories/new

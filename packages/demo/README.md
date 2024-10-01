@@ -1,4 +1,4 @@
-# Demo for "bpmn-visualization add-ons"
+# Demo for "bpmn-visualization-addons"
 
 The demo has been initialized using [bpmn-visualization-demo-template](https://github.com/process-analytics/bpmn-visualization-demo-template/).
 

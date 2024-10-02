@@ -73,8 +73,12 @@ export interface StyleRegistryByName extends StyleRegistry {
 /**
  * Provide style operations on BPMN elements, identifying them by name.
  *
- * This plugin is a wrapper that delegates the actual style operations to {@link BpmnElementsRegistry}.
+ * This plugin is a wrapper that delegates the actual style operations to a {@link StyleRegistry} instance.
  * It uses the {@link BpmnElementsSearcher} to map names to ids.
+ *
+ * **WARNING**: This plugin does not currently allow you to configure deduplication or filtering of the elements corresponding to the names supplied as method parameters.
+ * If a name corresponds to multiple elements, all matching elements are used, as implemented in {@link BpmnElementsSearcher.getElementsByNames}.
+ * This is a known limitation of the current implementation.
  *
  * **IMPORTANT**: The mapping is currently not cached, nor pre-fetched after the BPMN source has been loaded.
  * So the implementation is not very effective. Caching and pre-fetch features will be implemented in the future.

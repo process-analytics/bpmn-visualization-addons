@@ -78,7 +78,7 @@ export interface StyleRegistryByName extends StyleRegistry {
  *
  * **IMPORTANT**: The mapping is currently not cached, nor pre-fetched after the BPMN source has been loaded.
  * So the implementation is not very effective. Caching and pre-fetch features will be implemented in the future.
- * See https://github.com/process-analytics/bv-experimental-add-ons/issues/4 for improvement.
+ * See https://github.com/process-analytics/bpmn-visualization-addons/issues/4 for improvement.
  *
  * @since 0.7.0
  */

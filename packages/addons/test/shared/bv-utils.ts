@@ -17,7 +17,7 @@ limitations under the License.
 import { BpmnVisualization } from '../../src/index.js';
 
 /**
- * Returns an instance of the extended version of BpmnVisualization provided by the add-ons.
+ * Returns an instance of the extended version of BpmnVisualization provided by `bpmn-visualization-addons`.
  */
 export function createNewBpmnVisualizationWithoutContainer(): BpmnVisualization {
   return new BpmnVisualization({ container: undefined! });

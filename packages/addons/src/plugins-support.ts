@@ -58,7 +58,7 @@ export type PluginOptionExtension = {
 export type GlobalOptions = BaseGlobalOptions & PluginOptionExtension;
 
 /**
- * The identifiers of the plugins provided by `bv-experimental-add-ons`.
+ * The identifiers of the plugins provided by `bpmn-visualization-addons`.
  * @since 0.7.0
  */
 export type DefaultPlugins = 'css' | 'elements' | 'overlays' | 'style' | 'style-by-name';

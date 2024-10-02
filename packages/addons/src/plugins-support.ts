@@ -80,7 +80,7 @@ export class BpmnVisualization extends BaseBpmnVisualization {
     return this.plugins.get(id) as T;
   }
 
-  private registerPlugins = (options: GlobalOptions): void => {
+  private readonly registerPlugins = (options: GlobalOptions): void => {
     // construct
     for (const constructor of options.plugins ?? []) {
       const plugin = new constructor(this, options);

@@ -129,7 +129,7 @@ export class BpmnElementsIdentifier {
 }
 
 export class ShapeUtil extends BaseShapeUtil {
-  static isBpmnArtifact = (kind: ShapeBpmnElementKind | string): boolean => {
+  static isBpmnArtifact(kind: ShapeBpmnElementKind | string): boolean {
     return kind === ShapeBpmnElementKind.GROUP || kind === ShapeBpmnElementKind.TEXT_ANNOTATION;
-  };
+  }
 }

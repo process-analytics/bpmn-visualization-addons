@@ -48,8 +48,8 @@ const addDomElement = (): HTMLDivElement => {
 export class ZoomComponent {
   private isRendered = false;
   constructor(
-    private bpmnVisualization: BpmnVisualization,
-    private fitOptions: FitOptions,
+    private readonly bpmnVisualization: BpmnVisualization,
+    private readonly fitOptions: FitOptions,
   ) {}
 
   render(): void {

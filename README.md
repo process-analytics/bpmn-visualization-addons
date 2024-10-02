@@ -13,8 +13,8 @@
         <a href="https://github.com/process-analytics/bpmn-visualization-addons/actions">
           <img alt="Build" src="https://github.com/process-analytics/bpmn-visualization-addons/workflows/Build/badge.svg"> 
         </a>
-        <a href="https://sonarcloud.io/project/overview?id=process-analytics_bv-experimental-add-ons">
-          <img alt="Coverage" src="https://sonarcloud.io/api/project_badges/measure?project=process-analytics_bv-experimental-add-ons&metric=code_smells">
+        <a href="https://sonarcloud.io/project/overview?id=process-analytics_bpmn-visualization-addons">
+          <img alt="Code Smells" src="https://sonarcloud.io/api/project_badges/measure?project=process-analytics_bpmn-visualization-addons&metric=code_smells">
         </a>
         <br>
         <a href=https://github.com/process-analytics/.github/blob/main/CODE_OF_CONDUCT.md">

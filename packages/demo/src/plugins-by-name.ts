@@ -18,7 +18,7 @@ import './assets/plugins-by-name.css';
 
 import type { FitOptions, StyleUpdate } from 'bpmn-visualization';
 
-import { BpmnVisualization, StyleByNamePlugin } from '@process-analytics/bv-experimental-add-ons';
+import { BpmnVisualization, StyleByNamePlugin } from '@process-analytics/bpmn-visualization-addons';
 import { FitType } from 'bpmn-visualization';
 
 import { fetchDiagram } from './shared/diagrams.js';

@@ -1,5 +1,5 @@
 {
-  "name": "@process-analytics/bv-experimental-add-ons",
+  "name": "@process-analytics/bpmn-visualization-addons",
   "version": "0.7.1",
   "private": false,
   "type": "module",

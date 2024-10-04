@@ -34,7 +34,7 @@ The `@process-analytics/bpmn-visualization-addons` npm package includes type def
 The plugins infrastructure provides a way to register extension points.
 
 > [!IMPORTANT]  
-> To be able to register and use the plugins, you need to import `BpmnVisualization` from the `addons` package, and not from `bpmn-visualization`.
+> To be able to register and use the plugins, you need to import `BpmnVisualization` from `bpmn-visualization-addons`, and not from `bpmn-visualization`.
 ```diff
 - import {BpmnVisualization} from "bpmn-visualization";
 + import {BpmnVisualization} from "@process-analytics/bpmn-visualization-addons";

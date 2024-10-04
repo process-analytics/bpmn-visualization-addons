@@ -12,14 +12,18 @@ npm install @process-analytics/bpmn-visualization-addons bpmn-visualization
 
 > [!NOTE]  
 > Until version 0.7.1, the `bpmn-visualization-addons` package was available under the name `bv-experimental-add-ons`.
-If your application was using the package under its former name, proceed as follows:
+If your application was using the package under its former name, proceed as follows 👇:
 ```shell
 # first uninstall the old package
 npm uninstall @process-analytics/bv-experimental-add-ons
 # then install the new package
 npm install @process-analytics/bpmn-visualization-addons
 ```
-Then, update the imports in your application code to use the new package name.
+Then, update the imports in your application code to use the new package name as follows 👇:
+```diff
+- import {BpmnVisualization} from "@process-analytics/bv-experimental-add-ons";
++ import {BpmnVisualization} from "@process-analytics/bpmn-visualization-addons";
+```
 
 ## 📜 TypeScript Support
 

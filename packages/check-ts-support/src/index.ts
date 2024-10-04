@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { BpmnElementsIdentifier, PathResolver } from '@process-analytics/bv-experimental-add-ons';
+import { BpmnElementsIdentifier, PathResolver } from '@process-analytics/bpmn-visualization-addons';
 import { BpmnVisualization } from 'bpmn-visualization';
 
 // bpmn-visualization

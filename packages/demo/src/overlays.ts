@@ -17,7 +17,7 @@ limitations under the License.
 import './assets/overlays.css';
 import type { FitOptions } from 'bpmn-visualization';
 
-import { BpmnVisualization, OverlaysPlugin } from '@process-analytics/bv-experimental-add-ons';
+import { BpmnVisualization, OverlaysPlugin } from '@process-analytics/bpmn-visualization-addons';
 import { FitType } from 'bpmn-visualization';
 
 import { fetchDiagram } from './shared/diagrams.js';

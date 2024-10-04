@@ -17,7 +17,7 @@ limitations under the License.
 import './assets/path-resolver.css';
 import type { BpmnElement } from 'bpmn-visualization';
 
-import { BpmnVisualization, ElementsPlugin, PathResolver, ShapeUtil, StylePlugin } from '@process-analytics/bv-experimental-add-ons';
+import { BpmnVisualization, ElementsPlugin, PathResolver, ShapeUtil, StylePlugin } from '@process-analytics/bpmn-visualization-addons';
 import { FitType } from 'bpmn-visualization';
 
 import { fetchDiagram } from './shared/diagrams.js';

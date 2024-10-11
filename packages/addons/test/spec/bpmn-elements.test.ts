@@ -17,9 +17,9 @@ limitations under the License.
 import type { ShapeBpmnSemantic } from 'bpmn-visualization';
 
 import { describe, expect, test } from '@jest/globals';
-import { ShapeBpmnElementKind, ShapeBpmnEventDefinitionKind } from 'bpmn-visualization';
+import { FlowKind, ShapeBpmnElementKind, ShapeBpmnEventDefinitionKind, ShapeUtil as BaseShapeUtil } from 'bpmn-visualization';
 
-import { BpmnElementsIdentifier, BpmnElementsSearcher, BpmnVisualization } from '../../src/index.js';
+import { BpmnElementsIdentifier, BpmnElementsSearcher, BpmnVisualization, ShapeUtil } from '../../src/index.js';
 import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils.js';
 import { insertBpmnContainerWithoutId } from '../shared/dom-utils.js';
 import { readFileSync } from '../shared/io-utils.js';
@@ -256,5 +256,37 @@ describe('Identify elements', () => {
     expect(bpmnElementsIdentifier.isBpmnArtifact(unknownId)).toBeFalsy();
     expect(bpmnElementsIdentifier.isEvent(unknownId)).toBeFalsy();
     expect(bpmnElementsIdentifier.isGateway(unknownId)).toBeFalsy();
+  });
+});
+
+describe('ShapeUtil', () => {
+  describe('bpmn-visualization implementation', () => {
+    // This is to reproduce a bug in bpmn-visualization
+    test('flowNodeKinds should not contains text annotation and group', () => {
+      const flowNodeKinds = BaseShapeUtil.flowNodeKinds();
+      // here is the bug, the elements should not be in the array
+      expect(flowNodeKinds).toContain(ShapeBpmnElementKind.TEXT_ANNOTATION);
+      expect(flowNodeKinds).toContain(ShapeBpmnElementKind.GROUP);
+    });
+  });
+
+  describe('isFlowNode', () => {
+    test.each`
+      kind                                     | expected
+      ${ShapeBpmnElementKind.EVENT_END}        | ${true}
+      ${ShapeBpmnElementKind.GATEWAY_PARALLEL} | ${true}
+      ${ShapeBpmnElementKind.TASK}             | ${true}
+      ${ShapeBpmnElementKind.SUB_PROCESS}      | ${true}
+      ${ShapeBpmnElementKind.CALL_ACTIVITY}    | ${true}
+      ${ShapeBpmnElementKind.POOL}             | ${false}
+      ${ShapeBpmnElementKind.LANE}             | ${false}
+      ${ShapeBpmnElementKind.GROUP}            | ${false}
+      ${ShapeBpmnElementKind.TEXT_ANNOTATION}  | ${false}
+      ${FlowKind.MESSAGE_FLOW}                 | ${false}
+      ${'unknown'}                             | ${false}
+      ${'receiveTask'}                         | ${true}
+    `('$kind isFlowNode? $expected', ({ kind, expected }: Record<string, unknown>) => {
+      expect(ShapeUtil.isFlowNode(kind as string)).toBe(expected);
+    });
   });
 });

@@ -17,7 +17,7 @@ limitations under the License.
 import type { ShapeBpmnSemantic } from 'bpmn-visualization';
 
 import { describe, expect, test } from '@jest/globals';
-import { FlowKind, ShapeUtil as BaseShapeUtil, ShapeBpmnElementKind, ShapeBpmnEventDefinitionKind } from 'bpmn-visualization';
+import { FlowKind, ShapeBpmnElementKind, ShapeBpmnEventDefinitionKind, ShapeUtil as BaseShapeUtil } from 'bpmn-visualization';
 
 import { BpmnElementsIdentifier, BpmnElementsSearcher, BpmnVisualization, ShapeUtil } from '../../src/index.js';
 import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils.js';
@@ -260,8 +260,7 @@ describe('Identify elements', () => {
 });
 
 describe('ShapeUtil', () => {
-  // original implementation
-  describe('original ShapeUtil', () => {
+  describe('bpmn-visualization implementation', () => {
     // This is to reproduce a bug in bpmn-visualization
     test('flowNodeKinds should not contains text annotation and group', () => {
       const flowNodeKinds = BaseShapeUtil.flowNodeKinds();

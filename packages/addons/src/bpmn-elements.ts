@@ -132,4 +132,9 @@ export class ShapeUtil extends BaseShapeUtil {
   static isBpmnArtifact(kind: ShapeBpmnElementKind | string): boolean {
     return kind === ShapeBpmnElementKind.GROUP || kind === ShapeBpmnElementKind.TEXT_ANNOTATION;
   }
+
+  static isFlowNode(kind: ShapeBpmnElementKind | string): boolean {
+    // there is currently a bug in bpmn-visualization (at least in version 0.44.0). It includes artifacts in flowNodeKinds.
+    return ShapeUtil.flowNodeKinds().includes(kind as ShapeBpmnElementKind) && !ShapeUtil.isBpmnArtifact(kind);
+  }
 }

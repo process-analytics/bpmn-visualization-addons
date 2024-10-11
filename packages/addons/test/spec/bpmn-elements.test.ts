@@ -17,9 +17,9 @@ limitations under the License.
 import type { ShapeBpmnSemantic } from 'bpmn-visualization';
 
 import { describe, expect, test } from '@jest/globals';
-import { ShapeBpmnElementKind, ShapeBpmnEventDefinitionKind } from 'bpmn-visualization';
+import { FlowKind, ShapeUtil as BaseShapeUtil, ShapeBpmnElementKind, ShapeBpmnEventDefinitionKind } from 'bpmn-visualization';
 
-import { BpmnElementsIdentifier, BpmnElementsSearcher, BpmnVisualization } from '../../src/index.js';
+import { BpmnElementsIdentifier, BpmnElementsSearcher, BpmnVisualization, ShapeUtil } from '../../src/index.js';
 import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils.js';
 import { insertBpmnContainerWithoutId } from '../shared/dom-utils.js';
 import { readFileSync } from '../shared/io-utils.js';
@@ -256,5 +256,33 @@ describe('Identify elements', () => {
     expect(bpmnElementsIdentifier.isBpmnArtifact(unknownId)).toBeFalsy();
     expect(bpmnElementsIdentifier.isEvent(unknownId)).toBeFalsy();
     expect(bpmnElementsIdentifier.isGateway(unknownId)).toBeFalsy();
+  });
+});
+
+describe('ShapeUtil', () => {
+  // original implementation
+  describe('original ShapeUtil', () => {
+    // This is to reproduce a bug in bpmn-visualization
+    test('flowNodeKinds should not contains text annotation and group', () => {
+      const flowNodeKinds = BaseShapeUtil.flowNodeKinds();
+      // here is the bug
+      expect(flowNodeKinds).toContain(ShapeBpmnElementKind.TEXT_ANNOTATION);
+      expect(flowNodeKinds).toContain(ShapeBpmnElementKind.GROUP);
+    });
+  });
+
+  test('isFlowNode', () => {
+    expect(ShapeUtil.isFlowNode(ShapeBpmnElementKind.EVENT_END)).toBeTruthy();
+    expect(ShapeUtil.isFlowNode(ShapeBpmnElementKind.TASK)).toBeTruthy();
+    expect(ShapeUtil.isFlowNode(ShapeBpmnElementKind.SUB_PROCESS)).toBeTruthy();
+    expect(ShapeUtil.isFlowNode(ShapeBpmnElementKind.CALL_ACTIVITY)).toBeTruthy();
+    expect(ShapeUtil.isFlowNode('receiveTask')).toBeTruthy();
+
+    expect(ShapeUtil.isFlowNode(ShapeBpmnElementKind.TEXT_ANNOTATION)).toBeFalsy();
+    expect(ShapeUtil.isFlowNode(ShapeBpmnElementKind.GROUP)).toBeFalsy();
+    expect(ShapeUtil.isFlowNode(ShapeBpmnElementKind.POOL)).toBeFalsy();
+
+    expect(ShapeUtil.isFlowNode(FlowKind.MESSAGE_FLOW)).toBeFalsy();
+    expect(ShapeUtil.isFlowNode('unknown')).toBeFalsy();
   });
 });

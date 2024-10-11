@@ -264,7 +264,7 @@ describe('ShapeUtil', () => {
     // This is to reproduce a bug in bpmn-visualization
     test('flowNodeKinds should not contains text annotation and group', () => {
       const flowNodeKinds = BaseShapeUtil.flowNodeKinds();
-      // here is the bug
+      // here is the bug, the elements should not be in the array
       expect(flowNodeKinds).toContain(ShapeBpmnElementKind.TEXT_ANNOTATION);
       expect(flowNodeKinds).toContain(ShapeBpmnElementKind.GROUP);
     });

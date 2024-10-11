@@ -285,8 +285,8 @@ describe('ShapeUtil', () => {
       ${FlowKind.MESSAGE_FLOW}                 | ${false}
       ${'unknown'}                             | ${false}
       ${'receiveTask'}                         | ${true}
-    `('$kind isFlowNode? $expected', ({ kind, expected }: { kind: string; expected: boolean }) => {
-      expect(ShapeUtil.isFlowNode(kind)).toBe(expected);
+    `('$kind isFlowNode? $expected', ({ kind, expected }: Record<string, unknown>) => {
+      expect(ShapeUtil.isFlowNode(kind as string)).toBe(expected);
     });
   });
 });

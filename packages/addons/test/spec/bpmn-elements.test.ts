@@ -270,18 +270,23 @@ describe('ShapeUtil', () => {
     });
   });
 
-  test('isFlowNode', () => {
-    expect(ShapeUtil.isFlowNode(ShapeBpmnElementKind.EVENT_END)).toBeTruthy();
-    expect(ShapeUtil.isFlowNode(ShapeBpmnElementKind.TASK)).toBeTruthy();
-    expect(ShapeUtil.isFlowNode(ShapeBpmnElementKind.SUB_PROCESS)).toBeTruthy();
-    expect(ShapeUtil.isFlowNode(ShapeBpmnElementKind.CALL_ACTIVITY)).toBeTruthy();
-    expect(ShapeUtil.isFlowNode('receiveTask')).toBeTruthy();
-
-    expect(ShapeUtil.isFlowNode(ShapeBpmnElementKind.TEXT_ANNOTATION)).toBeFalsy();
-    expect(ShapeUtil.isFlowNode(ShapeBpmnElementKind.GROUP)).toBeFalsy();
-    expect(ShapeUtil.isFlowNode(ShapeBpmnElementKind.POOL)).toBeFalsy();
-
-    expect(ShapeUtil.isFlowNode(FlowKind.MESSAGE_FLOW)).toBeFalsy();
-    expect(ShapeUtil.isFlowNode('unknown')).toBeFalsy();
+  describe('isFlowNode', () => {
+    test.each`
+      kind                                     | expected
+      ${ShapeBpmnElementKind.EVENT_END}        | ${true}
+      ${ShapeBpmnElementKind.GATEWAY_PARALLEL} | ${true}
+      ${ShapeBpmnElementKind.TASK}             | ${true}
+      ${ShapeBpmnElementKind.SUB_PROCESS}      | ${true}
+      ${ShapeBpmnElementKind.CALL_ACTIVITY}    | ${true}
+      ${ShapeBpmnElementKind.POOL}             | ${false}
+      ${ShapeBpmnElementKind.LANE}             | ${false}
+      ${ShapeBpmnElementKind.GROUP}            | ${false}
+      ${ShapeBpmnElementKind.TEXT_ANNOTATION}  | ${false}
+      ${FlowKind.MESSAGE_FLOW}                 | ${false}
+      ${'unknown'}                             | ${false}
+      ${'receiveTask'}                         | ${true}
+    `('$kind isFlowNode? $expected', ({ kind, expected }: { kind: string; expected: boolean }) => {
+      expect(ShapeUtil.isFlowNode(kind)).toBe(expected);
+    });
   });
 });

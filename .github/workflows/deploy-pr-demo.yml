@@ -22,7 +22,7 @@ jobs:
   # Keep unique across jobs using surge preview (preview url and PR comment id).
   # Use a short id to avoid reaching the surge subdomain length limit. See https://github.com/bonitasoft/actions/issues/101
   demo:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       pull-requests: write # surge-preview: PR comments
     steps:

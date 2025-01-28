@@ -17,7 +17,7 @@
           <img alt="Code Smells" src="https://sonarcloud.io/api/project_badges/measure?project=process-analytics_bpmn-visualization-addons&metric=code_smells">
         </a>
         <br>
-        <a href=https://github.com/process-analytics/.github/blob/main/CODE_OF_CONDUCT.md">
+        <a href="https://github.com/process-analytics/.github/blob/main/CODE_OF_CONDUCT.md">
           <img alt="Contributor Covenant" src="https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg"> 
         </a> 
         <a href="LICENSE">

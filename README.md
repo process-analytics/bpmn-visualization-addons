@@ -87,12 +87,24 @@ Copyright &copy; 2023-present, Bonitasoft S.A.
 
 When all updates have been completed, you are ready to publish a new release.
 
+### Release preparation
+
 Decide on the new version depending on the type of changes:
 - Follow [semver](https://semver.org/)
 - Check the new commits since the latest release to determine the type of changes included in the new version. This can be done by:
   - running locally `git log --oneline <latest-release-tag>..HEAD`
   - going the [latest GitHub release page](https://github.com/process-analytics/bpmn-visualization-addons/releases/latest) and checking the commits since this release (a link is available just above the release title).
 - Until we release the first major version, bump the minor version if the release contains new features or breaking changes.
+
+A GitHub release will be published as part of the release process, and it will include an auto-generated release notes which is based on the labels of the merged Pull Requests:
+- Ensure that all merged PR included in the release are labelled. You can find the [unlabeled PR](https://github.com/process-analytics/bpmn-visualization-addons//pulls?q=is%3Apr+sort%3Aupdated-desc+no%3Alabel+is%3Amerged) to easily labeled them.
+- Ensure that all PR related to the bump of production dependencies (mxGraph, ...) are not labelled with `skip-changelog`, otherwise they are not included in the changelog.
+  Such PR can be found with the following query: [bump prod dependency PR with skip-changelog label](https://github.com/process-analytics/bpmn-visualization-addons//pulls?q=is%3Apr+is%3Amerged+%22chore%28deps%29%22+in%3Atitle+NOT+%22chore%28deps-dev%29%22+in%3Atitle+label%3Askip-changelog+)
+
+**Note**: It is currently not possible to make dependabot apply different labels to production and development dependency update PRs. So, that's why we have to check the labels manually.
+For more details, see the documentation about the [dependabot labels configuration](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference#labels--).
+
+### Perform the Release
 
 Go to the [release workflow](https://github.com/process-analytics/bpmn-visualization-addons/actions/workflows/release.yml) in GitHub Actions and run it by choosing the type of release.
 

@@ -27,6 +27,11 @@ updates:
       # We must use an old version in packages/check-ts-support that works with the typescript version used in this package.
       # As the typescript version is old, it requires an old version of "@types/node".
       - dependency-name: "@types/node"
+      # eslint v9 requires to first switch to flat configuration
+      - dependency-name: "eslint"
+      - dependency-name: "@types/eslint"
+      # eslint-plugin-unicorn v57+ requires eslint v9 and flat configuration
+      - dependency-name: "eslint-plugin-unicorn"
     groups:
        css:
           patterns:
@@ -34,11 +39,6 @@ updates:
             - "cssnano"
             - "postcss*"
             - "tailwindcss"
-       # TMP will be restored in the lint group when all plugins support eslint v9
-       eslint:
-          patterns:
-            - "@types/eslint"
-            - "eslint"
        lint:
           patterns:
             - "@typescript-eslint/*"

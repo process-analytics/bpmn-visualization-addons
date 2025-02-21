@@ -25,8 +25,8 @@ import nodePlugin from 'eslint-plugin-n';
 import noticePlugin from 'eslint-plugin-notice';
 import prettierRecommendedConfig from 'eslint-plugin-prettier/recommended';
 import unicornPlugin from 'eslint-plugin-unicorn';
-import tseslint from 'typescript-eslint';
 // eslint-disable-next-line import/no-unresolved
+import tseslint from 'typescript-eslint';
 
 const jestPackagePath = path.resolve('node_modules', 'jest', 'package.json');
 const jestPackage = JSON.parse(readFileSync(jestPackagePath, 'utf8'));
@@ -66,7 +66,6 @@ export default tseslint.config(
     },
   },
 
-  /** @type {import('@typescript-eslint').ConfigWithExtends} */
   {
     ...unicornPlugin.configs['flat/recommended'], // https://github.com/sindresorhus/eslint-plugin-unicorn?tab=readme-ov-file#es-module-recommended-1
 
@@ -100,7 +99,10 @@ export default tseslint.config(
   },
 
   {
-    ...importPlugin.flatConfigs.recommended,
+    extends: [
+      // Feature of `typescript-eslint` to extend multiple configs: https://typescript-eslint.io/packages/typescript-eslint/#flat-config-extends
+      importPlugin.flatConfigs.recommended,
+    ],
     rules: {
       // as defined in `bpmn-visualization` b122995c
       'import/newline-after-import': ['error', { count: 1 }],
@@ -123,18 +125,18 @@ export default tseslint.config(
   // disable type-aware linting on JS files
   {
     files: ['**/*.js', '**/*.cjs', '**/*.mjs'],
-    ...tseslint.configs.disableTypeChecked,
+  ...tseslint.configs.disableTypeChecked,
   },
 
   // typescript
-  ...tseslint.configs.recommended,
-  ...tseslint.configs.stylistic,
-
-  /** @type {import('@typescript-eslint').ConfigWithExtends} */
   {
     files: ['**/*.ts', '**/*.cts', '**/*.mts'],
-    ...eslint.configs.recommended,
-
+    extends: [
+      // Feature of `typescript-eslint` to extend multiple configs: https://typescript-eslint.io/packages/typescript-eslint/#flat-config-extends
+      eslint.configs.recommended, // Problem with 'module', 'require', 'console', 'exports', etc. on .js, .cjs, .mjs files
+      ...tseslint.configs.recommended,
+      ...tseslint.configs.stylistic,
+    ],
     ...importPlugin.flatConfigs.typescript,
     settings: {
       'import/resolver': {
@@ -145,7 +147,6 @@ export default tseslint.config(
       },
     },
     languageOptions: {
-      parser: tseslint.parser,
       parserOptions: {
         // This setting is required if you want to use rules which require type information
         // https://typescript-eslint.io/packages/parser/#project
@@ -178,7 +179,9 @@ export default tseslint.config(
 
   // node plugin
   {
-    ...nodePlugin.configs['flat/recommended-script'],
+    extends: [
+      nodePlugin.configs['flat/recommended-script'],
+    ],
     settings: {
       node: {
         allowModules: ['@process-analytics/bpmn-visualization-addons'],
@@ -189,13 +192,18 @@ export default tseslint.config(
     },
   },
 
+
   // test files
+  // There is no more cascading and hierarchy configuration files in ESLint v9.
   // All configurations must be in the same file.
   {
     // enable jest rules on test files
     files: ['test/**'],
-    ...jestPlugin.configs['flat/recommended'],
-    ...jestPlugin.configs['flat/style'],
+    extends: [
+      // Feature of `typescript-eslint` to extend multiple configs: https://typescript-eslint.io/packages/typescript-eslint/#flat-config-extends
+      jestPlugin.configs['flat/recommended'],
+      jestPlugin.configs['flat/style'],
+    ],
     plugins: {
       jest: jestPlugin,
     },

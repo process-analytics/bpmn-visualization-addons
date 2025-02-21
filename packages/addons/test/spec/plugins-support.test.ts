@@ -20,7 +20,7 @@ import type { GlobalOptions } from 'bpmn-visualization';
 import { describe, expect, test } from '@jest/globals';
 
 import { BpmnVisualization } from '../../src/index.js';
-import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils.js';
+import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utilities.js';
 
 test('No error when no plugin is defined', () => {
   const bpmnVisualization = createNewBpmnVisualizationWithoutContainer();

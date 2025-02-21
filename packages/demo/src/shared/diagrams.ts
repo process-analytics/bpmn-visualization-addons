@@ -20,6 +20,7 @@ limitations under the License.
 import diagramUrl from '../assets/bpmn/EC-purchase-orders-collapsed.xml?url';
 
 export async function fetchDiagram(): Promise<string> {
+  // eslint-disable-next-line n/no-unsupported-features/node-builtins
   const response = await fetch(diagramUrl);
   return await response.text();
 }

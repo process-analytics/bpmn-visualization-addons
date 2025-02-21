@@ -17,9 +17,9 @@ limitations under the License.
 import type { ShapeBpmnSemantic } from 'bpmn-visualization';
 
 import { describe, expect, test } from '@jest/globals';
-import { FlowKind, ShapeBpmnElementKind, ShapeBpmnEventDefinitionKind, ShapeUtil as BaseShapeUtil } from 'bpmn-visualization';
+import { FlowKind, ShapeBpmnElementKind, ShapeBpmnEventDefinitionKind, ShapeUtil as BaseShapeUtility } from 'bpmn-visualization';
 
-import { BpmnElementsIdentifier, BpmnElementsSearcher, BpmnVisualization, ShapeUtil } from '../../src/index.js';
+import { BpmnElementsIdentifier, BpmnElementsSearcher, BpmnVisualization, ShapeUtil as ShapeUtility } from '../../src/index.js';
 import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils.js';
 import { insertBpmnContainerWithoutId } from '../shared/dom-utils.js';
 import { readFileSync } from '../shared/io-utils.js';
@@ -263,7 +263,7 @@ describe('ShapeUtil', () => {
   describe('bpmn-visualization implementation', () => {
     // This is to reproduce a bug in bpmn-visualization
     test('flowNodeKinds should not contains text annotation and group', () => {
-      const flowNodeKinds = BaseShapeUtil.flowNodeKinds();
+      const flowNodeKinds = BaseShapeUtility.flowNodeKinds();
       // here is the bug, the elements should not be in the array
       expect(flowNodeKinds).toContain(ShapeBpmnElementKind.TEXT_ANNOTATION);
       expect(flowNodeKinds).toContain(ShapeBpmnElementKind.GROUP);
@@ -286,7 +286,7 @@ describe('ShapeUtil', () => {
       ${'unknown'}                             | ${false}
       ${'receiveTask'}                         | ${true}
     `('$kind isFlowNode? $expected', ({ kind, expected }: Record<string, unknown>) => {
-      expect(ShapeUtil.isFlowNode(kind as string)).toBe(expected);
+      expect(ShapeUtility.isFlowNode(kind as string)).toBe(expected);
     });
   });
 });

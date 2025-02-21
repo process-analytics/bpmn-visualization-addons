@@ -16,7 +16,7 @@ limitations under the License.
 
 import type { BpmnElementKind, BpmnSemantic, ElementsRegistry } from 'bpmn-visualization';
 
-import { FlowKind, ShapeBpmnElementKind, ShapeUtil as BaseShapeUtil } from 'bpmn-visualization';
+import { FlowKind, ShapeBpmnElementKind, ShapeUtil as BaseShapeUtility } from 'bpmn-visualization';
 
 const allBpmnElementKinds: BpmnElementKind[] = [...Object.values(ShapeBpmnElementKind), ...Object.values(FlowKind)];
 
@@ -102,7 +102,7 @@ export class BpmnElementsIdentifier {
   constructor(private readonly elementsRegistry: ElementsRegistry) {}
 
   isActivity(elementId: string): boolean {
-    return this.isInCategory(BaseShapeUtil.isActivity, elementId);
+    return this.isInCategory(BaseShapeUtility.isActivity, elementId);
   }
 
   isBpmnArtifact(elementId: string): boolean {
@@ -110,11 +110,11 @@ export class BpmnElementsIdentifier {
   }
 
   isGateway(elementId: string): boolean {
-    return this.isInCategory(BaseShapeUtil.isGateway, elementId);
+    return this.isInCategory(BaseShapeUtility.isGateway, elementId);
   }
 
   isEvent(elementId: string): boolean {
-    return this.isInCategory(BaseShapeUtil.isEvent, elementId);
+    return this.isInCategory(BaseShapeUtility.isEvent, elementId);
   }
 
   private isInCategory(categorizeFunction: (value: string) => boolean, elementId: string): boolean {
@@ -128,7 +128,7 @@ export class BpmnElementsIdentifier {
   }
 }
 
-export class ShapeUtil extends BaseShapeUtil {
+export class ShapeUtil extends BaseShapeUtility {
   static isBpmnArtifact(kind: ShapeBpmnElementKind | string): boolean {
     return kind === ShapeBpmnElementKind.GROUP || kind === ShapeBpmnElementKind.TEXT_ANNOTATION;
   }

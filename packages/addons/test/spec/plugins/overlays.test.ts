@@ -15,13 +15,14 @@ limitations under the License.
 */
 
 import type { Overlay } from 'bpmn-visualization';
+// eslint-disable-next-line n/no-extraneous-import
 import type { mxGraph, mxGraphModel } from 'mxgraph';
 
 import { beforeEach, describe, expect, test } from '@jest/globals';
 
 import { BpmnVisualization, OverlaysPlugin } from '../../../src/index.js';
-import { insertBpmnContainerWithoutId } from '../../shared/dom-utils.js';
-import { readFileSync } from '../../shared/io-utils.js';
+import { insertBpmnContainerWithoutId } from '../../shared/dom-utilities.js';
+import { readFileSync } from '../../shared/io-utilities.js';
 
 /**
  * Information taken from bpmn-visualization QuerySelectors

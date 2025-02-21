@@ -18,7 +18,7 @@ import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { BpmnElementsRegistry } from 'bpmn-visualization';
 
 import { BpmnVisualization, CssClassesPlugin } from '../../../src/index.js';
-import { insertBpmnContainerWithoutId } from '../../shared/dom-utils.js';
+import { insertBpmnContainerWithoutId } from '../../shared/dom-utilities.js';
 
 // jest mock configuration
 const mockBvAddCssClassesByIds = jest.spyOn(BpmnElementsRegistry.prototype, 'addCssClasses');

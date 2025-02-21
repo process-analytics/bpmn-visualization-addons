@@ -106,7 +106,7 @@ export class BpmnElementsIdentifier {
   }
 
   isBpmnArtifact(elementId: string): boolean {
-    return this.isInCategory(ShapeUtil.isBpmnArtifact, elementId);
+    return this.isInCategory(ShapeUtility.isBpmnArtifact, elementId);
   }
 
   isGateway(elementId: string): boolean {
@@ -128,13 +128,13 @@ export class BpmnElementsIdentifier {
   }
 }
 
-export class ShapeUtil extends BaseShapeUtility {
+export class ShapeUtility extends BaseShapeUtility {
   static isBpmnArtifact(kind: ShapeBpmnElementKind | string): boolean {
     return kind === ShapeBpmnElementKind.GROUP || kind === ShapeBpmnElementKind.TEXT_ANNOTATION;
   }
 
   static isFlowNode(kind: ShapeBpmnElementKind | string): boolean {
     // there is currently a bug in bpmn-visualization (at least in version 0.44.0). It includes artifacts in flowNodeKinds.
-    return ShapeUtil.flowNodeKinds().includes(kind as ShapeBpmnElementKind) && !ShapeUtil.isBpmnArtifact(kind);
+    return ShapeUtility.flowNodeKinds().includes(kind as ShapeBpmnElementKind) && !ShapeUtility.isBpmnArtifact(kind);
   }
 }

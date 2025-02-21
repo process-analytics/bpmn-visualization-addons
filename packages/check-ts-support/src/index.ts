@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { BpmnElementsIdentifier, PathResolver } from '@process-analytics/bpmn-visualization-addons';
+// eslint-disable-next-line n/no-extraneous-import
 import { BpmnVisualization } from 'bpmn-visualization';
 
 // bpmn-visualization

@@ -19,10 +19,10 @@ import type { ShapeBpmnSemantic } from 'bpmn-visualization';
 import { describe, expect, test } from '@jest/globals';
 import { FlowKind, ShapeBpmnElementKind, ShapeBpmnEventDefinitionKind, ShapeUtil as BaseShapeUtility } from 'bpmn-visualization';
 
-import { BpmnElementsIdentifier, BpmnElementsSearcher, BpmnVisualization, ShapeUtil as ShapeUtility } from '../../src/index.js';
-import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils.js';
-import { insertBpmnContainerWithoutId } from '../shared/dom-utils.js';
-import { readFileSync } from '../shared/io-utils.js';
+import { BpmnElementsIdentifier, BpmnElementsSearcher, BpmnVisualization, ShapeUtility } from '../../src/index.js';
+import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utilities.js';
+import { insertBpmnContainerWithoutId } from '../shared/dom-utilities.js';
+import { readFileSync } from '../shared/io-utilities.js';
 
 describe('Find elements by providing names', () => {
   const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId() });

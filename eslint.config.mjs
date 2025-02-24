@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { readFileSync } from 'fs';
-import path from 'path';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 
 import eslint from '@eslint/js';
 import importPlugin from 'eslint-plugin-import';
@@ -66,8 +66,9 @@ export default tseslint.config(
     },
   },
 
+  // Unicorn
   {
-    ...unicornPlugin.configs['flat/recommended'], // https://github.com/sindresorhus/eslint-plugin-unicorn?tab=readme-ov-file#es-module-recommended-1
+    extends: [unicornPlugin.configs['flat/recommended']], // https://github.com/sindresorhus/eslint-plugin-unicorn?tab=readme-ov-file#es-module-recommended-1
 
     rules: {
       'unicorn/filename-case': [
@@ -98,6 +99,7 @@ export default tseslint.config(
     },
   },
 
+  // Import
   {
     extends: [
       // Feature of `typescript-eslint` to extend multiple configs: https://typescript-eslint.io/packages/typescript-eslint/#flat-config-extends
@@ -122,22 +124,22 @@ export default tseslint.config(
     },
   },
 
+  // TypeScript
+  eslint.configs.recommended,
+  tseslint.configs.recommended,
+  tseslint.configs.stylistic,
   // disable type-aware linting on JS files
   {
     files: ['**/*.js', '**/*.cjs', '**/*.mjs'],
-  ...tseslint.configs.disableTypeChecked,
+    extends: [tseslint.configs.disableTypeChecked],
   },
 
-  // typescript
   {
     files: ['**/*.ts', '**/*.cts', '**/*.mts'],
     extends: [
       // Feature of `typescript-eslint` to extend multiple configs: https://typescript-eslint.io/packages/typescript-eslint/#flat-config-extends
-      eslint.configs.recommended, // Problem with 'module', 'require', 'console', 'exports', etc. on .js, .cjs, .mjs files
-      ...tseslint.configs.recommended,
-      ...tseslint.configs.stylistic,
+      importPlugin.flatConfigs.typescript,
     ],
-    ...importPlugin.flatConfigs.typescript,
     settings: {
       'import/resolver': {
         typescript: {
@@ -179,19 +181,16 @@ export default tseslint.config(
 
   // node plugin
   {
-    extends: [
-      nodePlugin.configs['flat/recommended-script'],
-    ],
+    extends: [nodePlugin.configs['flat/recommended-script']],
     settings: {
       node: {
-        allowModules: ['@process-analytics/bpmn-visualization-addons'],
+        allowModules: ['@process-analytics/bpmn-visualization-addons', 'eslint-plugin-jest', 'eslint-plugin-jest-dom'],
       },
     },
     rules: {
       'n/file-extension-in-import': ['error', 'always'],
     },
   },
-
 
   // test files
   // There is no more cascading and hierarchy configuration files in ESLint v9.

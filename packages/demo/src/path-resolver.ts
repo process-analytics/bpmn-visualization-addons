@@ -17,7 +17,7 @@ limitations under the License.
 import './assets/path-resolver.css';
 import type { BpmnElement } from 'bpmn-visualization';
 
-import { BpmnVisualization, ElementsPlugin, PathResolver, ShapeUtil, StylePlugin } from '@process-analytics/bpmn-visualization-addons';
+import { BpmnVisualization, ElementsPlugin, PathResolver, ShapeUtility, StylePlugin } from '@process-analytics/bpmn-visualization-addons';
 import { FitType } from 'bpmn-visualization';
 
 import { fetchDiagram } from './shared/diagrams.js';
@@ -61,7 +61,7 @@ function clearPath(): void {
   computedFlows.length = 0;
 }
 
-const getAllFlowNodes = (): BpmnElement[] => elementsPlugin.getElementsByKinds(ShapeUtil.flowNodeKinds().filter(kind => !ShapeUtil.isBpmnArtifact(kind)));
+const getAllFlowNodes = (): BpmnElement[] => elementsPlugin.getElementsByKinds(ShapeUtility.flowNodeKinds().filter(kind => !ShapeUtility.isBpmnArtifact(kind)));
 
 const setupBpmnElementEventHandlers = (): void => {
   for (const item of getAllFlowNodes()) {

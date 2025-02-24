@@ -1,7 +1,0 @@
-.idea/
-# at project root, this directory includes a js template file used to add a license header with eslint in all files. It doesn't match the license rule because it is the template!
-/config/
-coverage/
-dist/
-lib/
-node_modules/

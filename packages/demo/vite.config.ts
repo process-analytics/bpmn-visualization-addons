@@ -28,9 +28,9 @@ function findFiles(relativePathToSourceDirectory: string): string[] {
 }
 // =====================================================================================================================
 
-function generateInput(): { [p: string]: string } {
+function generateInput(): Record<string, string> {
   const pages = findFiles('pages');
-  const input: { [p: string]: string } = {
+  const input: Record<string, string> = {
     index: path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'index.html'),
   };
   for (const page of pages) {

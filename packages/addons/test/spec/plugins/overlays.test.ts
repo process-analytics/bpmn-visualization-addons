@@ -15,13 +15,14 @@ limitations under the License.
 */
 
 import type { Overlay } from 'bpmn-visualization';
+// eslint-disable-next-line n/no-extraneous-import
 import type { mxGraph, mxGraphModel } from 'mxgraph';
 
 import { beforeEach, describe, expect, test } from '@jest/globals';
 
 import { BpmnVisualization, OverlaysPlugin } from '../../../src/index.js';
-import { insertBpmnContainerWithoutId } from '../../shared/dom-utils.js';
-import { readFileSync } from '../../shared/io-utils.js';
+import { insertBpmnContainerWithoutId } from '../../shared/dom-utilities.js';
+import { readFileSync } from '../../shared/io-utilities.js';
 
 /**
  * Information taken from bpmn-visualization QuerySelectors
@@ -183,7 +184,6 @@ class OverlaysExpectation {
     this.model = bpmnVisualization.graph.model;
   }
 
-  /* eslint-disable jest/no-standalone-expect -- util code, including expect calls */
   expectNoOverlay(bpmnId: string): void {
     expect(this.getOverlays(bpmnId)).toHaveLength(0);
   }
@@ -200,15 +200,14 @@ class OverlaysExpectation {
     expect(overlays).toHaveLength(labels.length);
     expect(overlays.map(overlay => overlay.label)).toEqual(labels);
   }
-  /* eslint-enable jest/no-standalone-expect */
 }
 
 // The real type is "class MxGraphCustomOverlay extends mxgraph.mxCellOverlay" but it is not part of the API so create a convenient matching type here
 // class BpmnVisualizationOverlay extends mxCellOverlay {}
 // In tests in this file, we are only checking the label, so use a simple type matching the label property of the actual type.
-type BpmnVisualizationOverlay = {
+interface BpmnVisualizationOverlay {
   label: string;
-};
+}
 
 function createOverlay(label: string): Overlay {
   return { label, position: 'top-center' };

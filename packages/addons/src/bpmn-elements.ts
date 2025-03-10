@@ -16,19 +16,19 @@ limitations under the License.
 
 import type { BpmnElementKind, BpmnSemantic, ElementsRegistry } from 'bpmn-visualization';
 
-import { FlowKind, ShapeBpmnElementKind, ShapeUtil as BaseShapeUtil } from 'bpmn-visualization';
+import { FlowKind, ShapeBpmnElementKind, ShapeUtil as BaseShapeUtility } from 'bpmn-visualization';
 
 const allBpmnElementKinds: BpmnElementKind[] = [...Object.values(ShapeBpmnElementKind), ...Object.values(FlowKind)];
 
 /**
  * Options to deduplicate elements when several names match.
  */
-export type DeduplicateNamesOptions = {
+export interface DeduplicateNamesOptions {
   /** If not set, use all `BpmnElementKind` values. */
   kinds?: BpmnElementKind[];
   /** Apply custom function to filter duplicates. */
   filter?: (bpmnSemantic: BpmnSemantic) => boolean;
-};
+}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const acceptAll = (_bpmnSemantic: BpmnSemantic): boolean => true;
@@ -102,19 +102,19 @@ export class BpmnElementsIdentifier {
   constructor(private readonly elementsRegistry: ElementsRegistry) {}
 
   isActivity(elementId: string): boolean {
-    return this.isInCategory(BaseShapeUtil.isActivity, elementId);
+    return this.isInCategory(BaseShapeUtility.isActivity, elementId);
   }
 
   isBpmnArtifact(elementId: string): boolean {
-    return this.isInCategory(ShapeUtil.isBpmnArtifact, elementId);
+    return this.isInCategory(ShapeUtility.isBpmnArtifact, elementId);
   }
 
   isGateway(elementId: string): boolean {
-    return this.isInCategory(BaseShapeUtil.isGateway, elementId);
+    return this.isInCategory(BaseShapeUtility.isGateway, elementId);
   }
 
   isEvent(elementId: string): boolean {
-    return this.isInCategory(BaseShapeUtil.isEvent, elementId);
+    return this.isInCategory(BaseShapeUtility.isEvent, elementId);
   }
 
   private isInCategory(categorizeFunction: (value: string) => boolean, elementId: string): boolean {
@@ -128,13 +128,13 @@ export class BpmnElementsIdentifier {
   }
 }
 
-export class ShapeUtil extends BaseShapeUtil {
+export class ShapeUtility extends BaseShapeUtility {
   static isBpmnArtifact(kind: ShapeBpmnElementKind | string): boolean {
     return kind === ShapeBpmnElementKind.GROUP || kind === ShapeBpmnElementKind.TEXT_ANNOTATION;
   }
 
   static isFlowNode(kind: ShapeBpmnElementKind | string): boolean {
     // there is currently a bug in bpmn-visualization (at least in version 0.44.0). It includes artifacts in flowNodeKinds.
-    return ShapeUtil.flowNodeKinds().includes(kind as ShapeBpmnElementKind) && !ShapeUtil.isBpmnArtifact(kind);
+    return ShapeUtility.flowNodeKinds().includes(kind as ShapeBpmnElementKind) && !ShapeUtility.isBpmnArtifact(kind);
   }
 }

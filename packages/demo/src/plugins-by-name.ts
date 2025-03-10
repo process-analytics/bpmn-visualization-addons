@@ -18,6 +18,7 @@ import './assets/plugins-by-name.css';
 
 import type { FitOptions, StyleUpdate } from 'bpmn-visualization';
 
+// eslint-disable-next-line n/file-extension-in-import, n/no-missing-import
 import { BpmnVisualization, StyleByNamePlugin } from '@process-analytics/bpmn-visualization-addons';
 import { FitType } from 'bpmn-visualization';
 
@@ -45,7 +46,7 @@ function clearAllStyles(): void {
   styleRegistryByName.resetStyle();
 }
 
-function pickRandomElement<T>(array: Array<T>): T {
+function pickRandomElement<T>(array: T[]): T {
   return array[Math.floor(Math.random() * array.length)];
 }
 

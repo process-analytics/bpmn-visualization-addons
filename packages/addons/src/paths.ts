@@ -88,7 +88,7 @@ export class CasePathResolver {
   }
 }
 
-export type CasePathResolverInput = {
+export interface CasePathResolverInput {
   /**
    * The IDs of elements (flowNodes/shapes and flows/edges) that are already completed. Non-existing ids will be silently ignored.
    *
@@ -96,9 +96,9 @@ export type CasePathResolverInput = {
    * No further user action or automation will update the element.
    */
   completedIds: string[];
-};
+}
 
-export type CasePathResolverOutput = {
+export interface CasePathResolverOutput {
   /**
    * The `BpmnSemantic` objects retrieved from the model that relate to the ids passed in {@link CasePathResolverInput}.
    */
@@ -114,4 +114,4 @@ export type CasePathResolverOutput = {
       edges: EdgeBpmnSemantic[];
     };
   };
-};
+}

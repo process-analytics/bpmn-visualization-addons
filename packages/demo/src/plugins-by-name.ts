@@ -18,6 +18,7 @@ import './assets/plugins-by-name.css';
 
 import type { FitOptions, StyleUpdate } from 'bpmn-visualization';
 
+// eslint-disable-next-line n/file-extension-in-import, n/no-missing-import
 import { BpmnVisualization, StyleByNamePlugin } from '@process-analytics/bpmn-visualization-addons';
 import { FitType } from 'bpmn-visualization';
 

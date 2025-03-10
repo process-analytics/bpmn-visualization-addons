@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// eslint-disable-next-line n/file-extension-in-import, n/no-missing-import
 import { BpmnElementsIdentifier, PathResolver } from '@process-analytics/bpmn-visualization-addons';
 // eslint-disable-next-line n/no-extraneous-import
 import { BpmnVisualization } from 'bpmn-visualization';

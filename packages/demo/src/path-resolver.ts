@@ -17,6 +17,7 @@ limitations under the License.
 import './assets/path-resolver.css';
 import type { BpmnElement } from 'bpmn-visualization';
 
+// eslint-disable-next-line n/file-extension-in-import, n/no-missing-import
 import { BpmnVisualization, ElementsPlugin, PathResolver, ShapeUtility, StylePlugin } from '@process-analytics/bpmn-visualization-addons';
 import { FitType } from 'bpmn-visualization';
 

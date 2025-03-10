@@ -17,6 +17,7 @@ limitations under the License.
 import './assets/overlays.css';
 import type { FitOptions } from 'bpmn-visualization';
 
+// eslint-disable-next-line n/file-extension-in-import, n/no-missing-import
 import { BpmnVisualization, OverlaysPlugin } from '@process-analytics/bpmn-visualization-addons';
 import { FitType } from 'bpmn-visualization';
 

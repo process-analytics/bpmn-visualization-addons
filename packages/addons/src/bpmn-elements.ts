@@ -23,12 +23,12 @@ const allBpmnElementKinds: BpmnElementKind[] = [...Object.values(ShapeBpmnElemen
 /**
  * Options to deduplicate elements when several names match.
  */
-export type DeduplicateNamesOptions = {
+export interface DeduplicateNamesOptions {
   /** If not set, use all `BpmnElementKind` values. */
   kinds?: BpmnElementKind[];
   /** Apply custom function to filter duplicates. */
   filter?: (bpmnSemantic: BpmnSemantic) => boolean;
-};
+}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const acceptAll = (_bpmnSemantic: BpmnSemantic): boolean => true;

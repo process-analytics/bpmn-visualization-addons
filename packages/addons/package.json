@@ -50,8 +50,8 @@
   },
   "devDependencies": {
     "@jest/globals": "~29.7.0",
-    "@swc/core": "~1.11.21",
-    "@swc/jest": "~0.2.37",
+    "@swc/core": "~1.11.24",
+    "@swc/jest": "~0.2.38",
     "@testing-library/jest-dom": "~6.6.3",
     "cross-env": "~7.0.3",
     "eslint-plugin-jest": "~28.11.0",

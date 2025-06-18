@@ -51,9 +51,9 @@ export interface Plugin {
  *
  * If you don't extend `GlobalOptions`, use {@link GlobalOptions} directly.
  */
-export type PluginOptionExtension = {
+export interface PluginOptionExtension {
   plugins?: PluginConstructor[];
-};
+}
 
 export type GlobalOptions = BaseGlobalOptions & PluginOptionExtension;
 
@@ -69,7 +69,7 @@ export type DefaultPlugins = 'css' | 'elements' | 'overlays' | 'style' | 'style-
 export type PluginIds = DefaultPlugins | (string & Record<never, never>);
 
 export class BpmnVisualization extends BaseBpmnVisualization {
-  private readonly plugins: Map<string, Plugin> = new Map();
+  private readonly plugins = new Map<string, Plugin>();
 
   constructor(options: GlobalOptions) {
     super(options);

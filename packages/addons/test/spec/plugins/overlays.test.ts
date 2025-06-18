@@ -206,9 +206,9 @@ class OverlaysExpectation {
 // The real type is "class MxGraphCustomOverlay extends mxgraph.mxCellOverlay" but it is not part of the API so create a convenient matching type here
 // class BpmnVisualizationOverlay extends mxCellOverlay {}
 // In tests in this file, we are only checking the label, so use a simple type matching the label property of the actual type.
-type BpmnVisualizationOverlay = {
+interface BpmnVisualizationOverlay {
   label: string;
-};
+}
 
 function createOverlay(label: string): Overlay {
   return { label, position: 'top-center' };

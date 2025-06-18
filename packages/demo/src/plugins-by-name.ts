@@ -45,7 +45,7 @@ function clearAllStyles(): void {
   styleRegistryByName.resetStyle();
 }
 
-function pickRandomElement<T>(array: Array<T>): T {
+function pickRandomElement<T>(array: T[]): T {
   return array[Math.floor(Math.random() * array.length)];
 }
 

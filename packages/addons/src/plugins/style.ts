@@ -100,7 +100,7 @@ export class StyleByNamePlugin implements Plugin, StyleRegistryByName {
   }
 
   updateStyle(bpmnElementNames: string | string[], styleUpdate: StyleUpdate): void {
-    const bpmnElements = this.searcher.getElementsByNames(bpmnElementNames as Array<string>);
+    const bpmnElements = this.searcher.getElementsByNames(bpmnElementNames as string[]);
     this.styleRegistry.updateStyle(
       bpmnElements.map(bpmnElement => bpmnElement.id),
       styleUpdate,
@@ -112,7 +112,7 @@ export class StyleByNamePlugin implements Plugin, StyleRegistryByName {
       this.styleRegistry.resetStyle();
       return;
     }
-    const bpmnElements = this.searcher.getElementsByNames(bpmnElementNames as Array<string>);
+    const bpmnElements = this.searcher.getElementsByNames(bpmnElementNames as string[]);
     this.styleRegistry.resetStyle(bpmnElements.map(bpmnElement => bpmnElement.id));
   }
 }

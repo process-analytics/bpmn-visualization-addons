@@ -183,6 +183,7 @@ class OverlaysExpectation {
     this.model = bpmnVisualization.graph.model;
   }
 
+  /* eslint-disable jest/no-standalone-expect -- util code, including expect calls */
   expectNoOverlay(bpmnId: string): void {
     expect(this.getOverlays(bpmnId)).toHaveLength(0);
   }
@@ -199,6 +200,7 @@ class OverlaysExpectation {
     expect(overlays).toHaveLength(labels.length);
     expect(overlays.map(overlay => overlay.label)).toEqual(labels);
   }
+  /* eslint-enable jest/no-standalone-expect */
 }
 
 // The real type is "class MxGraphCustomOverlay extends mxgraph.mxCellOverlay" but it is not part of the API so create a convenient matching type here
@@ -222,12 +224,14 @@ describe('Add and remove Overlays', () => {
     bpmnVisualization.load(readFileSync('./fixtures/bpmn/1_pool_custom_colors_with_1_text-annotation.bpmn'));
   });
 
+  // eslint-disable-next-line jest/expect-expect -- the expectation is done in overlaysExpectation
   test('Add overlays', () => {
     overlaysExpectation.expectNoOverlay('ServiceTask_1.2');
     overlaysPlugin.addOverlays('ServiceTask_1.2', createOverlay('overlay 1'));
     overlaysExpectation.expectOverlays('ServiceTask_1.2', ['overlay 1']);
   });
 
+  // eslint-disable-next-line jest/expect-expect -- the expectation is done in overlaysExpectation
   test('Remove overlays', () => {
     overlaysExpectation.expectNoOverlay('Activity_1wr0s0r');
     overlaysExpectation.expectNoOverlay('StartEvent_0av7pgo');

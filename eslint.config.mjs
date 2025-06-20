@@ -86,6 +86,10 @@ export default tsEslint.config(
   {
     files: ['**/*.{js,cjs,mjs}'],
     ...tsEslint.configs.disableTypeChecked,
+    languageOptions: {
+      ecmaVersion: 2018, // Allows for the parsing of modern ECMAScript features
+      sourceType: 'module', // Allows for the use of imports
+    },
   },
 
   // typescript

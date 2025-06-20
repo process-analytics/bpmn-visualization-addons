@@ -31,9 +31,6 @@ import tsEslint from 'typescript-eslint';
 const jestPackagePath = path.resolve('node_modules', 'jest', 'package.json');
 const jestPackage = JSON.parse(readFileSync(jestPackagePath, 'utf8'));
 
-/**
- * @type {import("eslint").Linter.FlatConfig[]}
- */
 export default tsEslint.config(
   {
     // Need to be in first before any other configuration

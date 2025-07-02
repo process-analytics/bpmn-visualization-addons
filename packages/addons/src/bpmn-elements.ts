@@ -16,6 +16,7 @@ limitations under the License.
 
 import type { BpmnElementKind, BpmnSemantic, ElementsRegistry } from 'bpmn-visualization';
 
+// eslint-disable-next-line unicorn/prevent-abbreviations -- ShapeUtil is a common name in bpmn-visualization, and changing it would break compatibility
 import { FlowKind, ShapeBpmnElementKind, ShapeUtil as BaseShapeUtil } from 'bpmn-visualization';
 
 const allBpmnElementKinds: BpmnElementKind[] = [...Object.values(ShapeBpmnElementKind), ...Object.values(FlowKind)];
@@ -128,6 +129,7 @@ export class BpmnElementsIdentifier {
   }
 }
 
+// eslint-disable-next-line unicorn/prevent-abbreviations -- ShapeUtil is a common name in bpmn-visualization, and changing it would break compatibility
 export class ShapeUtil extends BaseShapeUtil {
   static isBpmnArtifact(kind: ShapeBpmnElementKind | string): boolean {
     return kind === ShapeBpmnElementKind.GROUP || kind === ShapeBpmnElementKind.TEXT_ANNOTATION;

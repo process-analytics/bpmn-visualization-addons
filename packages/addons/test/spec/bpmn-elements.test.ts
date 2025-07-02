@@ -17,12 +17,14 @@ limitations under the License.
 import type { ShapeBpmnSemantic } from 'bpmn-visualization';
 
 import { describe, expect, test } from '@jest/globals';
+// eslint-disable-next-line unicorn/prevent-abbreviations -- ShapeUtil is a common name in bpmn-visualization, and changing it would break compatibility
 import { FlowKind, ShapeBpmnElementKind, ShapeBpmnEventDefinitionKind, ShapeUtil as BaseShapeUtil } from 'bpmn-visualization';
 
+// eslint-disable-next-line unicorn/prevent-abbreviations -- ShapeUtil is a common name in bpmn-visualization, and changing it would break compatibility
 import { BpmnElementsIdentifier, BpmnElementsSearcher, BpmnVisualization, ShapeUtil } from '../../src/index.js';
-import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils.js';
-import { insertBpmnContainerWithoutId } from '../shared/dom-utils.js';
-import { readFileSync } from '../shared/io-utils.js';
+import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utilities.js';
+import { insertBpmnContainerWithoutId } from '../shared/dom-utilities.js';
+import { readFileSync } from '../shared/io-utilities.js';
 
 describe('Find elements by providing names', () => {
   const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId() });

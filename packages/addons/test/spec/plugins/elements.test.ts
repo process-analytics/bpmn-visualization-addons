@@ -18,8 +18,8 @@ import { describe, expect, test } from '@jest/globals';
 import { ShapeBpmnElementKind, ShapeBpmnEventDefinitionKind, type ShapeBpmnSemantic } from 'bpmn-visualization';
 
 import { BpmnVisualization, ElementsPlugin } from '../../../src/index.js';
-import { insertBpmnContainerWithoutId } from '../../shared/dom-utils.js';
-import { readFileSync } from '../../shared/io-utils.js';
+import { insertBpmnContainerWithoutId } from '../../shared/dom-utilities.js';
+import { readFileSync } from '../../shared/io-utilities.js';
 
 // The actual implementation is in `bpmn-visualization`. Here, we only validate that the `bpmn-visualization` code is called.
 describe('Check ElementsPlugin methods', () => {

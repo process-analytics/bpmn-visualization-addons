@@ -20,8 +20,8 @@ import { beforeEach, describe, expect, test } from '@jest/globals';
 import { FlowKind, ShapeBpmnElementKind, ShapeBpmnEventDefinitionKind } from 'bpmn-visualization';
 
 import { CasePathResolver, PathResolver } from '../../src/index.js';
-import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utils.js';
-import { readFileSync } from '../shared/io-utils.js';
+import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utilities.js';
+import { readFileSync } from '../shared/io-utilities.js';
 
 const bpmnVisualization = createNewBpmnVisualizationWithoutContainer();
 const ensureElementsExistInModel = (ids: string[]): void => {

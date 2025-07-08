@@ -49,13 +49,13 @@
     "bpmn-visualization": ">=0.42.0"
   },
   "devDependencies": {
-    "@jest/globals": "~30.0.3",
-    "@swc/core": "~1.12.9",
+    "@jest/globals": "~30.0.4",
+    "@swc/core": "~1.12.11",
     "@swc/jest": "~0.2.38",
     "@testing-library/jest-dom": "~6.6.3",
     "cross-env": "~7.0.3",
-    "jest": "~30.0.3",
-    "jest-environment-jsdom": "~30.0.1",
+    "jest": "~30.0.4",
+    "jest-environment-jsdom": "~30.0.4",
     "npm-run-all": "~4.1.5",
     "rimraf": "~6.0.1"
   }

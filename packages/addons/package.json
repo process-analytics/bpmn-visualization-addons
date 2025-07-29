@@ -50,9 +50,9 @@
   },
   "devDependencies": {
     "@jest/globals": "~30.0.5",
-    "@swc/core": "~1.13.2",
+    "@swc/core": "~1.13.3",
     "@swc/jest": "~0.2.39",
-    "@testing-library/jest-dom": "~6.6.3",
+    "@testing-library/jest-dom": "~6.6.4",
     "cross-env": "~7.0.3",
     "jest": "~30.0.5",
     "jest-environment-jsdom": "~30.0.5",

@@ -34,7 +34,7 @@ jobs:
         if: github.event.action != 'closed'
         run: npm run build -w packages/addons -w packages/demo
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: github.event.action != 'closed'
         with:
           name: demo-pr-${{github.event.pull_request.number}}-${{github.sha}}

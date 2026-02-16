@@ -46,7 +46,7 @@
     "test-check": "tsc --noEmit --project tsconfig.test.json"
   },
   "peerDependencies": {
-    "bpmn-visualization": ">=0.42.0 <=0.47.0"
+    "bpmn-visualization": ">=0.42.0 <0.48.0"
   },
   "devDependencies": {
     "@jest/globals": "~30.2.0",

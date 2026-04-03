@@ -42,16 +42,21 @@ function generateInput(): Record<string, string> {
 export default defineConfig(() => {
   return {
     build: {
-      rollupOptions: {
+      rolldownOptions: {
         input: generateInput(),
         output: {
-          manualChunks: {
-            // put mxgraph code in a dedicated file.
-            mxgraph: ['mxgraph'],
+          codeSplitting: {
+            groups: [
+              {
+                // put mxgraph code in a dedicated file.
+                name: 'mxgraph',
+                test: /node_modules\/mxgraph/,
+              },
+            ],
           },
         },
       },
-      chunkSizeWarningLimit: 838, // mxgraph
+      chunkSizeWarningLimit: 834, // mxgraph
       // to add support for top-level await
       // see https://github.com/vitejs/vite/issues/6985#issuecomment-1044375490
       // see https://vitejs.dev/config/build-options#build-target

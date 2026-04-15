@@ -6,14 +6,14 @@
 set -euo pipefail
 
 MARKDOWN_ONLY=false
-if [ "${1:-}" = "--md" ]; then
+if [[ "${1:-}" = "--md" ]]; then
   MARKDOWN_ONLY=true
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DIST_DIR="${SCRIPT_DIR}/../dist/assets"
 
-if [ ! -d "$DIST_DIR" ]; then
+if [[ ! -d "$DIST_DIR" ]]; then
   echo "Error: dist/assets directory not found. Run 'npm run build -w packages/demo' first." >&2
   exit 1
 fi
@@ -23,7 +23,7 @@ declare -a names=()
 declare -a sizes=()
 
 for file in "$DIST_DIR"/lib-*.js; do
-  [ -f "$file" ] || continue
+  [[ -f "$file" ]] || continue
   filename=$(basename "$file")
   # Extract dependency name: lib-<name>-<hash>.js -> <name>
   dep_name=$(echo "$filename" | sed 's/^lib-//;s/-[^-]*\.js$//')
@@ -32,7 +32,7 @@ for file in "$DIST_DIR"/lib-*.js; do
   sizes+=("$size_kb")
 done
 
-if [ ${#names[@]} -eq 0 ]; then
+if [[ ${#names[@]} -eq 0 ]]; then
   echo "No lib-*.js chunks found in dist/assets." >&2
   exit 1
 fi
@@ -40,7 +40,7 @@ fi
 # Compute total
 total=$(LC_NUMERIC=C awk "BEGIN {t=0; $(for s in "${sizes[@]}"; do printf "t+=%s;" "$s"; done) printf \"%.2f\", t}")
 
-if [ "$MARKDOWN_ONLY" = false ]; then
+if [[ "$MARKDOWN_ONLY" = false ]]; then
   # Plain list
   echo "=== Lib chunks ==="
   for i in "${!names[@]}"; do

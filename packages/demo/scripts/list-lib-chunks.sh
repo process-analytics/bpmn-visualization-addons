@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # List library chunks from the demo build output with their sizes.
 # Outputs a plain list and a markdown table for tracking size evolution in PRs, issues, or release notes.
-# Usage: list-lib-chunks.sh [--md]
-#   --md  Output only the markdown table
+# Usage: list-lib-chunks.sh [--md-simple]
+#   --md-simple  Output a simple markdown table (Dependency | Size)
 set -euo pipefail
 
-MARKDOWN_ONLY=false
-if [[ "${1:-}" = "--md" ]]; then
-  MARKDOWN_ONLY=true
+MD_SIMPLE=false
+if [[ "${1:-}" = "--md-simple" ]]; then
+  MD_SIMPLE=true
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -40,7 +40,15 @@ fi
 # Compute total
 total=$(LC_NUMERIC=C awk "BEGIN {t=0; $(for s in "${sizes[@]}"; do printf "t+=%s;" "$s"; done) printf \"%.2f\", t}")
 
-if [[ "$MARKDOWN_ONLY" = false ]]; then
+if [[ "$MD_SIMPLE" = true ]]; then
+  # Simple markdown table
+  echo "| Dependency | Size |"
+  echo "|---|---|"
+  for i in "${!names[@]}"; do
+    echo "| ${names[$i]} | ${sizes[$i]} kB |"
+  done
+  echo "| **TOTAL** | **${total} kB** |"
+else
   # Plain list
   echo "=== Lib chunks ==="
   for i in "${!names[@]}"; do
@@ -48,13 +56,12 @@ if [[ "$MARKDOWN_ONLY" = false ]]; then
   done
   printf "%-25s %s kB\n" "TOTAL" "$total"
   echo ""
+  # Markdown table for tracking size evolution
   echo "=== Markdown table ==="
+  echo "| Dependency | Before | Current |"
+  echo "|---|---|---|"
+  for i in "${!names[@]}"; do
+    echo "| ${names[$i]} | | ${sizes[$i]} kB |"
+  done
+  echo "| **TOTAL** | | **${total} kB** |"
 fi
-
-# Markdown table
-echo "| Dependency | Before | Current |"
-echo "|---|---|---|"
-for i in "${!names[@]}"; do
-  echo "| ${names[$i]} | | ${sizes[$i]} kB |"
-done
-echo "| **TOTAL** | | **${total} kB** |"

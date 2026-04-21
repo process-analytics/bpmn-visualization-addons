@@ -35,7 +35,7 @@ jobs:
       - name: List lib chunk sizes
         run: packages/demo/scripts/list-lib-chunks.sh
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./packages/demo/dist
 

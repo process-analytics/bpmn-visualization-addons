@@ -28,6 +28,7 @@ function findFiles(relativePathToSourceDirectory: string): string[] {
 }
 // =====================================================================================================================
 
+// list all pages in the `pages` directory and add them as entry points for the build
 function generateInput(): Record<string, string> {
   const pages = findFiles('pages');
   const input: Record<string, string> = {
@@ -45,17 +46,37 @@ export default defineConfig(() => {
       rolldownOptions: {
         input: generateInput(),
         output: {
+          // Put dependencies in dedicated files.
+          // bpmn-visualization dependencies must have a higher priority, otherwise Rolldown includes them
+          // in the bpmn-visualization chunk (dependencies are recursively pulled into matching groups by default).
           codeSplitting: {
             groups: [
               {
-                // put mxgraph code in a dedicated file.
-                name: 'mxgraph',
+                name: 'lib-bpmn-visualization',
+                test: /node_modules\/bpmn-visualization/,
+                priority: 0,
+              },
+              // bpmn-visualization dependencies
+              {
+                name: 'lib-es-toolkit',
+                test: /node_modules\/es-toolkit/,
+                priority: 10,
+              },
+              {
+                name: 'lib-fast-xml-parser',
+                test: /node_modules\/fast-xml-parser/,
+                priority: 10,
+              },
+              {
+                name: 'lib-mxgraph',
                 test: /node_modules\/mxgraph/,
+                priority: 10,
               },
             ],
           },
         },
       },
+      // minify: false,
       chunkSizeWarningLimit: 834, // mxgraph
       // to add support for top-level await
       // see https://github.com/vitejs/vite/issues/6985#issuecomment-1044375490

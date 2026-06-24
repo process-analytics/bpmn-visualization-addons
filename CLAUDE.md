@@ -15,6 +15,16 @@ This is an npm workspaces monorepo with 3 packages:
 
 ## Common Commands
 
+### Node version
+This repo pins the Node version in `.nvmrc`. Select it with `nvm use` before running any node/npm
+command. In a fresh non-interactive shell, nvm is not auto-loaded, so source it first:
+
+```bash
+export NVM_DIR="$HOME/.nvm"; source "$NVM_DIR/nvm.sh"; nvm use
+```
+
+Do not hardcode a specific Node path; let `nvm use` read `.nvmrc` so the version stays correct when it changes.
+
 ### Development
 - `npm install` - Install all dependencies for all workspaces
 - `npm run dev:demo` - Develop the library and demo simultaneously with live updates (demo at http://localhost:5173/)

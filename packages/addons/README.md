@@ -131,11 +131,6 @@ Provides path resolution for a single process instance/case.
 It is an enhanced implementation of `PathResolver` with resolution options and returns categorized `BpmnSemantic` objects.
 
 
-### `ShapeUtil`
-
-Add new methods to the `ShapeUtil` class provided by `bpmn-visualization`. 
-
-
 ## 📃 License
 
 `bpmn-visualization-addons` is released under the [Apache 2.0](LICENSE) license.  

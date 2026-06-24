@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { BpmnVisualization as BaseBpmnVisualization, type GlobalOptions as BaseGlobalOptions } from 'bpmn-visualization';
+import { BpmnVisualization as BaseBpmnVisualization, type GlobalOptions } from 'bpmn-visualization';
 
 /**
  * Enforce the Plugin constructor signature.
@@ -38,24 +38,18 @@ export interface Plugin {
   configure?: (options: GlobalOptions) => void;
 }
 
-/**
- * Let pass plugins configuration to {@link BpmnVisualization}.
- *
- * Use this type if you already have a dedicated custom `GlobalOptions` type extending the bpmn-visualization `GlobalOptions` type.
- * In this case, proceed as in the following example to add the plugins configuration to the custom `GlobalOptions`.
- *
- * ```ts
- * // Assuming you have a `CustomGlobalOptions` type extending the bpmn-visualization `GlobalOptions` type
- * type GlobalOptionsWithPluginsSupport = CustomGlobalOptions & PluginOptionExtension;
- * ```
- *
- * If you don't extend `GlobalOptions`, use {@link GlobalOptions} directly.
- */
-export interface PluginOptionExtension {
-  plugins?: PluginConstructor[];
+declare module 'bpmn-visualization' {
+  /**
+   * Augment the bpmn-visualization `GlobalOptions` interface to pass plugins configuration to {@link BpmnVisualization}.
+   *
+   * Importing anything from `bpmn-visualization-addons` makes the `plugins` property available on the standard
+   * `GlobalOptions` type provided by `bpmn-visualization`.
+   */
+  interface GlobalOptions {
+    /** The plugins to register on the {@link BpmnVisualization} instance. */
+    plugins?: PluginConstructor[];
+  }
 }
-
-export type GlobalOptions = BaseGlobalOptions & PluginOptionExtension;
 
 /**
  * The identifiers of the plugins provided by `bpmn-visualization-addons`.

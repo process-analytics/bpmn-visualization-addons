@@ -47,7 +47,7 @@ The central architectural concept is the **plugin system**. This package extends
    - `BpmnVisualization` class that extends the base `BpmnVisualization` from `bpmn-visualization`
    - `Plugin` interface that all plugins must implement
    - `PluginConstructor` type for plugin constructor signatures
-   - `GlobalOptions` type that extends base options with plugin support
+   - A module augmentation of the `bpmn-visualization` `GlobalOptions` interface that adds the optional `plugins` property
 
 2. **Plugin Lifecycle**:
    - Plugins are passed to `BpmnVisualization` constructor via `options.plugins` array

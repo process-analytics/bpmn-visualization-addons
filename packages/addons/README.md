@@ -76,7 +76,7 @@ in the future, in order to better separate responsibilities and improve tree-sha
 A plugin is defined as a class:
 - It must implement the `Plugin` interface.
 - Its constructor must satisfy the `PluginConstructor` type.
-- It can implement the `configure` method to configure the plugin after construction.
+- It can implement the `onConfigure` lifecycle method to configure the plugin after construction. This method is called by `BpmnVisualization` and is not intended to be called by client code.
 - It can provide new methods to extend existing API or introduce new behavior .
 
 

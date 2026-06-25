@@ -118,7 +118,7 @@ describe('Ensure that plugins are configured', () => {
       return this.#customValue;
     }
 
-    configure(options: CustomGlobalOptions): void {
+    onConfigure(options: CustomGlobalOptions): void {
       this.#isConfigured = true;
       this.#customValue = options.customValue ?? 'no passed in options';
     }

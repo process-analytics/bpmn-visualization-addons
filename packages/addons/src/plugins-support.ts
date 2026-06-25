@@ -25,17 +25,19 @@ export type PluginConstructor = new (bpmnVisualization: BpmnVisualization, optio
 /**
  * Plugin lifecycle:
  *   - construct
- *   - configure
+ *   - onConfigure
  */
 export interface Plugin {
   /** Returns the unique identifier of the plugin. It is not possible to use several plugins having the same identifier. */
   getPluginId(): string;
 
   /**
+   * Lifecycle hook called by {@link BpmnVisualization} after all plugins have been constructed. It is not intended to be called by client code.
+   *
    * Implement this method to configure the plugin after initialization.
    * @param options The options passed to the BpmnVisualization instance, used to configure the plugin.
    */
-  configure?: (options: GlobalOptions) => void;
+  onConfigure?: (options: GlobalOptions) => void;
 }
 
 /**
@@ -93,7 +95,7 @@ export class BpmnVisualization extends BaseBpmnVisualization {
 
     // configure
     for (const plugin of this.plugins.values()) {
-      plugin.configure?.(options);
+      plugin.onConfigure?.(options);
     }
   };
 }

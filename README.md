@@ -49,6 +49,11 @@ A live demo is available at ⏩ https://process-analytics.github.io/bpmn-visuali
 The sources of the demo are available in the [demo](./packages/demo) folder.
 
 
+## 📚 Documentation
+
+Additional documentation, including the Architecture Decision Records (ADR), is available in the [docs](./docs/README.md) folder.
+
+
 ## ⚒️ Development Setup
 
 Use the node version declared in [.nvmrc](.nvmrc). You can use a Node version manager like [nvm](https://github.com/nvm-sh/nvm): `nvm use`

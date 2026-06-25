@@ -53,7 +53,7 @@ The central architectural concept is the **plugin system**. This package extends
    - Plugins are passed to `BpmnVisualization` constructor via `options.plugins` array
    - Each plugin is constructed with `(bpmnVisualization, options)` parameters
    - Plugins must implement `getPluginId()` to return a unique identifier
-   - Plugins can optionally implement `configure(options)` for post-construction setup
+   - Plugins can optionally implement the `onConfigure(options)` lifecycle hook for post-construction setup (called by `BpmnVisualization`, not by client code)
    - Retrieve plugins using `bpmnVisualization.getPlugin<PluginType>(pluginId)`
 
 3. **Available Plugins** (in `packages/addons/src/plugins/`):

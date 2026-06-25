@@ -16,8 +16,7 @@ limitations under the License.
 
 import type { BpmnElementKind, BpmnSemantic, ElementsRegistry } from 'bpmn-visualization';
 
-// eslint-disable-next-line unicorn/prevent-abbreviations -- ShapeUtil is a common name in bpmn-visualization, and changing it would break compatibility
-import { FlowKind, ShapeBpmnElementKind, ShapeUtil as BaseShapeUtil } from 'bpmn-visualization';
+import { FlowKind, ShapeBpmnElementKind, ShapeUtil } from 'bpmn-visualization';
 
 const allBpmnElementKinds: BpmnElementKind[] = [...Object.values(ShapeBpmnElementKind), ...Object.values(FlowKind)];
 
@@ -103,19 +102,19 @@ export class BpmnElementsIdentifier {
   constructor(private readonly elementsRegistry: ElementsRegistry) {}
 
   isActivity(elementId: string): boolean {
-    return this.isInCategory(BaseShapeUtil.isActivity, elementId);
+    return this.isInCategory(ShapeUtil.isActivity, elementId);
   }
 
-  isBpmnArtifact(elementId: string): boolean {
-    return this.isInCategory(ShapeUtil.isBpmnArtifact, elementId);
+  isArtifact(elementId: string): boolean {
+    return this.isInCategory(ShapeUtil.isArtifact, elementId);
   }
 
   isGateway(elementId: string): boolean {
-    return this.isInCategory(BaseShapeUtil.isGateway, elementId);
+    return this.isInCategory(ShapeUtil.isGateway, elementId);
   }
 
   isEvent(elementId: string): boolean {
-    return this.isInCategory(BaseShapeUtil.isEvent, elementId);
+    return this.isInCategory(ShapeUtil.isEvent, elementId);
   }
 
   private isInCategory(categorizeFunction: (value: string) => boolean, elementId: string): boolean {
@@ -126,17 +125,5 @@ export class BpmnElementsIdentifier {
     }
 
     return false;
-  }
-}
-
-// eslint-disable-next-line unicorn/prevent-abbreviations -- ShapeUtil is a common name in bpmn-visualization, and changing it would break compatibility
-export class ShapeUtil extends BaseShapeUtil {
-  static isBpmnArtifact(kind: ShapeBpmnElementKind | string): boolean {
-    return kind === ShapeBpmnElementKind.GROUP || kind === ShapeBpmnElementKind.TEXT_ANNOTATION;
-  }
-
-  static isFlowNode(kind: ShapeBpmnElementKind | string): boolean {
-    // there is currently a bug in bpmn-visualization (at least in version 0.44.0). It includes artifacts in flowNodeKinds.
-    return ShapeUtil.flowNodeKinds().includes(kind as ShapeBpmnElementKind) && !ShapeUtil.isBpmnArtifact(kind);
   }
 }

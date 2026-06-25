@@ -17,11 +17,9 @@ limitations under the License.
 import type { ShapeBpmnSemantic } from 'bpmn-visualization';
 
 import { describe, expect, test } from '@jest/globals';
-// eslint-disable-next-line unicorn/prevent-abbreviations -- ShapeUtil is a common name in bpmn-visualization, and changing it would break compatibility
-import { FlowKind, ShapeBpmnElementKind, ShapeBpmnEventDefinitionKind, ShapeUtil as BaseShapeUtil } from 'bpmn-visualization';
+import { FlowKind, ShapeBpmnElementKind, ShapeBpmnEventDefinitionKind, ShapeUtil } from 'bpmn-visualization';
 
-// eslint-disable-next-line unicorn/prevent-abbreviations -- ShapeUtil is a common name in bpmn-visualization, and changing it would break compatibility
-import { BpmnElementsIdentifier, BpmnElementsSearcher, BpmnVisualization, ShapeUtil } from '../../src/index.js';
+import { BpmnElementsIdentifier, BpmnElementsSearcher, BpmnVisualization } from '../../src/index.js';
 import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utilities.js';
 import { insertBpmnContainerWithoutId } from '../shared/dom-utilities.js';
 import { readFileSync } from '../shared/io-utilities.js';
@@ -223,7 +221,7 @@ describe('Identify elements', () => {
   test('task', () => {
     const taskId = 'Task_2_1';
     expect(bpmnElementsIdentifier.isActivity(taskId)).toBeTruthy();
-    expect(bpmnElementsIdentifier.isBpmnArtifact(taskId)).toBeFalsy();
+    expect(bpmnElementsIdentifier.isArtifact(taskId)).toBeFalsy();
     expect(bpmnElementsIdentifier.isEvent(taskId)).toBeFalsy();
     expect(bpmnElementsIdentifier.isGateway(taskId)).toBeFalsy();
   });
@@ -231,7 +229,7 @@ describe('Identify elements', () => {
   test('text annotation', () => {
     const textAnnotationId = 'TextAnnotation_1';
     expect(bpmnElementsIdentifier.isActivity(textAnnotationId)).toBeFalsy();
-    expect(bpmnElementsIdentifier.isBpmnArtifact(textAnnotationId)).toBeTruthy();
+    expect(bpmnElementsIdentifier.isArtifact(textAnnotationId)).toBeTruthy();
     expect(bpmnElementsIdentifier.isEvent(textAnnotationId)).toBeFalsy();
     expect(bpmnElementsIdentifier.isGateway(textAnnotationId)).toBeFalsy();
   });
@@ -239,7 +237,7 @@ describe('Identify elements', () => {
   test('event', () => {
     const eventId = 'StartEvent_1';
     expect(bpmnElementsIdentifier.isActivity(eventId)).toBeFalsy();
-    expect(bpmnElementsIdentifier.isBpmnArtifact(eventId)).toBeFalsy();
+    expect(bpmnElementsIdentifier.isArtifact(eventId)).toBeFalsy();
     expect(bpmnElementsIdentifier.isEvent(eventId)).toBeTruthy();
     expect(bpmnElementsIdentifier.isGateway(eventId)).toBeFalsy();
   });
@@ -247,7 +245,7 @@ describe('Identify elements', () => {
   test('gateway', () => {
     const gatewayId = 'Gateway_1';
     expect(bpmnElementsIdentifier.isActivity(gatewayId)).toBeFalsy();
-    expect(bpmnElementsIdentifier.isBpmnArtifact(gatewayId)).toBeFalsy();
+    expect(bpmnElementsIdentifier.isArtifact(gatewayId)).toBeFalsy();
     expect(bpmnElementsIdentifier.isEvent(gatewayId)).toBeFalsy();
     expect(bpmnElementsIdentifier.isGateway(gatewayId)).toBeTruthy();
   });
@@ -255,21 +253,18 @@ describe('Identify elements', () => {
   test('unknown element', () => {
     const unknownId = 'i_do_not_exist';
     expect(bpmnElementsIdentifier.isActivity(unknownId)).toBeFalsy();
-    expect(bpmnElementsIdentifier.isBpmnArtifact(unknownId)).toBeFalsy();
+    expect(bpmnElementsIdentifier.isArtifact(unknownId)).toBeFalsy();
     expect(bpmnElementsIdentifier.isEvent(unknownId)).toBeFalsy();
     expect(bpmnElementsIdentifier.isGateway(unknownId)).toBeFalsy();
   });
 });
 
-describe('ShapeUtil', () => {
-  describe('bpmn-visualization implementation', () => {
-    // This is to reproduce a bug in bpmn-visualization
-    test('flowNodeKinds should not contains text annotation and group', () => {
-      const flowNodeKinds = BaseShapeUtil.flowNodeKinds();
-      // here is the bug, the elements should not be in the array
-      expect(flowNodeKinds).toContain(ShapeBpmnElementKind.TEXT_ANNOTATION);
-      expect(flowNodeKinds).toContain(ShapeBpmnElementKind.GROUP);
-    });
+describe('ShapeUtil bpmn-visualization implementation prior version 0.48.0 included bugs. Validate fixes', () => {
+  test('flowNodeKinds should not contains text annotation and group', () => {
+    const flowNodeKinds = ShapeUtil.flowNodeKinds();
+    // here is the bug, the elements should not be in the array
+    expect(flowNodeKinds).not.toContain(ShapeBpmnElementKind.TEXT_ANNOTATION);
+    expect(flowNodeKinds).not.toContain(ShapeBpmnElementKind.GROUP);
   });
 
   describe('isFlowNode', () => {

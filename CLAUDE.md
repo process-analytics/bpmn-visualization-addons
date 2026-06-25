@@ -15,6 +15,16 @@ This is an npm workspaces monorepo with 3 packages:
 
 ## Common Commands
 
+### Node version
+This repo pins the Node version in `.nvmrc`. Select it with `nvm use` before running any node/npm
+command. In a fresh non-interactive shell, nvm is not auto-loaded, so source it first:
+
+```bash
+export NVM_DIR="$HOME/.nvm"; source "$NVM_DIR/nvm.sh"; nvm use
+```
+
+Do not hardcode a specific Node path; let `nvm use` read `.nvmrc` so the version stays correct when it changes.
+
 ### Development
 - `npm install` - Install all dependencies for all workspaces
 - `npm run dev:demo` - Develop the library and demo simultaneously with live updates (demo at http://localhost:5173/)
@@ -47,7 +57,7 @@ The central architectural concept is the **plugin system**. This package extends
    - `BpmnVisualization` class that extends the base `BpmnVisualization` from `bpmn-visualization`
    - `Plugin` interface that all plugins must implement
    - `PluginConstructor` type for plugin constructor signatures
-   - `GlobalOptions` type that extends base options with plugin support
+   - A module augmentation of the `bpmn-visualization` `GlobalOptions` interface that adds the optional `plugins` property
 
 2. **Plugin Lifecycle**:
    - Plugins are passed to `BpmnVisualization` constructor via `options.plugins` array

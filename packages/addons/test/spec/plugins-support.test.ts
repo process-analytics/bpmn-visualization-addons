@@ -17,10 +17,12 @@ limitations under the License.
 import type { Plugin } from '../../src/index.js';
 import type { GlobalOptions } from 'bpmn-visualization';
 
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, jest, test } from '@jest/globals';
 
 import { BpmnVisualization } from '../../src/index.js';
 import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utilities.js';
+import { insertBpmnContainerWithoutId } from '../shared/dom-utilities.js';
+import { readFileSync } from '../shared/io-utilities.js';
 
 test('No error when no plugin is defined', () => {
   const bpmnVisualization = createNewBpmnVisualizationWithoutContainer();
@@ -104,6 +106,9 @@ describe('Prevent multiple plugins with the same ID from loading', () => {
 });
 
 describe('Ensure that plugins are configured', () => {
+  // Use a local intersection type instead of module augmentation of GlobalOptions: augmentation is global, so it would
+  // leak the custom property to all tests and risk side effects. In application code, module augmentation is the
+  // recommended way to pass custom properties to a plugin (see the README).
   type CustomGlobalOptions = GlobalOptions & {
     customValue?: string;
   };
@@ -139,5 +144,113 @@ describe('Ensure that plugins are configured', () => {
     const configurablePlugin = bpmnVisualization.getPlugin<ConfigurablePlugin>('custom-configurable-plugin');
     expect(configurablePlugin.isConfigured).toBeTruthy();
     expect(configurablePlugin.customValue).toBe('custom in options'); // ensure that the options are passed to the plugin configuration
+  });
+});
+
+/**
+ * A plugin that implements none of the optional lifecycle methods. It is used in the tests checking that no error
+ * occurs when a registered plugin doesn't implement the optional method involved in a given lifecycle step.
+ */
+class PluginWithoutOptionalMethods implements Plugin {
+  getPluginId(): string {
+    return 'custom-plugin-without-optional-methods';
+  }
+}
+
+describe('Ensure that plugins are disposed', () => {
+  class DisposablePlugin1 implements Plugin {
+    onDispose = jest.fn();
+
+    getPluginId(): string {
+      return 'custom-disposable-plugin-1';
+    }
+  }
+
+  class DisposablePlugin2 implements Plugin {
+    onDispose = jest.fn();
+
+    getPluginId(): string {
+      return 'custom-disposable-plugin-2';
+    }
+  }
+
+  test('Call onDispose on plugins that implement it and ignore the others when disposing BpmnVisualization', () => {
+    const bpmnVisualization = new BpmnVisualization({ container: undefined!, plugins: [DisposablePlugin1, PluginWithoutOptionalMethods, DisposablePlugin2] });
+    const disposablePlugin1 = bpmnVisualization.getPlugin<DisposablePlugin1>('custom-disposable-plugin-1');
+    const disposablePlugin2 = bpmnVisualization.getPlugin<DisposablePlugin2>('custom-disposable-plugin-2');
+
+    expect(() => bpmnVisualization.dispose()).not.toThrow();
+    expect(disposablePlugin1.onDispose).toHaveBeenCalledTimes(1);
+    expect(disposablePlugin2.onDispose).toHaveBeenCalledTimes(1);
+  });
+});
+
+class LoadAwarePlugin1 implements Plugin {
+  onBeforeLoad = jest.fn();
+  onLoadSuccess = jest.fn();
+  onLoadError = jest.fn();
+
+  getPluginId(): string {
+    return 'custom-load-aware-plugin-1';
+  }
+}
+
+class LoadAwarePlugin2 implements Plugin {
+  onBeforeLoad = jest.fn();
+  onLoadSuccess = jest.fn();
+  onLoadError = jest.fn();
+
+  getPluginId(): string {
+    return 'custom-load-aware-plugin-2';
+  }
+}
+
+const validBpmnContent = readFileSync('./fixtures/bpmn/search-elements.bpmn');
+const invalidBpmnContent = 'this is not valid BPMN content';
+
+const setupLoadAwareVisualization = (): { bpmnVisualization: BpmnVisualization; loadAwarePlugin1: LoadAwarePlugin1; loadAwarePlugin2: LoadAwarePlugin2 } => {
+  const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId(), plugins: [LoadAwarePlugin1, PluginWithoutOptionalMethods, LoadAwarePlugin2] });
+  return {
+    bpmnVisualization,
+    loadAwarePlugin1: bpmnVisualization.getPlugin<LoadAwarePlugin1>('custom-load-aware-plugin-1'),
+    loadAwarePlugin2: bpmnVisualization.getPlugin<LoadAwarePlugin2>('custom-load-aware-plugin-2'),
+  };
+};
+
+describe('Ensure that plugins are notified before load', () => {
+  test('Call onBeforeLoad on plugins that implement it and ignore the others when loading with BpmnVisualization', () => {
+    const { bpmnVisualization, loadAwarePlugin1, loadAwarePlugin2 } = setupLoadAwareVisualization();
+
+    expect(() => bpmnVisualization.load(validBpmnContent)).not.toThrow();
+    expect(loadAwarePlugin1.onBeforeLoad).toHaveBeenCalledTimes(1);
+    expect(loadAwarePlugin2.onBeforeLoad).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('Ensure that plugins are notified on load success', () => {
+  test('Call onLoadSuccess on plugins that implement it and ignore the others when loading with BpmnVisualization', () => {
+    const { bpmnVisualization, loadAwarePlugin1, loadAwarePlugin2 } = setupLoadAwareVisualization();
+
+    expect(() => bpmnVisualization.load(validBpmnContent)).not.toThrow();
+    expect(loadAwarePlugin1.onLoadSuccess).toHaveBeenCalledTimes(1);
+    expect(loadAwarePlugin2.onLoadSuccess).toHaveBeenCalledTimes(1);
+    expect(loadAwarePlugin1.onLoadError).not.toHaveBeenCalled();
+    expect(loadAwarePlugin2.onLoadError).not.toHaveBeenCalled();
+  });
+});
+
+describe('Ensure that plugins are notified on load error', () => {
+  test('Call onLoadError on plugins that implement it, rethrow and skip onLoadSuccess when loading fails', () => {
+    const { bpmnVisualization, loadAwarePlugin1, loadAwarePlugin2 } = setupLoadAwareVisualization();
+
+    expect(() => bpmnVisualization.load(invalidBpmnContent)).toThrow();
+    expect(loadAwarePlugin1.onBeforeLoad).toHaveBeenCalledTimes(1);
+    expect(loadAwarePlugin2.onBeforeLoad).toHaveBeenCalledTimes(1);
+    expect(loadAwarePlugin1.onLoadError).toHaveBeenCalledTimes(1);
+    expect(loadAwarePlugin2.onLoadError).toHaveBeenCalledTimes(1);
+    expect(loadAwarePlugin1.onLoadError).toHaveBeenCalledWith(expect.any(Error));
+    expect(loadAwarePlugin2.onLoadError).toHaveBeenCalledWith(expect.any(Error));
+    expect(loadAwarePlugin1.onLoadSuccess).not.toHaveBeenCalled();
+    expect(loadAwarePlugin2.onLoadSuccess).not.toHaveBeenCalled();
   });
 });

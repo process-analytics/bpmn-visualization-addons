@@ -76,8 +76,53 @@ in the future, in order to better separate responsibilities and improve tree-sha
 A plugin is defined as a class:
 - It must implement the `Plugin` interface.
 - Its constructor must satisfy the `PluginConstructor` type.
-- It can implement the `onConfigure` lifecycle method to configure the plugin after construction. This method is called by `BpmnVisualization` and is not intended to be called by client code.
-- It can provide new methods to extend existing API or introduce new behavior .
+- It can provide new methods to extend existing API or introduce new behavior.
+- It can implement the optional lifecycle hooks below. They are all called by `BpmnVisualization` and are not intended to be called by client code:
+  - `onConfigure`: configure the plugin after construction, once all plugins have been constructed.
+  - `onBeforeLoad`: called at the beginning of each `load` call, before the BPMN source is processed.
+  - `onLoadSuccess`: called after a `load` call has succeeded.
+  - `onLoadError`: called with the thrown error when a `load` call fails, before the error is rethrown to the caller.
+  - `onDispose`: called when the `BpmnVisualization` instance is disposed, before the underlying resources are released.
+
+##### Passing options to a plugin with `onConfigure`
+
+`onConfigure` receives the options passed to the `BpmnVisualization` constructor. To pass your own properties in a
+type-safe way, use [module augmentation](https://www.typescriptlang.org/docs/handbook/declaration-merging.html#module-augmentation)
+to extend the `bpmn-visualization` `GlobalOptions` interface.
+
+To avoid name clashes with `bpmn-visualization` options or with other plugins, wrap your properties in a single
+dedicated object named after your plugin (here `myCustomPlugin`):
+
+```ts
+import {BpmnVisualization, Plugin} from "@process-analytics/bpmn-visualization-addons";
+import type {GlobalOptions} from "bpmn-visualization";
+
+declare module "bpmn-visualization" {
+    interface GlobalOptions {
+        myCustomPlugin?: {
+            property1: string;
+        };
+    }
+}
+
+class MyCustomPlugin implements Plugin {
+    getPluginId(): string {
+        return "my-custom-plugin";
+    }
+
+    onConfigure(options: GlobalOptions): void {
+        // read your namespaced options
+        const property1 = options.myCustomPlugin?.property1;
+        // ... configure the plugin with property1
+    }
+}
+
+const bpmnVisualization = new BpmnVisualization({
+    container: "bpmn-container",
+    plugins: [MyCustomPlugin],
+    myCustomPlugin: {property1: "a value"}
+});
+```
 
 
 ### `BpmnElementsIdentifier`

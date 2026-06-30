@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { BpmnVisualization as BaseBpmnVisualization, type GlobalOptions } from 'bpmn-visualization';
+import { BpmnVisualization as BaseBpmnVisualization, type LoadOptions, type GlobalOptions } from 'bpmn-visualization';
 
 /**
  * Enforce the Plugin constructor signature.
@@ -23,9 +23,12 @@ import { BpmnVisualization as BaseBpmnVisualization, type GlobalOptions } from '
 export type PluginConstructor = new (bpmnVisualization: BpmnVisualization, options: GlobalOptions) => Plugin;
 
 /**
- * Plugin lifecycle:
+ * Plugin lifecycle. All hooks except {@link Plugin.getPluginId} are optional and are called by {@link BpmnVisualization},
+ * not by client code:
  *   - construct
- *   - onConfigure
+ *   - {@link Plugin.onConfigure}: once, after all plugins have been constructed
+ *   - {@link Plugin.onBeforeLoad} / {@link Plugin.onLoadSuccess} / {@link Plugin.onLoadError}: on each `load` call
+ *   - {@link Plugin.onDispose}: when the {@link BpmnVisualization} instance is disposed
  */
 export interface Plugin {
   /** Returns the unique identifier of the plugin. It is not possible to use several plugins having the same identifier. */
@@ -38,6 +41,32 @@ export interface Plugin {
    * @param options The options passed to the BpmnVisualization instance, used to configure the plugin.
    */
   onConfigure?: (options: GlobalOptions) => void;
+
+  /**
+   * Lifecycle hook called by {@link BpmnVisualization} when the instance is disposed, before the underlying resources are released.
+   * @since 0.10.0
+   */
+  onDispose?: () => void;
+
+  /**
+   * Lifecycle hook called by {@link BpmnVisualization} at the beginning of each `load` call, before the BPMN source is processed.
+   * @since 0.10.0
+   */
+  onBeforeLoad?: () => void;
+
+  /**
+   * Lifecycle hook called by {@link BpmnVisualization} after a `load` call has succeeded. It is not called when the load fails;
+   * in that case, {@link Plugin.onLoadError} is called instead.
+   * @since 0.10.0
+   */
+  onLoadSuccess?: () => void;
+
+  /**
+   * Lifecycle hook called by {@link BpmnVisualization} when a `load` call fails, before the error is rethrown to the caller.
+   * @param error The error thrown while loading the BPMN source.
+   * @since 0.10.0
+   */
+  onLoadError?: (error: unknown) => void;
 }
 
 declare module 'bpmn-visualization' {
@@ -72,6 +101,22 @@ export class BpmnVisualization extends BaseBpmnVisualization {
     this.registerPlugins(options);
   }
 
+  override dispose(): void {
+    this.forEachPlugin(plugin => plugin.onDispose?.());
+    super.dispose();
+  }
+
+  override load(xml: string, options?: LoadOptions): void {
+    this.forEachPlugin(plugin => plugin.onBeforeLoad?.());
+    try {
+      super.load(xml, options);
+    } catch (error) {
+      this.forEachPlugin(plugin => plugin.onLoadError?.(error));
+      throw error;
+    }
+    this.forEachPlugin(plugin => plugin.onLoadSuccess?.());
+  }
+
   getPlugin<T extends Plugin>(id: PluginIds): T {
     return this.plugins.get(id) as T;
   }
@@ -90,6 +135,12 @@ export class BpmnVisualization extends BaseBpmnVisualization {
     // configure
     for (const plugin of this.plugins.values()) {
       plugin.onConfigure?.(options);
+    }
+  };
+
+  private readonly forEachPlugin = (functor: (plugin: Plugin) => void): void => {
+    for (const plugin of this.plugins.values()) {
+      functor(plugin);
     }
   };
 }

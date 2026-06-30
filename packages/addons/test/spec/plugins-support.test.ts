@@ -248,6 +248,8 @@ describe('Ensure that plugins are notified on load error', () => {
     expect(loadAwarePlugin2.onBeforeLoad).toHaveBeenCalledTimes(1);
     expect(loadAwarePlugin1.onLoadError).toHaveBeenCalledTimes(1);
     expect(loadAwarePlugin2.onLoadError).toHaveBeenCalledTimes(1);
+    expect(loadAwarePlugin1.onLoadError).toHaveBeenCalledWith(expect.any(Error));
+    expect(loadAwarePlugin2.onLoadError).toHaveBeenCalledWith(expect.any(Error));
     expect(loadAwarePlugin1.onLoadSuccess).not.toHaveBeenCalled();
     expect(loadAwarePlugin2.onLoadSuccess).not.toHaveBeenCalled();
   });

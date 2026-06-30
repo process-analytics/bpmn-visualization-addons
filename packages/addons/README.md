@@ -124,6 +124,43 @@ const bpmnVisualization = new BpmnVisualization({
 });
 ```
 
+##### Reacting to BPMN loading with the load hooks
+
+The `onBeforeLoad`, `onLoadSuccess` and `onLoadError` hooks let a plugin react to each `load` call, so it can keep its own
+state in sync with the BPMN model currently rendered. They run around `BpmnVisualization.load`:
+
+- `onBeforeLoad`: runs before the new BPMN source is processed, while the previous model is still rendered. Use it to reset
+  state tied to the outgoing model, for example clearing caches, removing overlays or CSS classes, or discarding indexes
+  built from the previous diagram.
+- `onLoadSuccess`: runs after the new model has been rendered. Use it to (re)build state from the freshly loaded diagram,
+  for example indexing elements, registering event listeners, or applying default styles and overlays.
+- `onLoadError`: runs with the thrown error when loading fails, before the error is rethrown to the caller. Use it to roll
+  back any partial work started in `onBeforeLoad` and to report or log the failure. It does not swallow the error.
+
+`load` can be called several times on the same instance, so these hooks may run more than once. Make sure work done in
+`onLoadSuccess` is cleaned up in a later `onBeforeLoad` (or in `onDispose`) to avoid leaking state across loads.
+
+```ts
+class MyCustomPlugin implements Plugin {
+    getPluginId(): string {
+        return "my-custom-plugin";
+    }
+
+    onBeforeLoad(): void {
+        // reset state tied to the previously loaded model
+    }
+
+    onLoadSuccess(): void {
+        // build state from the freshly loaded model (indexes, listeners, styles, ...)
+    }
+
+    onLoadError(error: unknown): void {
+        // roll back partial work and report the failure
+        console.error("BPMN load failed", error);
+    }
+}
+```
+
 ##### Cleaning up resources with `onDispose`
 
 `onDispose` aligns plugin lifecycle management with the disposal capabilities of the core `bpmn-visualization` library.

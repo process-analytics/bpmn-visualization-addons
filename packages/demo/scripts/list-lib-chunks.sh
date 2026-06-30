@@ -26,7 +26,9 @@ for file in "$DIST_DIR"/lib-*.js; do
   [[ -f "$file" ]] || continue
   filename=$(basename "$file")
   # Extract dependency name: lib-<name>-<hash>.js -> <name>
-  dep_name=$(echo "$filename" | sed 's/^lib-//;s/-[^-]*\.js$//')
+  # The hash is an 8-char URL-safe base64 string that may itself contain hyphens
+  # (e.g. lib-mxgraph-8p-_dQzY.js), so strip exactly the trailing -<8 chars>.js.
+  dep_name=$(echo "$filename" | sed 's/^lib-//;s/-[A-Za-z0-9_-]\{8\}\.js$//')
   size_kb=$(LC_NUMERIC=C awk "BEGIN {printf \"%.2f\", $(stat --format=%s "$file") / 1000}")
   names+=("$dep_name")
   sizes+=("$size_kb")

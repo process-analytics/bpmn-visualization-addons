@@ -44,6 +44,18 @@ export interface Plugin {
 
   /**
    * Lifecycle hook called by {@link BpmnVisualization} when the instance is disposed, before the underlying resources are released.
+   * It is not intended to be called by client code.
+   *
+   * This hook aligns plugin lifecycle management with the disposal capabilities of the core `bpmn-visualization` library.
+   * Implement it to release everything the plugin acquired so the `BpmnVisualization` instance can be garbage collected and
+   * no work continues after disposal. Typical cleanup includes:
+   *   - removing DOM or graph event listeners registered by the plugin;
+   *   - clearing timers or intervals (`clearTimeout` / `clearInterval`);
+   *   - dropping references to the {@link BpmnVisualization} instance and to BPMN elements;
+   *   - discarding cached data or other internal state held by the plugin.
+   *
+   * It runs before the core resources are released, so the {@link BpmnVisualization} instance and the BPMN model are still
+   * accessible if cleanup requires them.
    * @since 0.10.0
    */
   onDispose?: () => void;

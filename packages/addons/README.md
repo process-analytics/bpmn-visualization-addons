@@ -124,6 +124,35 @@ const bpmnVisualization = new BpmnVisualization({
 });
 ```
 
+##### Cleaning up resources with `onDispose`
+
+`onDispose` aligns plugin lifecycle management with the disposal capabilities of the core `bpmn-visualization` library.
+Implement it to release everything the plugin acquired, so the `BpmnVisualization` instance can be garbage collected and no
+work keeps running after disposal. Typical cleanup includes:
+
+- removing DOM or graph event listeners registered by the plugin;
+- clearing timers or intervals (`clearTimeout` / `clearInterval`);
+- dropping references to the `BpmnVisualization` instance and to BPMN elements;
+- discarding cached data or other internal state held by the plugin.
+
+The hook runs before the core resources are released, so the `BpmnVisualization` instance and the BPMN model are still
+accessible if cleanup requires them.
+
+```ts
+class MyCustomPlugin implements Plugin {
+    private readonly intervalId = setInterval(() => this.refresh(), 1000);
+
+    getPluginId(): string {
+        return "my-custom-plugin";
+    }
+
+    onDispose(): void {
+        clearInterval(this.intervalId);
+        // remove listeners, drop references and cached state here as well
+    }
+}
+```
+
 
 ### `BpmnElementsIdentifier`
 

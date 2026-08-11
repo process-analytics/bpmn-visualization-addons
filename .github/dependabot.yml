@@ -27,6 +27,11 @@ updates:
       # We must use an old version in packages/check-ts-support that works with the typescript version used in this package.
       # As the typescript version is old, it requires an old version of "@types/node".
       - dependency-name: "@types/node"
+      # eslint v10: eslint-plugin-import still not compatible with eslint v10 on 2026-08-11
+      - dependency-name: "@eslint/js"
+      - dependency-name: "eslint"
+      # eslint-plugin-unicorn 66.0+ requires eslint v10
+      - dependency-name: "eslint-plugin-unicorn"
     groups:
        css:
           patterns:

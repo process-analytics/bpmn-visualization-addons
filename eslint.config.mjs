@@ -1,5 +1,5 @@
 /*
-Copyright 2025 Bonitasoft S.A.
+Copyright 2026 Bonitasoft S.A.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -60,6 +60,13 @@ export default tsEslint.config(
   },
 
   unicornPlugin.configs['flat/recommended'], // https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config
+  {
+    rules: {
+      // an http URL is located in the Apache 2.0 license header
+      // newer versions of the plugin propose an option to ignore some URL. To configure when using the new version of the plugin
+      'unicorn/prefer-https': 'off',
+    },
+  },
 
   importPlugin.flatConfigs.recommended,
   {

@@ -94,12 +94,12 @@ describe('Prevent multiple plugins with the same ID from loading', () => {
   });
 
   test('Load 2 plugins with the same id - one extending the other', () => {
-    class MyCustomPlugin2SubClass extends MyCustomPlugin2 {
+    class MyCustomPlugin2Subclass extends MyCustomPlugin2 {
       doAnotherThing(): string {
         return 'this is the end';
       }
     }
-    expect(() => new BpmnVisualization({ container: undefined!, plugins: [MyCustomPlugin2, MyCustomPlugin2SubClass] })).toThrow(
+    expect(() => new BpmnVisualization({ container: undefined!, plugins: [MyCustomPlugin2, MyCustomPlugin2Subclass] })).toThrow(
       "Plugin loading fails. It is not possible to register multiple plugins with the same 'custom-plugin-2' identifier.",
     );
   });

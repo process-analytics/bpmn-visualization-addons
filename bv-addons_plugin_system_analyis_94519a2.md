@@ -408,6 +408,24 @@ and a broken release.
 - `CLAUDE.md:60-67` lists only `getPluginId` and `onConfigure` under "Plugin Lifecycle", missing the four hooks added
   in 0.10.0.
 
+## 9. Not covered here
+
+Candidates for a follow-up, ranked by what would change a decision:
+
+1. A compiled probe of alternatives A and F. Every third-party typing claim in this document was verified with `tsc`;
+   the recommendation itself was not. The overload ordering in A is the specific risk: if the loose
+   `getPlugin<T>(id: string)` overload is reachable first, the typed one never fires.
+2. Making `BpmnVisualization` generic over the plugin tuple it was constructed with, so `features.overlays` is a
+   compile error when `OverlaysPlugin` was not passed. No library in this survey does this, and it may not survive
+   contact with real inference.
+3. An audit of the five shipped plugins against the gap list in section 3.
+4. The missing tests, enumerated: hook ordering across plugins, double `dispose()`, a throwing hook, `load()` after
+   `dispose()`, the substring match, options validation.
+5. A ready-to-paste ADR recording the maxGraph lineage, with the corrected ECharts attribution.
+
+Deliberately excluded: bundle-size measurements (no alternative except E moves that axis), more libraries (seventeen
+already produced three families; an eighteenth adds a row, not an insight), and effort estimates.
+
 ---
 
 # Appendix: per-library detail

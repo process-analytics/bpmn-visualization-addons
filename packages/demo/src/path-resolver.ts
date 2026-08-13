@@ -30,8 +30,8 @@ const bpmnVisualization = new BpmnVisualization({
 // Load the BPMN diagram defined above
 const diagram = await fetchDiagram();
 bpmnVisualization.load(diagram, { fit: { type: FitType.Center, margin: 20 } });
-const elementsPlugin = bpmnVisualization.getPlugin<ElementsPlugin>('elements');
-const stylePlugin = bpmnVisualization.getPlugin<StylePlugin>('style');
+const elementsPlugin = bpmnVisualization.getPlugin<ElementsPlugin>('elements')!;
+const stylePlugin = bpmnVisualization.getPlugin<StylePlugin>('style')!;
 
 const pathResolver = new PathResolver(elementsPlugin);
 

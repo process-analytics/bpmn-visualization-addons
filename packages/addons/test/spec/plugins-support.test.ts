@@ -40,14 +40,19 @@ class MyCustomPlugin1 implements Plugin {
 
 test('Load a typed plugin and use it', () => {
   const bpmnVisualization = new BpmnVisualization({ container: undefined!, plugins: [MyCustomPlugin1] });
-  const plugin = bpmnVisualization.getPlugin<MyCustomPlugin1>('custom-plugin-1');
+  const plugin = bpmnVisualization.getPlugin<MyCustomPlugin1>('custom-plugin-1')!;
   expect(plugin).toBeInstanceOf(MyCustomPlugin1);
   expect(plugin.doSomethingSpecial()).toBe(5);
 });
 
+test('Retrieve a plugin with an identifier that is not registered', () => {
+  const bpmnVisualization = new BpmnVisualization({ container: undefined!, plugins: [MyCustomPlugin1] });
+  expect(bpmnVisualization.getPlugin('unknown')).toBeUndefined();
+});
+
 test('Load a untyped plugin and use it', () => {
   const bpmnVisualization = new BpmnVisualization({ container: undefined!, plugins: [MyCustomPlugin1] });
-  const plugin = bpmnVisualization.getPlugin('custom-plugin-1');
+  const plugin = bpmnVisualization.getPlugin('custom-plugin-1')!;
   expect(plugin).toBeInstanceOf(MyCustomPlugin1);
   expect(plugin.getPluginId()).toBe('custom-plugin-1');
   expect((plugin as MyCustomPlugin1).doSomethingSpecial()).toBe(5);
@@ -67,7 +72,7 @@ test('Load several plugins and use them', () => {
   const plugin1 = bpmnVisualization.getPlugin('custom-plugin-1');
   expect(plugin1).toBeInstanceOf(MyCustomPlugin1);
 
-  const plugin2 = bpmnVisualization.getPlugin<MyCustomPlugin2>('custom-plugin-2');
+  const plugin2 = bpmnVisualization.getPlugin<MyCustomPlugin2>('custom-plugin-2')!;
   expect(plugin2).toBeInstanceOf(MyCustomPlugin2);
   expect(plugin2.doSomethingSpecial()).toBe('I am awesome');
 });
@@ -141,7 +146,7 @@ describe('Ensure that plugins are configured', () => {
 
   test('Ensure that the configurable plugin is configured after BpmnVisualization initialization', () => {
     const bpmnVisualization = new BpmnVisualization({ container: undefined!, customValue: 'custom in options', plugins: [ConfigurablePlugin] } as CustomGlobalOptions);
-    const configurablePlugin = bpmnVisualization.getPlugin<ConfigurablePlugin>('custom-configurable-plugin');
+    const configurablePlugin = bpmnVisualization.getPlugin<ConfigurablePlugin>('custom-configurable-plugin')!;
     expect(configurablePlugin.isConfigured).toBeTruthy();
     expect(configurablePlugin.customValue).toBe('custom in options'); // ensure that the options are passed to the plugin configuration
   });
@@ -176,8 +181,8 @@ describe('Ensure that plugins are disposed', () => {
 
   test('Call onDispose on plugins that implement it and ignore the others when disposing BpmnVisualization', () => {
     const bpmnVisualization = new BpmnVisualization({ container: undefined!, plugins: [DisposablePlugin1, PluginWithoutOptionalMethods, DisposablePlugin2] });
-    const disposablePlugin1 = bpmnVisualization.getPlugin<DisposablePlugin1>('custom-disposable-plugin-1');
-    const disposablePlugin2 = bpmnVisualization.getPlugin<DisposablePlugin2>('custom-disposable-plugin-2');
+    const disposablePlugin1 = bpmnVisualization.getPlugin<DisposablePlugin1>('custom-disposable-plugin-1')!;
+    const disposablePlugin2 = bpmnVisualization.getPlugin<DisposablePlugin2>('custom-disposable-plugin-2')!;
 
     expect(() => bpmnVisualization.dispose()).not.toThrow();
     expect(disposablePlugin1.onDispose).toHaveBeenCalledTimes(1);
@@ -212,8 +217,8 @@ const setupLoadAwareVisualization = (): { bpmnVisualization: BpmnVisualization; 
   const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId(), plugins: [LoadAwarePlugin1, PluginWithoutOptionalMethods, LoadAwarePlugin2] });
   return {
     bpmnVisualization,
-    loadAwarePlugin1: bpmnVisualization.getPlugin<LoadAwarePlugin1>('custom-load-aware-plugin-1'),
-    loadAwarePlugin2: bpmnVisualization.getPlugin<LoadAwarePlugin2>('custom-load-aware-plugin-2'),
+    loadAwarePlugin1: bpmnVisualization.getPlugin<LoadAwarePlugin1>('custom-load-aware-plugin-1')!,
+    loadAwarePlugin2: bpmnVisualization.getPlugin<LoadAwarePlugin2>('custom-load-aware-plugin-2')!,
   };
 };
 

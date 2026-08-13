@@ -160,6 +160,7 @@ name at runtime, which a browser library cannot do. One idea from them transfers
 | maxGraph 0.24 | class | string id | yes | no | 1 | none | no |
 | bpmn-js 18 | module declaration map | string id | yes (opt-in map) | `__depends__` | `__init__` + event bus | none | no |
 | X6 3.1 | instance | string id (undocumented) | yes | no | 3 + 3 optional | prototype patching, CSS | **yes** |
+| G6 v5 | **string id**, or `{ type, key }` | `getPluginInstance(key)` | yes, `as unknown as T` | no | 3 | **global registry** | partly, config is declarative |
 | Chart.js 4 | object with an id | id, rarely needed | **no** | no | ~35 | registry singleton | **yes**, via options |
 | CodeMirror 6 | value | typed handle | **no** | `enables`/`provide` | many | none | mostly |
 | ProseMirror 1 | instance | typed `PluginKey<T>` | **no** | no | many | none | yes, via exported functions |
@@ -168,8 +169,9 @@ name at runtime, which a browser library cannot do. One idea from them transfers
 
 Two observations that matter more than the table.
 
-**Retrieval by an author-written string is the minority design.** Only maxGraph, X6, bpmn-js and Chart.js do it. The
-first three pay for it with an unchecked cast, exactly as this package does. Chart.js escapes only because its
+**Retrieval by an author-written string is the minority design.** Only maxGraph, X6, G6, bpmn-js and Chart.js do it.
+The first four pay for it with an unchecked cast, exactly as this package does, and G6 goes further with a double cast
+`as unknown as T` over a vacuous `T extends BasePlugin<any>` bound. Chart.js escapes only because its
 retrieval path is vestigial: `Chart.registry.getPlugin(id)` returns the shared singleton typed as a bare `Plugin`, and
 the consumer is not meant to call it, since a Chart.js plugin is configured through namespaced options rather than
 invoked. CodeMirror and ProseMirror use a token whose identity is the key.
@@ -258,6 +260,37 @@ and allows real encapsulation, since a package can keep its token private and ex
 principled option and the least aligned with the current codebase, since it adds a concept without removing the
 ceremony that motivated the question.
 
+### E. Global id-to-implementation registry, load by id
+
+This is the design the review was originally asked to consider, and G6 v5 implements it exactly:
+
+```ts
+register(ExtensionCategory.PLUGIN, 'my-plugin', MyPlugin); // built-ins pre-registered at import
+const graph = new Graph({ plugins: ['grid-line', { type: 'tooltip', key: 'my-tooltip' }] });
+graph.getPluginInstance<Tooltip>('my-tooltip');
+```
+
+It makes loading and retrieval symmetric, which is the stated complaint, and it buys one capability nothing else here
+provides: **the configuration becomes serializable**. A viewer whose plugin set comes from JSON can name a plugin the
+calling code never imported. It also allows overriding a built-in by re-registering its id.
+
+I recommend against it, on evidence from the reference implementation itself:
+
+- **It does not buy tree-shaking**, which is the usual justification. G6 grepped clean for any tree-shaking rationale
+  across its entire docs tree, has no `sideEffects` field, no `exports` map and no lighter entry point, and
+  `import '@antv/g6'` runs `preset.ts` which statically registers every built-in. It pays the full cost on every
+  import. The registry buys extensibility and runtime override, not bundle size.
+- **It costs the property this package currently has and G6 does not**: a module-level mutable registry, page-global.
+  Re-registering an id affects every graph on the page, including ones already constructed, and there is no way to
+  scope an override to one instance.
+- **It does not fix type safety**, the actual defect. G6's `type` field is a bare `string` with no union, no
+  declaration merging and no branded type, and its own test asserts that `{ type: 'unset' }` compiles.
+- **It weakens error handling.** A missing registration in G6 is a `console.warn` and a silently skipped plugin, not a
+  throw. This package currently fails fast on duplicate ids, which is stricter than G6, X6 and maxGraph.
+
+Worth adopting only if declarative or serialized plugin configuration becomes a requirement. If it ever does, note
+that A composes with it: the same id-to-type interface that types `getPlugin` would also type the config entries.
+
 ### Comparison
 
 | | Ergonomics | Type safety | Tree-shaking | Author cost | Semver | Migration |
@@ -266,6 +299,7 @@ ceremony that motivated the question.
 | B. Instance loading | **much better** | **fixed** | unchanged | `init(bv)` instead of constructor arg | **breaking** | mechanical, one line per registration |
 | C. Host augmentation | **best** | good | **worse** | augmentation plus prototype patching | breaking, and permanently widens the API | large |
 | D. Typed token | better | **fixed** | unchanged | export a token | breaking | moderate, new concept to learn |
+| E. Global registry | symmetric, but unchanged | **not fixed** | **no gain, see E** | a `register` call per plugin | breaking | large, and adds page-global state |
 
 ## 6. Recommendation
 
@@ -310,13 +344,23 @@ Both reference points you supplied need correcting, and both corrections weaken 
   manual cast. What it does have that you lack is `__depends__` with identity-based deduplication and deterministic
   topological ordering. What it costs is a DI container the extension author must learn, including the trap that a
   listener-only extension is never constructed unless named in `__init__`.
-- **AntV X6.** "Ids and implementations associated in a global registry, loading by id" is **wrong** for every version
-  that has plugins. `graph.use(new Selection({...}))` passes a live instance to a per-graph `Set`; no id is passed at
-  load time and there is no global plugin registry. The premise does accurately describe a different X6 subsystem:
-  routers, connectors, markers, tools and highlighters do live in a global `Registry` resolved by name. Two likely
-  sources of the confusion, both verified: `x6.antv.vision` still returns 200 and serves the **v1** site, where these
-  were `Graph` options rather than plugins; and X6's plugin interface has never been documented in any version, so
-  the model has to be inferred.
+- **AntV X6 and AntV G6.** "Ids and implementations associated in a global registry, loading by id" is **wrong for
+  X6** and **exactly right for G6 v5**, which is a different AntV library. The description was accurate; it was
+  attributed to the wrong project.
+  - X6 passes a live instance to a per-graph `Set` (`graph.use(new Selection({...}))`) in every version that has
+    plugins. No id is passed at load time, and there is no global plugin registry. The premise does describe a
+    different X6 subsystem: routers, connectors, markers, tools and highlighters do live in a global `Registry`
+    resolved by name.
+  - G6 v5 matches every clause: `EXTENSION_REGISTRY.plugin` is a module-level object keyed by string,
+    `register(ExtensionCategory.PLUGIN, 'name', Impl)` populates it, built-ins auto-register at import through
+    `preset.ts`, and the consumer writes `plugins: ['minimap']` or `plugins: [{ type: 'tooltip', key: 'my-tooltip' }]`.
+    The graph never receives a class or an instance. See alternative E for why I still recommend against it, and note
+    that G6 v4 used the X6 model (instances via `addPlugin`), so the registry is the v5 rewrite. Any claim about "G6"
+    without a version is half wrong.
+  - Sources of confusion, both verified: the two libraries are siblings with near-identical names, and
+    `x6.antv.vision` still returns 200 while serving the **v1** site, where these features were `Graph` options rather
+    than plugins. X6's plugin interface has also never been documented in any version, so its model must be inferred
+    from source.
 - **maxGraph is the model, but not the substrate.** Two separate things were conflated during the review, and both
   matter. maxGraph is *not* the layer underneath: `bpmn-visualization@0.48.0` depends on `mxgraph@4.2.2`, and mxGraph
   has no plugin concept at all (zero occurrences of "plugin" in its 13k-line `mxGraph.js`; handlers were hard-wired

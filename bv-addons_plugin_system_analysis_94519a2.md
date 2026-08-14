@@ -1448,8 +1448,14 @@ bound, since a registry here would be pure overhead.
 # Appendix B: relation to the earlier DeepWiki analysis
 
 An earlier pass over the same question was run on **2026-05-06 with DeepWiki** (fast mode) against
-`process-analytics/bpmn-visualization-addons`. It is worth recording, both because it corroborates part of this
+`process-analytics/bpmn-visualization-addons`. Its full output is kept alongside this document, at
+[`analyze_plugin_system_by_deepwiki_20260506.md`](./analyze_plugin_system_by_deepwiki_20260506.md), so the comparison
+below can be checked rather than taken on trust. It is worth recording, both because it corroborates part of this
 document independently and because where it diverges is instructive.
+
+Note that it analysed the code as of May 2026, several releases before commit `94519a2`, so some of its statements are
+about a version of the plugin system that no longer exists. Its citations are consequently to different line numbers
+than the ones used throughout this document.
 
 **Independently corroborated**, three months before this analysis and by a different tool: no dependency system, no
 dynamic loading or unloading, no plugin metadata or registry, no error isolation, no configuration validation, no

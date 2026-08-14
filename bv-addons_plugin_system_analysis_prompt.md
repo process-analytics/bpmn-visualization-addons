@@ -122,8 +122,7 @@ Rules for this phase:
 
 ## Output
 
-- File: `bv-addons_plugin_system_analyis_94519a2.md` at the root of the repository.
-  (Name kept verbatim as requested, including the `analyis` spelling.)
+- File: `bv-addons_plugin_system_analysis_94519a2.md` at the root of the repository.
 - Dense decision aid, roughly 2 to 3 pages. No filler, no restating the obvious.
 - Criticism is the point: do not soften findings, and state disagreements with the current design plainly.
 

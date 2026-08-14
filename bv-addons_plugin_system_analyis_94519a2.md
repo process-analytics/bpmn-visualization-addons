@@ -191,33 +191,172 @@ and defeats tree-shaking. Tiptap instead merges declarations into an already-typ
 
 ### A. Typed id-to-type map via declaration merging
 
+The core declares one empty interface. Every plugin, shipped or third-party, adds one entry to it by module
+augmentation. `getPlugin` then keys on `keyof` that interface.
+
 ```ts
-export interface PluginRegistry {
-  overlays: OverlaysPlugin;
-  style: StylePlugin;
-  // third parties add their own by module augmentation
+// core, in plugins-support.ts
+export interface BpmnPluginRegistry {}                 // empty, and crucially NO index signature
+
+export type PluginId = keyof BpmnPluginRegistry;       // replaces DefaultPlugins and PluginIds entirely
+
+getPlugin<K extends PluginId>(id: K): BpmnPluginRegistry[K] | undefined {
+  return this.plugins.get(id) as BpmnPluginRegistry[K] | undefined;
+}
+```
+
+Three properties follow, and the third is what makes this more than a typing fix.
+
+**1. The id set closes itself.** `PluginId` is derived, never written by hand, so registering a plugin extends the
+accepted ids automatically and nothing can drift. This deletes `DefaultPlugins` (`plugins-support.ts:115`) and with it
+weakness 2.1 point 3, where the five id literals exist twice, once in the type and once in each `getPluginId()` body,
+kept in sync by hand. A free string is no longer accepted, so a typo is a compile error rather than `undefined`:
+
+```ts
+bpmnVisualization.getPlugin('overlays');   // OverlaysApi | undefined
+bpmnVisualization.getPlugin('ovarlays');   // error: not assignable to keyof BpmnPluginRegistry
+```
+
+**2. The type argument disappears.** `K` is inferred from the id, so the two can no longer disagree. Nothing is left
+at the call site to write incorrectly.
+
+**3. The map holds a capability interface, not the implementation class.** Declare, per plugin, an interface with only
+the methods consumers are meant to call, and register *that*:
+
+```ts
+// public contract: what consumers see, and what the registry publishes
+export interface OverlaysApi {
+  addOverlays(elementId: string, overlays: Overlay | Overlay[]): void;
+  removeAllOverlays(elementId: string): void;
+  setVisible(visible: boolean): void;
 }
 
-getPlugin<K extends keyof PluginRegistry>(id: K): PluginRegistry[K] | undefined;
-getPlugin<T extends Plugin>(id: string): T | undefined;
+// implementation: free to carry internals that never reach the published API
+export class OverlaysPlugin implements Plugin, OverlaysApi {
+  getPluginId(): string { return 'overlays'; }
+  // ...
+}
+
+declare module '@process-analytics/bpmn-visualization-addons' {
+  interface BpmnPluginRegistry { overlays: OverlaysApi }
+}
+```
+
+What that buys, beyond typing:
+
+- **Encapsulation.** `getPlugin('overlays')` returns `OverlaysApi`, so internal methods, the cached overlay pane
+  (`plugins/overlays.ts:27-28`) and the lifecycle hooks themselves stay out of the consumer-facing surface. The class
+  remains exported for registration; only the interface is published as the contract.
+- **A free hand on the implementation.** Renaming or restructuring the class stops being a breaking change as long as
+  the interface holds. Today the class *is* the published type, so every internal is public by accident.
+- **It settles the naming question mechanically.** The consumer-facing type is named after the capability rather than
+  the mechanism, so the call site reads `const overlays: OverlaysApi = ...`. That is what
+  `demo/src/plugins-by-name.ts:42` does by hand today, enforced by the type system instead of by convention.
+- **Discoverability**, the gap in section 3 that no library in the survey answers. `BpmnPluginRegistry` becomes a
+  single machine-readable list of every available feature and its API, assembled automatically from whatever plugin
+  packages are installed.
+
+A third-party plugin is symmetric, and needs no cooperation from this package:
+
+```ts
+export interface HighlightApi { highlight(bpmnElementId: string): void }
+export class HighlightPlugin implements Plugin, HighlightApi { /* ... */ }
+
+declare module '@process-analytics/bpmn-visualization-addons' {
+  interface BpmnPluginRegistry { highlight: HighlightApi }
+}
 ```
 
 ```ts
-// before
-const overlaysPlugin = bpmnVisualization.getPlugin<OverlaysPlugin>('overlays');
-// after: no type argument, correct type, mismatch impossible
-const overlays = bpmnVisualization.getPlugin('overlays');
+const bv = new BpmnVisualization({ container, plugins: [OverlaysPlugin, HighlightPlugin] });
+bv.getPlugin('highlight')?.highlight('Task_1');   // typed, autocompleted, no cast, no class type imported
 ```
 
-Chart.js's mechanism applied to retrieval, and what bpmn-js's `Diagram<ServiceMap>` type parameter tries to do but
-never populates. Tiptap's `interface Storage {}` is the same trick on a property.
+This is Chart.js's mechanism applied to retrieval instead of options, and what bpmn-js's `Diagram<ServiceMap>` type
+parameter tries to do but never populates. Tiptap's `interface Storage {}` is the same trick on a property.
 
-**One implementation warning, learned from ECharts.** Its `ComposeOption` pattern was compiled empirically with
-TypeScript 5.5 in strict mode: it catches wrong series subtypes and wrong values, but does **not** catch options for a
-component that was never registered, nor invented keys, because an index signature on `ECUnitOption` swallows unknown
-keys as `unknown`. `PluginIds` at `plugins-support.ts:120` has exactly that widening shape. The typed overload must
-key on `keyof PluginRegistry` alone, with the widened form confined to the loose overload, or A silently degrades into
-the status quo.
+#### Where the augmentation goes, and why it differs inside and outside the package
+
+**Inside this repository, do not use the npm package name.** `packages/addons/tsconfig.json` sets
+`"moduleResolution": "node"`, which ignores the `exports` field and does not support package self-reference. The npm
+workspace nonetheless symlinks `node_modules/@process-analytics/bpmn-visualization-addons` to `packages/addons`, so
+the specifier *does* resolve, through `"types": "./lib/index.d.ts"`, to the **compiled output**. That is a different
+module identity from `src/plugins-support.ts`, which is what the sources import, so the augmentation would target the
+wrong module while appearing to work, and `src` would start depending on `lib/` existing, breaking a clean checkout
+and any build after `npm run clean`.
+
+Two correct options for the shipped plugins:
+
+```ts
+// (a) preferred: no augmentation at all, declare the entries where the interface lives
+// plugins-support.ts
+import type { OverlaysApi } from './plugins/overlays.js';
+import type { StyleApi } from './plugins/style.js';
+
+export interface BpmnPluginRegistry {
+  overlays: OverlaysApi;
+  style: StyleApi;
+}
+```
+
+```ts
+// (b) alternative: augment by relative path, keeping each entry next to its plugin
+// plugins/overlays.ts
+declare module '../plugins-support.js' {
+  interface BpmnPluginRegistry { overlays: OverlaysApi }
+}
+```
+
+(a) is simplest and has no resolution subtleties. The type-only cycle it creates (core imports plugin API types,
+plugins import `Plugin` from core) is erased at compile time, and `isolatedModules: true` already forces `import type`
+for it. (b) mirrors what third parties write and keeps each entry beside its plugin, at the cost of a relative
+specifier that must carry the `.js` extension like every other import here.
+
+**Outside the package, the npm package name is the only option available**, because `exports` publishes just `.` and
+`./package.json`, with no subpath for `plugins-support`. That raises an open question this document cannot settle by
+reading: `src/index.ts` is a pure barrel (`export * from './plugins-support.js'`), so a third-party
+`declare module '@process-analytics/bpmn-visualization-addons'` augments a module that merely **re-exports** the
+interface rather than declaring it. Whether TypeScript merges that into the original declaration, or silently creates
+a separate interface in the barrel's scope, is exactly the problem Vue hit with `ComponentCustomProperties`, where
+users had to augment `@vue/runtime-core` until Vue restructured so that augmenting `vue` worked.
+
+Two robust answers, if the probe shows barrel augmentation does not merge:
+
+- declare `BpmnPluginRegistry` in `src/index.ts` itself, so the module consumers resolve is also the declaring module;
+- or add a subpath export for the declaring module, so third parties can target it directly.
+
+This is the single most important thing to settle before implementing A, and it is why the follow-up in section 9
+leads with a compiled probe.
+
+#### Two variants, differing on semver
+
+- **A1, additive.** Keep a second loose overload, `getPlugin<T extends Plugin>(id: string): T | undefined`, below the
+  typed one. Every existing call site keeps compiling, explicit type arguments included. Ships in a minor release.
+- **A2, strict.** Typed overload only, ids constrained to `keyof BpmnPluginRegistry`. This is the version described
+  above, and it **is breaking**: `getPlugin<OverlaysPlugin>('overlays')` no longer compiles, because `K` is inferred
+  from the id and a class type is not assignable to a string union. Every call site passing an explicit type argument
+  must drop it, which in this repo means 4 sites in the demo and 22 of 24 in the tests, all mechanical deletions.
+
+A1 leaves the loose overload as an escape hatch and therefore leaves the hole open. A2 is the real thing. If a major
+release is near, go straight to A2.
+
+#### Implementation warnings
+
+**No index signature, learned from ECharts.** Its `ComposeOption` pattern was compiled empirically with TypeScript
+5.5 in strict mode: it catches wrong series subtypes and wrong values, but does **not** catch options for a component
+that was never registered, nor invented keys, because an index signature on `ECUnitOption` swallows unknown keys as
+`unknown`. LogicFlow fails the same way with `Record<string, Extension>`. `PluginIds` at `plugins-support.ts:120`
+currently has exactly that widening shape, `DefaultPlugins | (string & Record<never, never>)`, and it must not survive
+into the registry.
+
+**Augmentation becomes mandatory under A2.** A plugin that does not augment `BpmnPluginRegistry` cannot be retrieved
+through the typed API at all. That is the intended pressure, but it belongs in the documented authoring contract
+rather than being discovered. If a genuine dynamic case appears, add an explicitly named escape hatch such as
+`getPluginUnsafe<T>(id: string): T | undefined`, so the unsound path is visible at the call site instead of being the
+default.
+
+**It still cannot prove the plugin was loaded.** The registry says a feature exists in the program, not that it was
+passed to this instance, which is why the return type must become `| undefined` alongside.
 
 ### B. Instance-based loading
 
@@ -291,28 +430,62 @@ subtraction. That capability is worth having and does not require id-based loadi
 
 ### F. Namespaced accessor typed by an augmentable interface
 
-The Tiptap `storage` model, and the version of C that survives:
+F is **the same registry as A, reached as a property instead of through a method call**. It adds no second mechanism:
+a plugin augments `BpmnPluginRegistry` once and gets both access shapes.
 
 ```ts
-export interface BpmnFeatures {}                       // core declares it empty, no index signature
-declare module '...' { interface BpmnFeatures { overlays: OverlaysPlugin } }   // each plugin augments
-
-bpmnVisualization.features.overlays.addOverlays(id, overlay);
+// core
+get features(): Partial<BpmnPluginRegistry> {
+  return this.featuresView;      // built at registration: featuresView[pluginId] = plugin
+}
 ```
 
-No cast, no string at the call site, no prototype patching, and plugins stay out of the core's type surface.
-Crucially, **no index signature**, so an un-augmented key is a compile error rather than `any`, which is exactly where
-LogicFlow's `Record<string, ...>` fails.
+```ts
+// A:  the id is an argument
+bpmnVisualization.getPlugin('overlays')?.addOverlays(id, overlay);
 
-Its residual unsoundness is shared with A, C and Tiptap alike: the type says the feature exists, the runtime decides
-whether it was loaded. Tiptap's failure mode is instructive, since the augmentation applies merely because a package
-is in the dependency graph, whether or not the extension was passed to the editor.
+// F:  the id is a property name
+bpmnVisualization.features.overlays?.addOverlays(id, overlay);
+```
+
+The runtime side is trivial: `registerPlugins` already walks the constructed plugins (`plugins-support.ts:152-159`),
+so it assigns each one onto a plain object keyed by its id. No proxy, no prototype patching, no code generation.
+
+Why have it at all, given A:
+
+- **No string appears at the call site.** In A the id is still a string literal, checked but written. In F it is a
+  property name, so it autocompletes as you type the dot and is renameable by ordinary tooling.
+- **It reads as a feature namespace.** `bpmnVisualization.features.overlays.addOverlays(...)` names the capability
+  twice and the plugin mechanism zero times. This is the closest the survey gets to the transparency X6 and Cytoscape
+  achieve by prototype patching, without patching anything and without the silent no-op that comes with it.
+- **The registry doubles as a browsable catalogue.** Typing `bpmnVisualization.features.` in an editor lists every
+  feature available in the program, which is the discoverability gap from section 3.
+
+Three design points that decide whether it works:
+
+**`Partial<>` is deliberate.** The registry says a feature exists in the program; only the constructor argument
+decides whether it exists on this instance. Typing `features` as `Partial<BpmnPluginRegistry>` forces `?.` at the call
+site and keeps the type honest. The ergonomic alternative, typing it non-optional and throwing from a proxy on a
+missing key, reads better but lies, which is exactly Tiptap's failure mode: its augmentation applies because a package
+sits in the dependency graph, whether or not the extension was ever passed to the editor. Prefer the honest form; the
+`?.` is one character and it is telling the truth.
+
+**No index signature, again.** An un-augmented key must be a compile error, not `any`. This is the precise point where
+LogicFlow's `lf.extension`, typed `Record<string, Extension | ExtensionDefinition>`, fails: it accepts every key,
+resolves them all to a two-member union, and makes the pattern its own documentation teaches fail to compile.
+
+**The capability interfaces from A carry over unchanged.** `features.overlays` is an `OverlaysApi`, not an
+`OverlaysPlugin`, so the namespace exposes only the published contract.
+
+Naming: `features` states the intent. `extensions` invites confusion with LogicFlow's, and `plugins` reintroduces the
+vocabulary this alternative exists to remove.
 
 ### Comparison
 
 | | Ergonomics | Type safety | Tree-shaking | Author cost | Semver | Migration |
 |---|---|---|---|---|---|---|
-| A. Declaration merging | unchanged | **fixed** | unchanged | one interface augmentation | **additive** | none |
+| A1. Declaration merging, loose overload kept | unchanged | **fixed** where used | unchanged | one interface plus one augmentation | **additive** | none |
+| A2. Declaration merging, ids closed | unchanged | **fixed** | unchanged | same | breaking | mechanical: drop the type argument at 26 call sites here |
 | B. Instance loading | **much better** | **fixed** | unchanged | `init(bv)` instead of ctor arg | breaking | mechanical, one line per registration |
 | C. Host augmentation | best | good | **worse** | augmentation plus prototype patching | breaking, permanently widens the API | large |
 | D. Typed token | better | **fixed** | unchanged | export a token | breaking | moderate, new concept |
@@ -323,10 +496,18 @@ is in the dependency graph, whether or not the extension was passed to the edito
 
 **Ship A and F together now, plan B for the next major, reject C and E, keep D in reserve.**
 
-A and F are the same mechanism pointed at two targets, cost one interface each, and are additive. A fixes the existing
-call sites without touching them; F gives new code a call site with no cast and no string at all, and can be added
-beside `getPlugin` rather than replacing it. Pair them with the honest return type `T | undefined`, which is
-technically breaking for `strict` consumers but converts a runtime crash into a compile error, and with
+A and F are one mechanism with two access shapes over a single augmented interface, so a plugin declares its entry
+once and gets both. A keeps the existing call shape and fixes its typing; F gives new code a call site with no string
+and no cast at all, and sits beside `getPlugin` rather than replacing it.
+
+Register **capability interfaces** in the map, not implementation classes. That is what turns a typing fix into an API
+improvement: it narrows the published surface to the methods consumers should call, frees the implementation to change
+without breaking anyone, names the consumer-facing type after the capability rather than the mechanism, and makes the
+registry a machine-readable catalogue of available features.
+
+On sequencing, prefer A2 over A1 if a major release is within reach. A1 keeps a loose overload as an escape hatch and
+therefore keeps the hole it is meant to close; A2 costs 26 mechanical call-site edits in this repo and closes it. Pair
+either with the honest `| undefined` return type, which converts a runtime crash into a compile error, and with
 `hasPlugin`/`getPluginIds` so "is it loaded" stops being unanswerable.
 
 B remains the real answer to the asymmetry, and it also fixes per-plugin options typing, the largest authoring gap. It
@@ -416,8 +597,10 @@ and a broken release.
 Candidates for a follow-up, ranked by what would change a decision:
 
 1. A compiled probe of alternatives A and F. Every third-party typing claim in this document was verified with `tsc`;
-   the recommendation itself was not. The overload ordering in A is the specific risk: if the loose
-   `getPlugin<T>(id: string)` overload is reachable first, the typed one never fires.
+   the recommendation itself was not. Three specific risks: whether augmenting the barrel module merges into an
+   interface declared in a re-exported sub-module (see 5.A), whether the loose `getPlugin<T>(id: string)` overload of
+   A1 shadows the typed one when reachable first, and whether `Partial<BpmnPluginRegistry>` narrows usefully through
+   `?.` at an F call site.
 2. Making `BpmnVisualization` generic over the plugin tuple it was constructed with, so `features.overlays` is a
    compile error when `OverlaysPlugin` was not passed. No library in this survey does this, and it may not survive
    contact with real inference.

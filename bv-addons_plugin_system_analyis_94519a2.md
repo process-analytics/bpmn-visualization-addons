@@ -4,6 +4,9 @@ Commit `94519a2`, package version 0.10.0, peer `bpmn-visualization >=0.48.0`.
 Every claim is cited to `file:line` in this repo, or to a primary source for a third-party library. Seventeen
 browser-side extension mechanisms were examined; the per-library detail is in the appendix.
 
+Analysis carried out from 12 to 14 August 2026, with Claude Opus 5 (1M token context), using parallel research agents
+for the third-party survey and a compiled probe for the TypeScript claims.
+
 ## Verdict
 
 The mechanism is small, correct in its core choices, and has the strictest collision handling of any comparable
@@ -480,6 +483,55 @@ resolves them all to a two-member union, and makes the pattern its own documenta
 Naming: `features` states the intent. `extensions` invites confusion with LogicFlow's, and `plugins` reintroduces the
 vocabulary this alternative exists to remove.
 
+#### The decisive benefit: discovery without prior knowledge
+
+Everything else F does, A does too. What only F does is let a consumer **find** a feature by navigating the API. They
+type `bpmnVisualization.features.` and the editor lists what exists, with each entry carrying its capability
+interface and its JSDoc. Nothing has to be read first: not the README, not the plugin list, not the id of anything.
+Under A the consumer still has to know that ids exist as a concept, and that `'overlays'` is one of them, before
+autocomplete can help.
+
+That is the single largest usability gain available here, and no library in the survey provides it. Chart.js gets
+close for options but not for behavior. X6 and Cytoscape get it by prototype patching, which costs page-global
+mutation and silent no-ops. Tiptap gets it for commands at the price of soundness.
+
+#### The decisive constraint: it works per package, not per plugin
+
+Module augmentation is applied by a **module being in the program**, not by a plugin being loaded. That has an
+asymmetric consequence, and it lands on the producer rather than the consumer:
+
+- **A third-party plugin in its own npm package behaves well.** Its entry appears in `features` only if the consumer
+  installed and imported that package, which correlates with intent.
+- **Plugins shipped inside this package behave badly.** The core would declare all five entries unconditionally, so
+  every consumer sees `css`, `elements`, `overlays`, `style` and `style-by-name` in autocomplete whether or not they
+  passed any of them to `plugins:`. Discovery is maximal and honesty is minimal: the feature the consumer just found
+  by autocompleting may not be loaded, and using it fails at runtime.
+
+So the mechanism helps the consumer most exactly where it misleads them most. Taken literally it argues for shipping
+every plugin as its own package, which is a real cost: more release machinery, version-compatibility surface between
+plugins and core (already a gap in section 3), and shared internals like `BpmnElementsSearcher` would have to move
+into a utility package rather than being an implementation detail. That may not be desirable, and it should not be
+forced by a typing decision.
+
+Three ways out, in increasing order of how well they resolve it:
+
+1. **Accept it, with `Partial<>`.** The type never claims the feature is present, so the consumer writes `?.` and the
+   compiler forces them to consider absence. Discovery stays complete. The residual defect is that a missing plugin
+   becomes a silent no-op, which is X6's failure mode.
+2. **Scope the augmentation to a subpath import.** Ship each built-in at its own entry point whose module carries the
+   augmentation, so the entry only appears once the consumer imports that plugin, which they must do anyway to
+   register it. This requires the root barrel to stop re-exporting the plugins, since importing anything from the root
+   would otherwise pull every augmentation into the program. That is a packaging change of nearly the same weight as
+   splitting into packages, but without the release machinery.
+3. **Make the type reflect what was actually loaded.** Parameterize `BpmnVisualization` over the plugin array it was
+   constructed with and derive `features` from it, so the core can declare all five entries while autocomplete offers
+   only the loaded ones. This dissolves the objection rather than mitigating it, and it is the one option no surveyed
+   library implements. It depends entirely on whether TypeScript preserves the plugin id literals through the
+   constructor argument, which is why it is being verified by compilation rather than asserted here (section 9).
+
+Note that option 3 also requires the plugin id to be reachable **at the type level**, which the current
+`getPluginId()` method cannot provide. See the id declaration discussion in 5.A.
+
 ### Comparison
 
 | | Ergonomics | Type safety | Tree-shaking | Author cost | Semver | Migration |
@@ -648,6 +700,41 @@ generates it was used instead, and that substitution is noted.
 | countUp.js | 2.10.1 | [inorganik/countUp.js](https://github.com/inorganik/countUp.js), branch `master`, no SHA | repo `README.md` | Plugins exist since 2.6.0. The only known plugin, [odometer_countup.js](https://github.com/msoler75/odometer_countup.js), was **not** inspected |
 | FormKit auto-animate | 0.10.0 | [formkit/auto-animate](https://github.com/formkit/auto-animate), branch `master`, no SHA | [plugins](https://auto-animate.formkit.com/#plugins) | The docs page could not be read verbatim; claims come from source plus the repo's own example under `docs/src/examples/plugin/`. Repo root `package.json` is `private`, so published metadata was read from npm directly |
 | bpmn-visualization | 0.48.0 (peer dependency of this package) | `node_modules`, published build | n/a | Read only to establish the host API surface and the mxGraph substrate |
+
+### Reference commits, captured 14 August 2026
+
+Since almost everything above was read from a moving branch, these are the head commits of those same branches on the
+last day of the analysis. **They are a nearby reference point, not a record of what was read**: a branch may have
+advanced between the reading and this capture. Only the G6 row is the actual commit analysed. Rows whose head predates
+the analysis (mxGraph, PrismJS, draggable, Chart.js, CodeMirror, ProseMirror, didi, countUp.js, auto-animate, ECharts)
+had no activity in between, so for those the capture and the reading coincide.
+
+| Repository | Branch | Head commit on 2026-08-14 | Committed |
+|---|---|---|---|
+| maxGraph/maxGraph | `main` | `34a0d3c7ac9b1cd9f6b6b31e40ec5c1d18d01b4d` | 2026-08-12 |
+| jgraph/mxgraph | `master` | `ff141aab158417bd866e2dfebd06c61d40773cd2` | 2020-11-13 |
+| bpmn-io/bpmn-js | `develop` | `ff1974f264421f9461f4c1abaca93469aecc2ff6` | 2026-08-11 |
+| bpmn-io/diagram-js | `develop` | `c36559ee6240ce25750263bbb77bdbc1b9dc2fc5` | 2026-08-11 |
+| nikku/didi | `main` | `e59ec9a0a1d047b76840a417ad59da6144cdabd6` | 2026-07-12 |
+| antvis/X6 | `master` | `b14ca27540693c610257e7687c663f122deb0006` | 2026-08-11 |
+| antvis/G6 | `v5` | `7b7ff8e2b52609486840963dc1608d9f565e7f66` (**the commit analysed**) | 2026-07-15 |
+| didi/LogicFlow | `master` | `698019f1ef6dd322afbbb0b4e82b9d31e198adac` | 2026-07-30 |
+| chartjs/Chart.js | `master` | `cb02e1d207bd4c4c40b20c259017f85f26f1e30a` | 2026-05-27 |
+| codemirror/state | `main` | `9c801279cb83011e6f92af778f4443406e8f1200` | 2026-04-15 |
+| codemirror/view | `main` | `fbff59ba004d80d8c914f64c42586387b08706ac` | 2026-04-15 |
+| ProseMirror/prosemirror-state | `master` | `ffad5d9450a0b93438be53a801deee1a223a81bf` | 2026-04-01 |
+| ueberdosis/tiptap | `main` | `80cdaa25c7b1c769a370e6f97dd0085dcf9e63a9` | 2026-08-13 |
+| xtermjs/xterm.js | `master` | `29a738423349b75d40732f4cd12a5a0326e03fed` | 2026-08-10 |
+| cytoscape/cytoscape.js | `master` | `251014131815af43b948ae3cdf2f2d994d3f3a36` | 2026-08-11 |
+| GrapesJS/grapesjs | `dev` | `ad4b5c1e361b2280397236aab006cd3002b5f524` | 2026-08-11 |
+| PrismJS/prism | `master` | `298b75f1764c4abfe76d997394b7b149845f685a` | 2025-05-21 |
+| apache/echarts | `master` | `30076aedcd7b7f65d8dd8e8d9ece46ce778133a3` | 2026-08-04 |
+| Shopify/draggable | `main` | `8a1eed57f3ab2dff9371e8ce60fb39ac85871e8d` | 2025-10-22 |
+| inorganik/countUp.js | `master` | `2346e4994f870fdc9028944b3d79dc80af3b33d2` | 2026-07-02 |
+| formkit/auto-animate | `master` | `06882a8e69ba9bc8456d8f2ae6010f697fd7a37c` | 2026-07-10 |
+
+Note that xterm.js, Cytoscape and ECharts were read at version tags (`5.5.0`, `v3.34.1`, `5.5.1`) rather than at these
+branch heads, so for them the tag is authoritative and the row above is only context.
 
 ## A. Retrieve by string id, and pay for it
 

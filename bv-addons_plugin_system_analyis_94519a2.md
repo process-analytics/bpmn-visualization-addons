@@ -107,6 +107,11 @@ having the extension install API onto the host, never by renaming things.
   identical bug.
 - **The duplicate-id throw leaks a graph**: the check at `plugins-support.ts:155` runs after `super(options)` built the
   mxGraph, with no cleanup path.
+- **`StyleByNamePlugin` does a full lookup on every call.** The mapping is "not cached, nor pre-fetched"
+  (`plugins/style.ts:83-85`, tracked as issue #4), and `bpmn-elements.ts:63` says "Not optimized, do a full lookup at
+  each call". This is a known and documented limitation rather than a finding, listed here because the fix interacts
+  with the next item and with eager instantiation: a cache would most naturally be built when the diagram loads, which
+  is what `onLoadSuccess` exists for.
 - **`StyleByNamePlugin` substring bug.** `plugins/style.ts:103` and `:115` cast `string | string[]` to `string[]`, and
   `bpmn-elements.ts:93` filters with `names.includes(element.name)`. With a single string that is
   `String.prototype.includes`, so `updateStyle('Task 1', ...)` also matches an element named `Task`. Passing a plain
@@ -130,6 +135,7 @@ having the extension install API onto the host, never by renaming things.
 | Options validation | None. The only thrown error in the system is the duplicate-id one | Chart.js, and any instance-passing design where the plugin's own constructor validates |
 | Adding API surface | Methods live on the plugin object; the consumer must fetch it | Tiptap (declaration merging), X6 and Cytoscape (prototype patching) |
 | Cross-plugin communication | Only `getPlugin` from inside a plugin, unused by any shipped plugin | bpmn-js event bus with priority and interception, LogicFlow event bus without either |
+| Plugin metadata | Nothing beyond the id. A descriptor carrying version, declared dependencies and a capability list would give a single home for three separate gaps above | no browser library in the survey ships one; it is closer to what server-side plugin systems do |
 
 GrapesJS solves options typing in a third way worth recording, since it needs no registry and no merging:
 
@@ -150,6 +156,7 @@ The option type is inferred from the plugin value at the registration site.
 | Enable or disable without unloading | Impossible | X6 `enablePlugins`, Chart.js `options.plugins.<id> = false`, LogicFlow `disabledPlugins` |
 | Declaring a plugin set once for the whole app | Impossible; every call site repeats the list | LogicFlow: `LogicFlow.use(X)` registers the class globally, each instance constructs its own copy, and `plugins` plus `disabledPlugins` override per instance. This layering is genuinely more capable than a constructor-only list, and is orthogonal to every other axis here |
 | Version compatibility | Nothing links a plugin to a core version | X6 v2 used per-plugin peer dependencies |
+| Deferred construction | Every plugin is constructed at startup, used or not (`plugins-support.ts:152-159`). Harmless while the shipped plugins are thin wrappers over `bpmnElementsRegistry`, and not harmless once one builds an index at construction, which is exactly what a cached `StyleByNamePlugin` would do | nothing in the survey defers construction either; G6 and X6 also build eagerly. Worth noting as a deliberate simplicity choice rather than an oversight |
 
 ## 4. Comparison
 
@@ -1435,3 +1442,40 @@ no lifecycle. Passing a plugin means `duration`, `easing` and `disrespectUserMot
 
 What it teaches: the correct amount of machinery for a problem with one extension point. Included as the honest lower
 bound, since a registry here would be pure overhead.
+
+---
+
+# Appendix B: relation to the earlier DeepWiki analysis
+
+An earlier pass over the same question was run on **2026-05-06 with DeepWiki** (fast mode) against
+`process-analytics/bpmn-visualization-addons`. It is worth recording, both because it corroborates part of this
+document independently and because where it diverges is instructive.
+
+**Independently corroborated**, three months before this analysis and by a different tool: no dependency system, no
+dynamic loading or unloading, no plugin metadata or registry, no error isolation, no configuration validation, no
+inter-plugin communication. Six of the gaps in section 3.
+
+**Imported into this document from that pass**, having been missed here:
+
+- eager construction of every plugin at startup (section 3);
+- the tracked `StyleByNamePlugin` caching issue (section 2.3), which sits in the same code where this analysis found
+  the substring defect and which this analysis had reduced to a passing mention;
+- a metadata descriptor carrying version, dependencies and capabilities as a single home for three separate gaps
+  (section 3).
+
+**Where it is wrong, and why the error is worth keeping on record.** It lists as a strength: *"Type Safety: Strong
+TypeScript support with generic `getPlugin<T>()` method for type-safe plugin retrieval"*, citing the very lines whose
+body is `return this.plugins.get(id) as T;`. An unchecked cast returning a value typed as non-nullable is presented as
+type safety, with the disproving code quoted directly beneath the claim. That is the central defect this document is
+built around, and it was inverted into a selling point. A second, milder overstatement: *"Comprehensive Testing:
+Well-covered test suite"*, against a suite with no coverage of hook ordering, double `dispose()`, a throwing hook,
+`load()` after `dispose()`, the substring match, or options validation, and a `check-ts-support` package that never
+exercises the plugin API at all (section 2.3).
+
+The generalizable lesson is the one already applied throughout this document: a claim about typing must be compiled,
+not read. Both analyses looked at the same six lines; only the compiled one got the answer right.
+
+**Where it is simply out of date**, which reflects well on the project rather than badly on the tool. It reports "No
+Lifecycle Hooks: Missing hooks for before/after load, unload, or configuration events". Those shipped in 0.10.0 as
+`onBeforeLoad`, `onLoadSuccess`, `onLoadError` and `onDispose`. It also quotes `configure?`, renamed to `onConfigure`
+since. Any reader comparing the two documents should date-check before treating a divergence as a disagreement.

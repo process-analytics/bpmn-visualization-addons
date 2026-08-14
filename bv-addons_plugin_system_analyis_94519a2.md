@@ -396,6 +396,9 @@ and a broken release.
 
 - Bundle-size magnitudes are unmeasured throughout. Tree-shaking claims rest on `sideEffects` metadata and module
   structure, not on built bundles.
+- Third-party sources are pinned by version, not by commit, with G6 the single exception. Several were read from
+  moving branches (`main`, `master`, `dev`, `develop`) whose content may since have changed, and GrapesJS was read
+  from `dev` rather than from a published release. See the versions table at the start of the appendix.
 - Whether `OverlaysPlugin` tolerates a missing container (`plugins/overlays.ts:27`).
 - Whether the non-nullable `getPlugin` return type is deliberate or an oversight.
 - Chart.js plugin call ordering and G6 plugin DOM ordering are undocumented upstream and were read off the
@@ -430,7 +433,38 @@ already produced three families; an eighteenth adds a row, not an insight), and 
 
 # Appendix: per-library detail
 
-Grouped by the organizing question in the preamble. Versions are those verified at the time of research.
+Grouped by the organizing question in the preamble.
+
+## Versions and sources
+
+Research performed 13 and 14 August 2026. **Only G6 was read at a pinned commit.** Everything else was read from a
+moving branch or a version tag, so these readings are reproducible by version but not byte-exactly; where a branch is
+named, its content may since have changed. Where a documentation site could not be fetched, the upstream markdown that
+generates it was used instead, and that substitution is noted.
+
+| Library | Version | Source read | Documentation | Caveats |
+|---|---|---|---|---|
+| maxGraph | `@maxgraph/core` 0.24.0 | [maxGraph/maxGraph](https://github.com/maxGraph/maxGraph), branch `main`, no SHA | [plugins guide](https://maxgraph.github.io/maxGraph/docs/usage/plugins) | Docs carry an "API is subject to change" banner |
+| mxGraph | 4.2.2 (the actual substrate) | [jgraph/mxgraph](https://github.com/jgraph/mxgraph), branch `master`, no SHA | none used | Read only to confirm it has no plugin concept |
+| bpmn-js | 18.24.0 | [bpmn-io/bpmn-js](https://github.com/bpmn-io/bpmn-js), branch `develop`, no SHA | [walkthrough](https://bpmn.io/toolkit/bpmn-js/walkthrough/), [examples](https://github.com/bpmn-io/bpmn-js-examples) | Typing probe compiled against the published packages with TypeScript 5.9, `strict: true` |
+| diagram-js | 15.24.0 | [bpmn-io/diagram-js](https://github.com/bpmn-io/diagram-js), branch `develop`, no SHA | same | |
+| didi | 11.0.0 | [nikku/didi](https://github.com/nikku/didi), branch `main`, no SHA | [README](https://github.com/nikku/didi/blob/main/README.md) | Runtime probes were run against didi directly, not through bpmn-js |
+| AntV X6 | 3.1.8 (npm latest); v2 read from branch `v2` | [antvis/X6](https://github.com/antvis/X6), branches `master` and `v2`, no SHA | [plugins](https://x6.antv.antgroup.com/en/tutorial/plugins/selection), [migration](https://x6.antv.antgroup.com/en/tutorial/update) | `x6.antv.vision` still returns 200 but serves the **v1** site and must not be cited for v2/v3. The plugin authoring interface is undocumented in every version, so it was read from source only |
+| AntV G6 | 5.1.1 | [antvis/G6](https://github.com/antvis/G6), branch `v5`, **commit `7b7ff8e2b52609486840963dc1608d9f565e7f66`** (2026-07-15) | [plugin overview](https://g6.antv.antgroup.com/en/manual/plugin/overview) | The only pinned commit in this table. v4 read from published artifacts `@antv/g6-pc@0.8.25` and `@antv/g6-plugin@0.8.25` via unpkg, because the v4 doc sites are dead (`g6-v4.antv.antgroup.com` does not resolve, `g6-v4.antv.vision` returns 404) and the repo has no `v4` branch |
+| LogicFlow | `@logicflow/core` 2.2.5, `@logicflow/extension` 2.3.1 | [didi/LogicFlow](https://github.com/didi/LogicFlow), branch `master` (pushed 2026-07-30), no SHA | repo markdown under `sites/docs/docs/tutorial/extension/` | `docs.logic-flow.cn` is a hash-routed SPA returning only a nav shell, so the upstream markdown was used. The current site appears to be `site.logic-flow.cn` per the `homepage` field. 1.x facts come from the `@logicflow/core@1.2.28` tag |
+| Chart.js | 4.5.1 | [chartjs/Chart.js](https://github.com/chartjs/Chart.js), no SHA | [plugin docs](https://www.chartjs.org/docs/latest/developers/plugins.html), [hook reference](https://www.chartjs.org/docs/latest/api/interfaces/Plugin.html) | Plugin call ordering is undocumented upstream and was read off the implementation |
+| CodeMirror | `@codemirror/state` 6.7.1, `@codemirror/view` 6.43.8 | [codemirror/state](https://github.com/codemirror/state), [codemirror/view](https://github.com/codemirror/view), branch `main`, no SHA | [guide](https://codemirror.net/docs/guide/), [config example](https://codemirror.net/examples/config/), [bundle example](https://codemirror.net/examples/bundle/) | GitHub `main` lags npm (state 6.6.0, view 6.41.0 there); API shapes were re-confirmed against the published `.d.ts` |
+| ProseMirror | `prosemirror-state` 1.4.4, `prosemirror-view` 1.4x | [ProseMirror/prosemirror-state](https://github.com/ProseMirror/prosemirror-state), branch `master`, no SHA | none used; all claims from source | `prosemirror-view` minor version not pinned exactly |
+| Tiptap | `@tiptap/core` 3.30.1, `@tiptap/extensions` 3.30.1 | [ueberdosis/tiptap](https://github.com/ueberdosis/tiptap), branch `main`, no SHA | [docs repo](https://github.com/ueberdosis/tiptap-docs), `extension.mdx`; rendered at [tiptap.dev](https://tiptap.dev/docs/editor/extensions/custom-extensions/create-new/extension) | The rendered page could not be read verbatim, so the docs repo was used; repo `main` is assumed to match the live site |
+| xterm.js | 5.5.0 (mechanism byte-identical on 6.0.0 `master`) | [xtermjs/xterm.js](https://github.com/xtermjs/xterm.js), **tag `5.5.0`** | [using addons](https://xtermjs.org/docs/guides/using-addons/) | That doc page calls `loadAddon` a static method; it is an instance method |
+| Cytoscape.js | 3.34.1 | [cytoscape/cytoscape.js](https://github.com/cytoscape/cytoscape.js), **tag `v3.34.1`** | [architecture](https://js.cytoscape.org/#introduction/architecture) | |
+| GrapesJS | core 0.23.5 | [GrapesJS/grapesjs](https://github.com/GrapesJS/grapesjs), branch `dev`, no SHA | [plugins](https://grapesjs.com/docs/modules/Plugins.html), [source](https://github.com/GrapesJS/grapesjs/blob/dev/docs/modules/Plugins.md) | Read from `dev`, **not** from a published tarball, so the released behavior may differ |
+| PrismJS | 1.30.0 | [PrismJS/prism](https://github.com/PrismJS/prism), branch `master`, no SHA | [extending](https://prismjs.com/extending.html#writing-plugins), [plugins](https://prismjs.com/#plugins) | A `v2` branch exists but is unpublished (`@prismjs/core` is 404 on npm) and was not audited. No TypeScript types ship with the package |
+| ECharts | 5.5.1 (tag and published `lib/`); `master` = 6.1.0 | [apache/echarts](https://github.com/apache/echarts), **tag `5.5.1`** and branch `master` | [handbook](https://echarts.apache.org/handbook/en/basics/import/), doc source [apache/echarts-doc](https://github.com/apache/echarts-doc) and [apache/echarts-handbook](https://github.com/apache/echarts-handbook) | `echarts.apache.org/en/api.html` is a client-rendered SPA that returns only nav chrome, so the upstream `echarts-doc` markdown that generates it was used. `ComposeOption` findings are original measurements with echarts 5.5.1 and TypeScript 5.5.4, `--strict`, and they contradict the handbook |
+| Shopify draggable | 1.2.1 | [Shopify/draggable](https://github.com/Shopify/draggable), branch `main`, no SHA | per-plugin READMEs in the repo, e.g. [SwapAnimation](https://github.com/Shopify/draggable/blob/main/src/Plugins/SwapAnimation/README.md) | `main` version matches npm `latest`, but the published tarball was not diffed against the branch |
+| countUp.js | 2.10.1 | [inorganik/countUp.js](https://github.com/inorganik/countUp.js), branch `master`, no SHA | repo `README.md` | Plugins exist since 2.6.0. The only known plugin, [odometer_countup.js](https://github.com/msoler75/odometer_countup.js), was **not** inspected |
+| FormKit auto-animate | 0.10.0 | [formkit/auto-animate](https://github.com/formkit/auto-animate), branch `master`, no SHA | [plugins](https://auto-animate.formkit.com/#plugins) | The docs page could not be read verbatim; claims come from source plus the repo's own example under `docs/src/examples/plugin/`. Repo root `package.json` is `private`, so published metadata was read from npm directly |
+| bpmn-visualization | 0.48.0 (peer dependency of this package) | `node_modules`, published build | n/a | Read only to establish the host API surface and the mxGraph substrate |
 
 ## A. Retrieve by string id, and pay for it
 

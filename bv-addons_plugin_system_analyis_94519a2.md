@@ -316,20 +316,193 @@ for it. (b) mirrors what third parties write and keeps each entry beside its plu
 specifier that must carry the `.js` extension like every other import here.
 
 **Outside the package, the npm package name is the only option available**, because `exports` publishes just `.` and
-`./package.json`, with no subpath for `plugins-support`. That raises an open question this document cannot settle by
-reading: `src/index.ts` is a pure barrel (`export * from './plugins-support.js'`), so a third-party
-`declare module '@process-analytics/bpmn-visualization-addons'` augments a module that merely **re-exports** the
-interface rather than declaring it. Whether TypeScript merges that into the original declaration, or silently creates
-a separate interface in the barrel's scope, is exactly the problem Vue hit with `ComponentCustomProperties`, where
-users had to augment `@vue/runtime-core` until Vue restructured so that augmenting `vue` worked.
+`./package.json`, with no subpath for `plugins-support`. Since `src/index.ts` is a pure barrel
+(`export * from './plugins-support.js'`), a third-party `declare module '@process-analytics/bpmn-visualization-addons'`
+augments a module that **re-exports** the interface rather than declaring it. Whether that merges was the single
+biggest risk to this alternative, and it was the problem Vue hit with `ComponentCustomProperties`, where users had to
+augment `@vue/runtime-core` until Vue restructured so that augmenting `vue` worked.
 
-Two robust answers, if the probe shows barrel augmentation does not merge:
+**Verified by compilation: it merges.** Probed with TypeScript 5.9.2 against a real `node_modules` package built from
+emitted declarations, not a `paths` mapping. `declare module 'my-pkg' { interface PluginRegistry { overlays: OverlaysApi } }`
+merges into the interface declared in the sub-module, and the result is visible from the root import, from a subpath
+import, and from inside the library's own code, so `getPlugin('overlays')` correctly yields `OverlaysApi | undefined`.
+A negative control confirmed `keyof PluginRegistry` is genuinely `never` without the augmentation, so these are not
+false positives. It also works under `moduleResolution: bundler` with an `exports` map exposing only `"."`, where the
+subpath specifier is unresolvable.
 
-- declare `BpmnPluginRegistry` in `src/index.ts` itself, so the module consumers resolve is also the declaring module;
-- or add a subpath export for the declaring module, so third parties can target it directly.
+So **no restructuring is needed**: keep the interface in `plugins-support.ts` and leave the barrel as it is. Two
+conditions to document instead:
 
-This is the single most important thing to settle before implementing A, and it is why the follow-up in section 9
-leads with a compiled probe.
+- the file containing `declare module` must be part of the program. It does not need to be imported; being inside
+  `tsconfig`'s `include` is enough.
+- the probe used the two-file emitted layout (`index.d.ts` plus `plugins-support.d.ts`), which is what this package
+  produces today (`declaration: true`, `outDir: ./lib`, no declaration bundling). If the build ever moves to a single
+  rolled-up `.d.ts`, this needs re-checking.
+
+#### How the id is declared: instance method versus static field
+
+The two implementations diverge here, and the choice constrains everything above.
+
+```ts
+// this package: the id is an instance method, and the only mandatory member of the contract
+export interface Plugin {
+  getPluginId(): string;          // plugins-support.ts:35
+  onConfigure?: ...               // every other member optional
+}
+getPluginId(): string { return 'overlays'; }        // plugins/overlays.ts:52
+```
+
+```ts
+// maxGraph: the id is a static, declared on the CONSTRUCTOR type
+export interface GraphPluginConstructor {
+  pluginId: PluginId;
+  new (graph: AbstractGraph): GraphPlugin;
+}
+export interface GraphPlugin { onDestroy: () => void; }    // the instance side carries no id
+```
+
+The consequence shows up in the registration loop:
+
+```ts
+// this package: construct, then ask, then check           plugins-support.ts:152-158
+const plugin = new constructor(this, options);
+const pluginId = plugin.getPluginId();
+if (this.plugins.has(pluginId)) { throw new Error(/* ... */); }
+
+// maxGraph: ask, then construct                           AbstractGraph.ts:456
+options?.plugins?.forEach((p) => this.plugins.set(p.pluginId, new p(this)));
+```
+
+| | `getPluginId()` method (this package) | `static pluginId` (maxGraph) |
+|---|---|---|
+| Id known before construction | no | **yes** |
+| Duplicate detected before side effects run | no: the duplicate is fully constructed first, and the throw escapes after `super(options)` built the graph, leaking it | **yes**, in principle |
+| Duplicate handling | **throws, fail-fast**, tested three ways | silent overwrite, last wins |
+| Enforced at the class declaration | **yes**, `implements Plugin` requires it | no: `implements GraphPlugin` checks only the instance side |
+| Enforced where it matters (registration) | yes, via `PluginConstructor` returning `Plugin` | yes, when the class enters `GraphPluginConstructor[]` |
+| Reachable at the type level | **no**: return type is `string`, and an instance is needed | **only if declared `readonly`**, and maxGraph does so for just 5 of its 10 built-ins, see below |
+| Visible in the published `.d.ts` | no: only `getPluginId(): string`, the value lives in an unemitted method body | **yes** when `readonly`: emits `static readonly pluginId = "overlays"` |
+| Usable as a rename-safe constant | no | **yes**: `getPlugin(OverlaysPlugin.pluginId)` |
+| Can vary per instance | yes, though it is called exactly once (`plugins-support.ts:154`) so a varying id is a latent bug rather than a feature | no, which is correct: the id identifies the type, not the instance |
+| Inherited by a subclass | yes, and the suite covers the resulting collision | yes, same hazard, same fix (redeclare) |
+
+**What this package does better**: fail-fast on duplicates, which is the strictest behavior in the whole survey and
+strictly better than maxGraph's silent overwrite; and the id cannot be forgotten, because `getPluginId()` is a
+mandatory member of an interface every plugin implements.
+
+**What maxGraph does better**: everything that follows from the id being knowable without an instance. The duplicate
+check can run before any constructor executes, so the "already built, now leaking" problem in 2.3 disappears rather
+than being worked around. The id becomes a type-level value, which is the prerequisite for deriving `PluginId` from
+the plugins actually passed (option 3 for F). It appears in the emitted declarations, so a consumer reading the
+typings can see that `OverlaysPlugin` is `'overlays'` without opening the source, which today is impossible: the
+method body is not emitted, so the `.d.ts` says only `getPluginId(): string`. And it can be used as a constant at the
+call site instead of a bare literal.
+
+**The cost of moving.** Two real ones. It is breaking for plugin authors, who must move the id from a method to a
+static field, though the two can coexist during a deprecation window by reading the static and falling back to the
+method. And the `Plugin` interface would lose its only mandatory member, becoming a bag of optional hooks that
+`implements Plugin` no longer meaningfully checks. The fix is maxGraph's: put the requirement on the constructor type,
+`PluginConstructor`, which is where registration happens and therefore where it is load-bearing.
+
+**`readonly` is not optional, and maxGraph shows why.** Its ten built-in plugins split evenly:
+
+```ts
+static pluginId = 'TooltipHandler';              // TooltipHandler.ts:47   -> type widens to string
+static readonly pluginId = 'fit';                // FitPlugin.ts:88        -> type is the literal 'fit'
+```
+
+A plain `static` property is mutable, so TypeScript widens the initializer to `string` and every type-level benefit in
+the table above evaporates. `TooltipHandler`, `PanningHandler`, `PopupMenuHandler`, `CellEditorHandler` and
+`RubberBandHandler` are declared that way; `FitPlugin`, `ImageBundlePlugin`, `SelectionCellsHandler`,
+`SelectionHandler` and `ConnectionHandler` use `static readonly` and keep the literal. Nothing in
+`GraphPluginConstructor` requires `readonly`, so the inconsistency is invisible until someone tries to use the id as a
+type. If this package adopts the static field, `readonly` must be part of the contract from the start.
+
+**Both implementations duplicate the id literals.** maxGraph hand-maintains `BuiltinPluginId` as a ten-member union in
+`types.ts:1232-1249`, exactly as this package hand-maintains `DefaultPlugins` (`plugins-support.ts:115`), and in both
+cases the literals also exist on the plugins themselves. Deriving the id union from the registry, as A does with
+`keyof`, removes that duplication on both sides, which is another reason the change is worth proposing upstream.
+
+**maxGraph pays the cast internally too.** Its own code calls `this.getPlugin<TooltipHandler>('TooltipHandler')` at
+`AbstractGraph.ts:495` and `this.getPlugin<PanningHandler>('PanningHandler')` at `:652`. The unchecked cast is not
+only a consumer-facing wart there; the library uses it on itself.
+
+**What the compiler actually does**, probed with TypeScript 5.9.2 under the project's own settings:
+
+- `static readonly pluginId = 'overlays'` yields the literal `'overlays'`. Dropping `readonly` yields `string`. Adding
+  **any** type annotation yields that annotation, so `static readonly pluginId: PluginId = 'overlays'` destroys the
+  literal and, worse, makes every plugin report the whole `PluginId` union, which defeats per-plugin discrimination
+  entirely. Use `static readonly pluginId = 'overlays' satisfies PluginId` when the union must still be enforced:
+  that keeps the literal and validates it.
+- `implements` checks only the instance side, so a class missing the static compiles silently and the error surfaces
+  later, at whichever consumer array literal or call argument it reaches. Three constructs force the check at the
+  plugin's own file: a bare `OverlaysPlugin satisfies PluginConstructor;` statement after the class, a
+  `static { OverlaysPlugin satisfies PluginConstructor }` block inside it, or a `definePlugin<T extends
+  PluginConstructor>(ctor: T)` helper. The `satisfies` statement is the cheapest; the static block is harder to
+  forget because it lives in the class body.
+
+**Recommendation**: adopt `static readonly pluginId`, with no type annotation, keep the fail-fast duplicate check, and
+move it before construction. Add a `satisfies PluginConstructor` check next to each plugin class so a missing or
+mistyped id fails where it is written. That combination is strictly better than either implementation today, and it is
+a prerequisite for the more ambitious typing in F.
+
+#### Static side, instance side, or both
+
+The previous section compared "id as a method" against "id as a static". There is a third position, an instance
+property, and it is not equivalent to either. All figures below are compiled results, TypeScript 5.9.2.
+
+| | (a) id before construction | (b) id at the type level | (c) id inside instance methods | enforced at the class declaration |
+|---|---|---|---|---|
+| `getPluginId()` method (today) | no | **no** | `this.getPluginId()` | yes, `implements Plugin` requires it |
+| `static readonly pluginId` | **yes**, `Ctor.pluginId` | yes, `P[number]['pluginId']` | needs a cast or a hardcoded class name | **no**, silent until a use site |
+| `readonly pluginId` (instance) | no | yes, `InstanceType<P[number]>['pluginId']` | **`this.pluginId`**, literal intact | **yes**, TS2420 on the class |
+| both | **yes** | yes, either path | **`this.pluginId`** | yes |
+
+Your intuition about method access is right, and the compiler is blunter about it than expected: `this.constructor` is
+typed `Function`, so `this.constructor.pluginId` does not compile at all (TS2339). A plugin whose id is only static
+must write `OverlaysPlugin.pluginId`, hardcoding its own class name, or `(this.constructor as typeof
+OverlaysPlugin).pluginId`. Both keep the literal, but casting to the *interface* instead,
+`(this.constructor as PluginConstructor).pluginId`, silently degrades to `string`, because that is how the interface
+declares it.
+
+Two further findings change the balance:
+
+- **The instance side restores declaration-site enforcement.** `implements Plugin` catches a missing id with TS2420
+  on the offending class, and a wrong type with TS2416 on the member itself. The static side cannot be checked by
+  `implements` at all, which is why the previous section needed a `satisfies` statement or a `static {}` block as a
+  workaround. Putting the id on the instance makes those workarounds unnecessary.
+- **Plugin families need the instance side.** `abstract static` does not exist (TS1243), so a base class can never
+  oblige subclasses to declare a static id. With `abstract readonly pluginId: string` it can, and each concrete
+  subclass keeps its own literal. Note that in both variants, redeclaring a *concrete* id in a subclass is an error
+  (TS2417 for statics, TS2416 for instances), so subclassing a shipped plugin to rebrand its id is not available
+  either way.
+
+**Recommendation: carry both**, with the instance half derived from the static half so they cannot drift:
+
+```ts
+export class OverlaysPlugin implements Plugin {
+  static readonly pluginId = 'overlays';
+  readonly pluginId = OverlaysPlugin.pluginId;
+}
+```
+
+This is the only shape that satisfies all three needs at once: duplicate detection reads `Ctor.pluginId` before any
+constructor runs, methods read `this.pluginId` with the literal intact, and the generic host of F can key off either
+side. Prefer the static path for the generic host, since it does not require the constructor type to carry an instance
+shape.
+
+Four rules the probes imply, worth enforcing in review:
+
+- Never annotate the id on either side. `: string` and `: PluginId` both destroy the literal. Use
+  `= 'overlays' satisfies PluginId` if the union must still be validated.
+- Never use a bare getter for the instance half: an inferred getter widens to `string` and silently breaks the generic
+  host. Use a plain `readonly` field, or annotate the getter.
+- Never use a constructor parameter property with a default, which widens even with `readonly`.
+- Keep a `satisfies PluginConstructor` statement only if the static half must be enforced too, since `implements`
+  cannot see it.
+
+One thing left unverified: the probes ran on sources, not on emitted declarations. Before committing to the duplicated
+pair, run `emitDeclarationOnly` against a real plugin to confirm the instance field's declared type survives the emit.
 
 #### Two variants, differing on semver
 
@@ -340,8 +513,29 @@ leads with a compiled probe.
   from the id and a class type is not assignable to a string union. Every call site passing an explicit type argument
   must drop it, which in this repo means 4 sites in the demo and 22 of 24 in the tests, all mechanical deletions.
 
-A1 leaves the loose overload as an escape hatch and therefore leaves the hole open. A2 is the real thing. If a major
-release is near, go straight to A2.
+Measured behavior, TypeScript 5.9.2:
+
+| Shape | `getPlugin('overlays')` | `getPlugin('typo')` |
+|---|---|---|
+| typed overload first, loose second (A1) | `OverlaysApi \| undefined` | compiles, `Plugin \| undefined` |
+| loose overload first (ordering mistake) | **`Plugin \| undefined`**, typed one shadowed | compiles |
+| typed only (A2) | `OverlaysApi \| undefined` | **TS2345**, rejected |
+| single conditional signature | `OverlaysApi \| undefined` | compiles, `Plugin \| undefined` |
+
+Two conclusions. Overload **order is load-bearing**: put the loose one first and the typed one never fires, silently,
+which is the failure mode I expected and it is real. And the loose overload admits typos in either order, which is the
+core argument against A1 as an end state.
+
+If a dynamic escape hatch must remain, prefer a **single conditional signature** over two overloads, since it gives
+A1's tolerance without the ordering hazard:
+
+```ts
+getPlugin<K extends keyof BpmnPluginRegistry | (string & Record<never, never>)>(
+  id: K,
+): (K extends keyof BpmnPluginRegistry ? BpmnPluginRegistry[K] : Plugin) | undefined;
+```
+
+Otherwise go straight to A2, which is the only shape that rejects `getPlugin('typo')`.
 
 #### Implementation warnings
 
@@ -525,9 +719,39 @@ Three ways out, in increasing order of how well they resolve it:
    splitting into packages, but without the release machinery.
 3. **Make the type reflect what was actually loaded.** Parameterize `BpmnVisualization` over the plugin array it was
    constructed with and derive `features` from it, so the core can declare all five entries while autocomplete offers
-   only the loaded ones. This dissolves the objection rather than mitigating it, and it is the one option no surveyed
-   library implements. It depends entirely on whether TypeScript preserves the plugin id literals through the
-   constructor argument, which is why it is being verified by compilation rather than asserted here (section 9).
+   only the loaded ones. This dissolves the objection rather than mitigating it, and no surveyed library implements it.
+
+**Option 3 is viable. Verified by compilation**, TypeScript 5.9.2:
+
+```ts
+class BpmnVisualization<P extends readonly PluginConstructor[] = []> {
+  constructor(options: GlobalOptions & { plugins?: P });
+  get features(): Pick<BpmnPluginRegistry, Extract<P[number]['pluginId'], keyof BpmnPluginRegistry>>;
+}
+```
+
+```ts
+const bv = new BpmnVisualization({ container, plugins: [OverlaysPlugin] });
+bv.features.overlays;   // OK
+bv.features.style;      // TS2339: Property 'style' does not exist on type 'Pick<BpmnPluginRegistry, "overlays">'
+```
+
+The literal union survives without `as const`, inline or through a hoisted variable, and the `const` type-parameter
+modifier changes nothing. Ids absent from the registry are dropped rather than erroring. Adding the type parameter
+with a default is source-compatible, so existing consumers holding a bare `BpmnVisualization` still compile. The three
+mechanisms compose: a third-party plugin augmenting the registry through the package root shows up in `features` on a
+generic instance.
+
+Two degradations to document if it is adopted:
+
+- **Annotating the array collapses it.** `const plugins: PluginConstructor[] = [...]` widens `P` to the constraint, so
+  `features` becomes `Pick<BpmnPluginRegistry, never>` and *every* access errors. That is a plausible thing to write
+  and it fails confusingly rather than loosely.
+- **Conditional composition is optimistic, not sound.** `[OverlaysPlugin, ...(flag ? [StylePlugin] : [])]` reports
+  `'overlays' | 'style'`, so `features.style` type-checks even when the runtime did not load it.
+
+So `features` is convenience typing, not proof of loading. Keep `getPlugin` returning `| undefined` as the honest
+accessor alongside it.
 
 Note that option 3 also requires the plugin id to be reachable **at the type level**, which the current
 `getPluginId()` method cannot provide. See the id declaration discussion in 5.A.
@@ -639,6 +863,14 @@ and a broken release.
 - LogicFlow's global-plus-instance double installation is a source reading, not a runtime observation.
 - The ECharts `ComposeOption` results in 5.A are the researcher's own `tsc` measurements, and they contradict the
   ECharts handbook's claim. Treat as reproducible measurement, not as documentation.
+- The TypeScript probes behind 5.A and 5.F used `moduleResolution: node` and `bundler` only. `node16` and `nodenext`
+  were not exercised, nor was a `typesVersions`-based package layout. They also assumed the two-file declaration
+  output this package emits today; a future rolled-up single `.d.ts` would need re-checking.
+- Editor behavior of the generic `features` type is unmeasured: `tsc` prints the alias `Pick<BpmnPluginRegistry,
+  "overlays">` rather than an expanded member list, and neither tooltip rendering nor autocomplete quality inside
+  `features.` was observed. Type-checking cost on a realistic project was not measured either.
+- The id probes ran against sources, not against emitted declarations, so the recommended static-plus-instance pair
+  should be checked once with `emitDeclarationOnly` on a real plugin before being adopted.
 - ADR 0001 is still `status: draft` (`docs/adr/0001-plugin-support.md:2`), which `docs/README.md:13` defines as "not
   yet ready for review".
 - `CLAUDE.md:60-67` lists only `getPluginId` and `onConfigure` under "Plugin Lifecycle", missing the four hooks added
@@ -648,18 +880,19 @@ and a broken release.
 
 Candidates for a follow-up, ranked by what would change a decision:
 
-1. A compiled probe of alternatives A and F. Every third-party typing claim in this document was verified with `tsc`;
-   the recommendation itself was not. Three specific risks: whether augmenting the barrel module merges into an
-   interface declared in a re-exported sub-module (see 5.A), whether the loose `getPlugin<T>(id: string)` overload of
-   A1 shadows the typed one when reachable first, and whether `Partial<BpmnPluginRegistry>` narrows usefully through
-   `?.` at an F call site.
-2. Making `BpmnVisualization` generic over the plugin tuple it was constructed with, so `features.overlays` is a
-   compile error when `OverlaysPlugin` was not passed. No library in this survey does this, and it may not survive
-   contact with real inference.
+1. ~~A compiled probe of alternatives A and F.~~ **Done**, TypeScript 5.9.2, results folded into 5.A and 5.F. It
+   resolved the barrel-augmentation risk (it merges, no restructuring needed), confirmed that overload order silently
+   decides whether the typed signature fires, and confirmed that the generic host in F option 3 works.
+2. ~~Making `BpmnVisualization` generic over the plugin tuple.~~ **Done**, viable, with two documented degradations
+   (see 5.F). What remains is a judgement call rather than a question: whether the ergonomic risk of an annotated
+   plugin array collapsing `features` to `never` is acceptable.
 3. An audit of the five shipped plugins against the gap list in section 3.
 4. The missing tests, enumerated: hook ordering across plugins, double `dispose()`, a throwing hook, `load()` after
    `dispose()`, the substring match, options validation.
 5. A ready-to-paste ADR recording the maxGraph lineage, with the corrected ECharts attribution.
+6. A prototype branch implementing A2 plus F on the five shipped plugins, which is now the only way left to learn
+   anything the type system cannot answer: what the `features` hover type looks like in an editor, how autocomplete
+   behaves inside it, and what the type-checking cost is on a real consumer project.
 
 Deliberately excluded: bundle-size measurements (no alternative except E moves that axis), more libraries (seventeen
 already produced three families; an eighteenth adds a row, not an insight), and effort estimates.
@@ -679,7 +912,7 @@ generates it was used instead, and that substitution is noted.
 
 | Library | Version | Source read | Documentation | Caveats |
 |---|---|---|---|---|
-| maxGraph | `@maxgraph/core` 0.24.0 | [maxGraph/maxGraph](https://github.com/maxGraph/maxGraph), branch `main`, no SHA | [plugins guide](https://maxgraph.github.io/maxGraph/docs/usage/plugins) | Docs carry an "API is subject to change" banner |
+| maxGraph | `@maxgraph/core` 0.24.0 | [maxGraph/maxGraph](https://github.com/maxGraph/maxGraph), branch `main`, **commit `34a0d3c7ac9b1cd9f6b6b31e40ec5c1d18d01b4d`** (2026-08-12) | [plugins guide](https://maxgraph.github.io/maxGraph/docs/usage/plugins) | Docs carry an "API is subject to change" banner |
 | mxGraph | 4.2.2 (the actual substrate) | [jgraph/mxgraph](https://github.com/jgraph/mxgraph), branch `master`, no SHA | none used | Read only to confirm it has no plugin concept |
 | bpmn-js | 18.24.0 | [bpmn-io/bpmn-js](https://github.com/bpmn-io/bpmn-js), branch `develop`, no SHA | [walkthrough](https://bpmn.io/toolkit/bpmn-js/walkthrough/), [examples](https://github.com/bpmn-io/bpmn-js-examples) | Typing probe compiled against the published packages with TypeScript 5.9, `strict: true` |
 | diagram-js | 15.24.0 | [bpmn-io/diagram-js](https://github.com/bpmn-io/diagram-js), branch `develop`, no SHA | same | |
@@ -705,13 +938,14 @@ generates it was used instead, and that substitution is noted.
 
 Since almost everything above was read from a moving branch, these are the head commits of those same branches on the
 last day of the analysis. **They are a nearby reference point, not a record of what was read**: a branch may have
-advanced between the reading and this capture. Only the G6 row is the actual commit analysed. Rows whose head predates
+advanced between the reading and this capture. The G6 and maxGraph rows are the actual commits analysed. Rows whose
+head predates
 the analysis (mxGraph, PrismJS, draggable, Chart.js, CodeMirror, ProseMirror, didi, countUp.js, auto-animate, ECharts)
 had no activity in between, so for those the capture and the reading coincide.
 
 | Repository | Branch | Head commit on 2026-08-14 | Committed |
 |---|---|---|---|
-| maxGraph/maxGraph | `main` | `34a0d3c7ac9b1cd9f6b6b31e40ec5c1d18d01b4d` | 2026-08-12 |
+| maxGraph/maxGraph | `main` | `34a0d3c7ac9b1cd9f6b6b31e40ec5c1d18d01b4d` (**the commit analysed**) | 2026-08-12 |
 | jgraph/mxgraph | `master` | `ff141aab158417bd866e2dfebd06c61d40773cd2` | 2020-11-13 |
 | bpmn-io/bpmn-js | `develop` | `ff1974f264421f9461f4c1abaca93469aecc2ff6` | 2026-08-11 |
 | bpmn-io/diagram-js | `develop` | `c36559ee6240ce25750263bbb77bdbc1b9dc2fc5` | 2026-08-11 |

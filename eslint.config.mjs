@@ -44,6 +44,10 @@ export default tsEslint.config(
       '**/dist/*',
       '**/lib/*',
       '**/node_modules/*',
+      // TypeScript probes kept as the evidence behind the plugin system analysis. They deliberately contain type
+      // errors, which are the measurement rather than a defect, and they are compiled by their own tsconfig files
+      // rather than by any package, so the type-aware rules cannot resolve them.
+      'tools/*',
     ],
   },
 

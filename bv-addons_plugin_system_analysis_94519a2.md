@@ -1,6 +1,7 @@
 # Plugin system analysis: `@process-analytics/bpmn-visualization-addons`
 
-Commit `94519a2`, package version 0.10.0, peer `bpmn-visualization >=0.48.0`.
+Commit `94519a2`, package version 0.10.0, peer
+[`bpmn-visualization`](https://github.com/process-analytics/bpmn-visualization-js) `>=0.48.0`.
 Every claim is cited to `file:line` in this repo, or to a primary source for a third-party library. Seventeen
 browser-side extension mechanisms were examined; the per-library detail is in the appendix.
 
@@ -939,7 +940,7 @@ generates it was used instead, and that substitution is noted.
 | Shopify draggable | 1.2.1 | [Shopify/draggable](https://github.com/Shopify/draggable), branch `main`, no SHA | per-plugin READMEs in the repo, e.g. [SwapAnimation](https://github.com/Shopify/draggable/blob/main/src/Plugins/SwapAnimation/README.md) | `main` version matches npm `latest`, but the published tarball was not diffed against the branch |
 | countUp.js | 2.10.1 | [inorganik/countUp.js](https://github.com/inorganik/countUp.js), branch `master`, no SHA | repo `README.md` | Plugins exist since 2.6.0. The only known plugin, [odometer_countup.js](https://github.com/msoler75/odometer_countup.js), was **not** inspected |
 | FormKit auto-animate | 0.10.0 | [formkit/auto-animate](https://github.com/formkit/auto-animate), branch `master`, no SHA | [plugins](https://auto-animate.formkit.com/#plugins) | The docs page could not be read verbatim; claims come from source plus the repo's own example under `docs/src/examples/plugin/`. Repo root `package.json` is `private`, so published metadata was read from npm directly |
-| bpmn-visualization | 0.48.0 (peer dependency of this package) | `node_modules`, published build | n/a | Read only to establish the host API surface and the mxGraph substrate |
+| bpmn-visualization | 0.48.0 (peer dependency of this package) | [process-analytics/bpmn-visualization-js](https://github.com/process-analytics/bpmn-visualization-js), read from `node_modules` (published build, `dist/bpmn-visualization.d.ts` and `dist/bpmn-visualization.js`), not from the repository | [bpmn-visualization-js docs](https://process-analytics.github.io/bpmn-visualization-js/) | Read only to establish the host API surface and the mxGraph substrate. No commit or tag applies, since the published artifact was used |
 
 ### Reference commits, captured 14 August 2026
 

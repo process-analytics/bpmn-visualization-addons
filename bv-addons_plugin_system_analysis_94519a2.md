@@ -6,7 +6,11 @@ Every claim is cited to `file:line` in this repo, or to a primary source for a t
 browser-side extension mechanisms were examined; the per-library detail is in the appendix.
 
 Analysis carried out from 12 to 14 August 2026, with Claude Opus 5 (1M token context), using parallel research agents
-for the third-party survey and a compiled probe for the TypeScript claims.
+for the third-party survey and compiled probes for the TypeScript claims.
+
+Those probes are kept in [`tools/plugin-registry-probes/`](./tools/plugin-registry-probes/) and are runnable:
+`./tools/plugin-registry-probes/run-probes.sh`. Every TypeScript claim in sections 5.A and 5.F comes from their
+output. Their compiler errors are the measurement rather than a defect, so do not "fix" them.
 
 ## Verdict
 
@@ -890,10 +894,13 @@ Candidates for a follow-up, ranked by what would change a decision:
 
 1. ~~A compiled probe of alternatives A and F.~~ **Done**, TypeScript 5.9.2, results folded into 5.A and 5.F. It
    resolved the barrel-augmentation risk (it merges, no restructuring needed), confirmed that overload order silently
-   decides whether the typed signature fires, and confirmed that the generic host in F option 3 works.
+   decides whether the typed signature fires, and confirmed that the generic host in F option 3 works. The probes are
+   committed at [`tools/plugin-registry-probes/`](./tools/plugin-registry-probes/), one directory per question, with
+   a runner and a verdict table in their README.
 2. ~~Making `BpmnVisualization` generic over the plugin tuple.~~ **Done**, viable, with two documented degradations
-   (see 5.F). What remains is a judgement call rather than a question: whether the ergonomic risk of an annotated
-   plugin array collapsing `features` to `never` is acceptable.
+   (see 5.F), probed in `q4-generic-host-features` and `r2-instancetype-extraction`. What remains is a judgement call
+   rather than a question: whether the ergonomic risk of an annotated plugin array collapsing `features` to `never`
+   is acceptable.
 3. An audit of the five shipped plugins against the gap list in section 3.
 4. The missing tests, enumerated: hook ordering across plugins, double `dispose()`, a throwing hook, `load()` after
    `dispose()`, the substring match, options validation.

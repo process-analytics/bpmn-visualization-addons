@@ -18,7 +18,8 @@ import { BpmnElementsIdentifier, BpmnVisualization, CssClassesPlugin, PathResolv
 
 // bpmn-visualization, through the BpmnVisualization subclass provided by the addons. Importing it from
 // `bpmn-visualization` would also compile, but would not provide plugin support.
-// The `plugins` property comes from the module augmentation of `GlobalOptions`, which is only checked here.
+// The `plugins` property comes from the module augmentation of `GlobalOptions`. The demo checks it too, but only
+// here is it checked against the lowest supported TypeScript version.
 const bpmnVisualization = new BpmnVisualization({ container: 'bpmn-container', plugins: [CssClassesPlugin] });
 bpmnVisualization.load(`fake BPMN content`);
 const bpmnElementsRegistry = bpmnVisualization.bpmnElementsRegistry;

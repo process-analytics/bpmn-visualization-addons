@@ -17,7 +17,7 @@ limitations under the License.
 import type { Plugin, PluginConstructor, PluginHookName } from '../../src/index.js';
 import type { GlobalOptions } from 'bpmn-visualization';
 
-import { afterAll, beforeEach, describe, expect, jest, test } from '@jest/globals';
+import { afterAll, beforeAll, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 import { BpmnVisualization } from '../../src/index.js';
 import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utilities.js';
@@ -266,10 +266,15 @@ describe('Ensure that plugins cannot break each other nor the host', () => {
   // Records `<pluginId>:<hookName>` for every hook actually reached, which is what makes "the later plugins still
   // ran" and "the hooks ran in registration order" assertable. Jest alone cannot express either.
   const hookCalls: string[] = [];
-  const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
-    // silence the failures these tests provoke on purpose
-  });
+  // Installed in `beforeAll` and not in the `describe` body: the body runs during the collection phase, before any
+  // test of the file, so spying there would silence `console.error` for the whole file instead of for these tests.
+  let consoleErrorSpy: jest.SpiedFunction<typeof console.error>;
 
+  beforeAll(() => {
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
+      // silence the failures these tests provoke on purpose
+    });
+  });
   beforeEach(() => {
     hookCalls.length = 0;
     consoleErrorSpy.mockClear();

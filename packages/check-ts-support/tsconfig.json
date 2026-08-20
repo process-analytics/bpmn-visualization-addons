@@ -1,4 +1,5 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "module": "ES2015",
     "target": "ES2015",
@@ -7,7 +8,6 @@
       "DOM"
     ],
     "moduleResolution": "Node",
-    "strict": true,
     "noEmit": true,
     "skipLibCheck": false,
     // By default, all visible "@types" packages are included in your compilation. Packages in node_modules/@types of any enclosing folder are considered visible.

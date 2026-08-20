@@ -90,6 +90,14 @@ describe('StyleByNamePlugin', () => {
       expect(mockBvUpdateStyleByIds).toHaveBeenCalledTimes(1);
     });
 
+    test('Pass a single name containing the name of another element', () => {
+      styleByNamePlugin.updateStyle('end event 10', { stroke: { color: 'red' } });
+
+      // 'end event 10' name is for id 'Event_0md1mpw'. 'end event 1' (id 'Event_1hr2hqx') must not match.
+      expect(mockBvUpdateStyleByIds).toHaveBeenCalledWith(['Event_0md1mpw'], { stroke: { color: 'red' } });
+      expect(mockBvUpdateStyleByIds).toHaveBeenCalledTimes(1);
+    });
+
     test('Pass several names related to existing elements', () => {
       styleByNamePlugin.updateStyle(['task 2.2', 'gateway 2'], { fill: { color: 'chartreuse' }, stroke: { width: 2 } });
 
@@ -135,6 +143,14 @@ describe('StyleByNamePlugin', () => {
 
       // 'gateway 2' name is for id 'Gateway_0t7d2lu'
       expect(mockBvResetStyleByIds).toHaveBeenCalledWith(['Gateway_0t7d2lu']);
+      expect(mockBvResetStyleByIds).toHaveBeenCalledTimes(1);
+    });
+
+    test('Pass a single name containing the name of another element', () => {
+      styleByNamePlugin.resetStyle('end event 10');
+
+      // 'end event 10' name is for id 'Event_0md1mpw'. 'end event 1' (id 'Event_1hr2hqx') must not match.
+      expect(mockBvResetStyleByIds).toHaveBeenCalledWith(['Event_0md1mpw']);
       expect(mockBvResetStyleByIds).toHaveBeenCalledTimes(1);
     });
 

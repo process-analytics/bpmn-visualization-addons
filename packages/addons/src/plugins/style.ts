@@ -19,6 +19,10 @@ import type { StyleRegistry, StyleUpdate } from 'bpmn-visualization';
 
 import { BpmnElementsSearcher } from '../bpmn-elements.js';
 
+// `BpmnElementsSearcher.getElementsByNames` matches with `Array.prototype.includes`. Passing a single name as a plain
+// string would call `String.prototype.includes` instead, turning the exact match into a substring match.
+const ensureIsArray = (names: string | string[]): string[] => (Array.isArray(names) ? names : [names]);
+
 /**
  * Provide style operations on BPMN elements.
  *
@@ -100,7 +104,7 @@ export class StyleByNamePlugin implements Plugin, StyleRegistryByName {
   }
 
   updateStyle(bpmnElementNames: string | string[], styleUpdate: StyleUpdate): void {
-    const bpmnElements = this.searcher.getElementsByNames(bpmnElementNames as string[]);
+    const bpmnElements = this.searcher.getElementsByNames(ensureIsArray(bpmnElementNames));
     this.styleRegistry.updateStyle(
       bpmnElements.map(bpmnElement => bpmnElement.id),
       styleUpdate,
@@ -112,7 +116,7 @@ export class StyleByNamePlugin implements Plugin, StyleRegistryByName {
       this.styleRegistry.resetStyle();
       return;
     }
-    const bpmnElements = this.searcher.getElementsByNames(bpmnElementNames as string[]);
+    const bpmnElements = this.searcher.getElementsByNames(ensureIsArray(bpmnElementNames));
     this.styleRegistry.resetStyle(bpmnElements.map(bpmnElement => bpmnElement.id));
   }
 }

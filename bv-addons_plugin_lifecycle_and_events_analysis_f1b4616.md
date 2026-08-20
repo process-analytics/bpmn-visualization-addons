@@ -292,7 +292,62 @@ choice, since the model is still reachable.
 
 ## 4. What to build here
 
-### 4.1 What can actually be emitted
+### 4.1 A bus, or the hooks we already have
+
+The five hooks are not a stopgap, and the comparison has to start by saying what they get right, because three of the
+failure modes catalogued above cannot occur here at all.
+
+**What the current design buys.** The host calls the plugin directly, so there is no subscription bookkeeping and
+therefore **no listener can leak**: maxGraph's `TooltipHandler`, which registers a `mouseleave` handler on the graph
+container and never removes it, and bpmn-js's injector, which never clears its instance cache, are both failures of a
+mechanism this package does not have. The contract is one interface with TSDoc on every member, so the extension
+surface is exactly as large as it looks. Ordering is the `options.plugins` array, with no priority puzzle and no
+`isFunction` disambiguation. There is no event-name namespace, so no collisions and no typo-shaped runtime silence
+beyond the one noted below. Nothing is global and nothing needs tree-shaking.
+
+**What it structurally cannot do**, in decreasing order of how much it matters here.
+
+1. *Plugin to plugin.* The only route today is `getPlugin` plus a direct call, which is a compile-time dependency on
+   the other plugin's type and, since #554, an `undefined` to handle at every call site. Two plugins that want to
+   cooperate must know each other. A bus is the standard answer, and it is what draggable uses: `SwapAnimation`
+   listens for `sortable:sorted` without knowing which plugin emits it.
+2. *A plugin cannot expose an event of its own.* Nothing can observe `StyleByNamePlugin` rebuilding a cache or
+   `OverlaysPlugin` toggling visibility, short of wrapping the method. This is the gap that grows as plugins get
+   richer, and it is not fixed by adding more hooks to the interface, because these events belong to the plugin, not
+   to the host.
+3. *Every new extension point is an interface change.* Adding a hook means editing `Plugin`, releasing the package,
+   and doing it again for the next one. Only this package can add one; a plugin author never can. Contrast PrismJS,
+   where a new extension point costs exactly one `hooks.run` call, at the price of everything else it gives up.
+4. *A misspelled optional hook is silent, and the mandated form is the unsafe one.* `implements` does not perform
+   excess property checking, so a class declaring `onLoadSucces` compiles clean and is simply never called. The same
+   typo in an object literal is caught, `TS2561 ... Did you mean to write 'onLoadSuccess'?`. Measured with TypeScript
+   5.9.2, `strict`, the two forms side by side. Since `PluginConstructor` requires a class, consumers of this package
+   only ever write the form the compiler does not check.
+
+**What a bus would cost**, stated as plainly. A second mechanism to learn, document and test, alongside the hooks that
+stay. A name namespace with no compile-time uniqueness, one level below the plugin-id namespace that already has the
+same problem. Listener leaks become possible for the first time, which is why `on()` must return a disposable rather
+than merely being available. Error isolation stops being optional, because a bus multiplies the number of places a
+third party's code runs inside ours. And ordering becomes a question that the hooks answered for free.
+
+**The honest weighing.** One argument that would normally carry a bus does not apply here: an application does not
+need `load:success` to know a load succeeded, because `load()` is synchronous and the next statement runs after it.
+The value is therefore concentrated in points 1 and 2, both of which are about plugins talking to each other and to
+the application, not about the host's own lifecycle. That is a real need, and a smaller one than "this package needs
+an event system".
+
+Two cheaper options deserve to be rejected explicitly rather than skipped. **Adding more hooks** is genuinely cheap
+while the set is small, which is why maxGraph ships one and X6 and G6 ship three, but it does nothing for points 1 and
+2, and it makes this package the bottleneck for every new extension point. **Leaving plugin-to-plugin to `getPlugin`**
+works today and costs nothing to keep, but it produces exactly the coupling the plugin system exists to avoid, and it
+degrades badly once a plugin can be absent.
+
+The recommendation that follows is therefore narrower than "add an event bus": keep the five hooks as the host's
+lifecycle contract, and add a bus whose first purpose is plugin-authored and plugin-to-plugin events, with the host
+lifecycle mirrored onto it because that costs one line per hook. Keeping both is not a compromise, it is what Tiptap
+does, and for the same reason: a hook is the right shape when the host knows who should react, a bus when it does not.
+
+### 4.2 What can actually be emitted
 
 The reachable surface is bounded by what this package mediates. It overrides `load` and `dispose`, and it owns plugin
 registration. It does not see zoom, pan, click, hover or selection, because those happen inside the core, which emits
@@ -306,7 +361,7 @@ That is not a disappointment, it is the same scope the hooks already cover, made
 to the plugin that implements the hook. Interaction events remain blocked upstream, and #1488 is the place where that
 would be unblocked.
 
-### 4.2 The design, and the evidence for each choice
+### 4.3 The design, and the evidence for each choice
 
 **One bus on the `BpmnVisualization` instance.** Not per-object listeners. maxGraph's nineteen sources with colliding
 names, undocumented ownership and silent misattachment is the counter-example; bpmn-js's single injected service is
@@ -359,7 +414,7 @@ needs because dozens of modules compose behaviors; five plugins do not. Document
 order, and add a test asserting it, which no library in the corpus does. If priority is ever added, take it as a named
 option rather than bpmn-js's positional argument disambiguated at runtime by `isFunction`.
 
-### 4.3 What this does not solve
+### 4.4 What this does not solve
 
 An event bus does not give plugins a dependency mechanism, does not make ordering safe, and does not replace the
 typed retrieval discussed in the companion document. It also does not remove the need for the five hooks: a hook is

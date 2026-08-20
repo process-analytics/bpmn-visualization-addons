@@ -157,11 +157,82 @@ The option type is inferred from the plugin value at the registration site.
 |---|---|---|
 | Knowing whether a plugin is loaded | Nothing. No `hasPlugin`, no `getPlugins`, no warning. The only signal is a `TypeError` | Chart.js throws on miss; G6 warns on a miss and on an unregistered plugin |
 | Knowing what a plugin adds | Read the source. The README says so outright (`README.md:54`) | ProseMirror and CodeMirror export plain functions, so the module's exports are the API |
-| Add or remove after construction | Impossible | X6 `disposePlugins`, G6 `setPlugins`, CodeMirror `Compartment`, ProseMirror `reconfigure`, draggable `addPlugin`/`removePlugin` |
-| Enable or disable without unloading | Impossible | X6 `enablePlugins`, Chart.js `options.plugins.<id> = false`, LogicFlow `disabledPlugins` |
+| Add or remove after construction | Impossible | Eight of the seventeen, detailed below: X6, G6, Chart.js, CodeMirror, ProseMirror, xterm.js, GrapesJS, draggable. Tiptap does it for ProseMirror plugins but not for its own extensions |
+| Enable or disable without unloading | Impossible | Chart.js `options.plugins.<id> = false`, the only clean case. X6 `enablePlugins` works only for plugins that opted in, and silently does nothing otherwise. LogicFlow `disabledPlugins` does **not** belong here: it is read once in the constructor and skips installation |
 | Declaring a plugin set once for the whole app | Impossible; every call site repeats the list | LogicFlow: `LogicFlow.use(X)` registers the class globally, each instance constructs its own copy, and `plugins` plus `disabledPlugins` override per instance. This layering is genuinely more capable than a constructor-only list, and is orthogonal to every other axis here |
 | Version compatibility | Nothing links a plugin to a core version | X6 v2 used per-plugin peer dependencies |
 | Deferred construction | Every plugin is constructed at startup, used or not (`plugins-support.ts:152-159`). Harmless while the shipped plugins are thin wrappers over `bpmnElementsRegistry`, and not harmless once one builds an index at construction, which is exactly what a cached `StyleByNamePlugin` would do | nothing in the survey defers construction either; G6 and X6 also build eagerly. Worth noting as a deliberate simplicity choice rather than an oversight |
+
+### Dynamic plugin management
+
+The DeepWiki pass made "dynamic plugin management" one of its three recommendations. It deserves more than the two
+rows above, because the survey shows the capability is common, and because adding it here would rewrite three
+published contracts rather than add one method.
+
+**What the survey found.** Eight of the seventeen let a consumer add or remove on a live host: X6 (`graph.use`,
+`disposePlugins`), G6 (`setPlugins`), Chart.js (`Chart.register`/`unregister`, or splicing the inline `config.plugins`
+array), CodeMirror (`Compartment.reconfigure`, `StateEffect.appendConfig`), ProseMirror
+(`state.reconfigure({plugins})`), xterm.js (`loadAddon`, then the addon's own `dispose`), GrapesJS (`Plugins.add` and
+`Plugins.remove`, since 0.23.1) and Shopify draggable (`addPlugin`/`removePlugin`). Tiptap is a half case: ProseMirror
+plugins can be registered and unregistered on a live editor, its own extension set cannot, and
+`editor.setOptions({extensions})` type-checks while doing nothing at runtime. countUp.js is a curiosity rather than a
+design: its single plugin slot is a public field, so it can be swapped live, undocumented. Seven offer nothing:
+maxGraph, bpmn-js, LogicFlow, PrismJS, ECharts, Cytoscape and auto-animate.
+
+Two observations about that split. Being a browser library decides nothing, both camps are well populated. And the
+capability is largely **undocumented even where it exists**: X6's `disposePlugins`, `enablePlugins` and
+`disablePlugins` have zero hits in the repository's markdown, Chart.js documents `register`/`unregister` but never
+runtime mutation of a chart's plugin list, and countUp's live slot appears in no documentation at all.
+
+**Removal is where the designs actually diverge**, and that is the part that bears on this package. Three behaviors:
+
+- *Teardown runs, per plugin.* X6 (`dispose` is a required member of its plugin interface), G6 (a keyed
+  enter/update/exit diff calls `destroy` on the exiting instances only), GrapesJS (`cleanup`), draggable (`detach`),
+  xterm.js (the addon manager overwrites the addon's own `dispose` so that calling it also unregisters).
+- *Teardown runs, but not selectively.* ProseMirror destroys and rebuilds **every** plugin view whenever the plugin
+  array changes, so unrelated plugins pay for one removal. CodeMirror splits by kind: `ViewPlugin.destroy` runs, while
+  a `StateField` has no teardown at all and its value is silently dropped.
+- *Teardown is partial or absent.* Chart.js calls `stop` on removal but never `uninstall`, so a plugin that cleans up
+  in `uninstall` leaks on every live removal. countUp, Cytoscape, PrismJS and ECharts have no teardown hook to call in
+  the first place.
+
+ECharts is the most instructive refusal in the corpus. Its scheduler copies the processor arrays at instance
+construction, with a source comment stating that incremental registration is not supported by its stream
+architecture. A component type registered late is therefore picked up by a subsequent `setOption` while its
+processing stages never are. Half-applied is worse than refused, and the library says so in its own code.
+
+**What it would cost here.** Nothing is dynamic today: `registerPlugins` runs from the constructor
+(`plugins-support.ts:150-165`), the map is `private readonly`, and there is no `addPlugin`, `removePlugin`,
+`hasPlugin` or `getPlugins`. Adding the capability raises four questions that are contract changes, not method
+signatures.
+
+1. `onConfigure` is documented as running "once, after all plugins have been constructed", and the implementation
+   honors it with a second loop over the whole map. A plugin registered later cannot be given that guarantee: it
+   would receive `onConfigure` alone, with every other plugin already live. Either the contract is reworded, or late
+   arrivals get a different hook.
+2. `onDispose` exists only at instance granularity. `dispose()` calls it on every plugin, then releases the core. A
+   `removePlugin` must call it on exactly one, which raises the error isolation question of section 2.3 again: a
+   plugin that throws while being removed must not leave the map half updated. X6, G6, GrapesJS and draggable all
+   made teardown per plugin from the start, which is markedly cheaper than retrofitting it.
+3. A plugin added after a `load` has never seen `onBeforeLoad` or `onLoadSuccess`, so it starts against an
+   already-rendered diagram with empty state. Either the host replays `onLoadSuccess` at registration when a model is
+   present, which changes the meaning of the hook from "a load just succeeded" to "a model is available", or every
+   plugin author duplicates their initialization logic. This is the same class of problem as the ECharts refusal.
+4. Removal turns the absent dependency mechanism from latent debt into a defect. Today a plugin that fetches another
+   with `getPlugin` at use time tolerates `undefined` by accident; once removal exists, that `undefined` becomes a
+   state every correct plugin must handle.
+
+**The tension with the recommendation is worth naming.** Alternative F option 3 types `features` from the plugin tuple
+passed to the constructor, so a plugin registered afterwards cannot appear in that type: the static shape is fixed at
+the construction site by design. Dynamic management and a constructor-derived static type pull in opposite
+directions. Only the augmentable-interface variant of alternative A survives both, because its id-to-type map is
+declared at module scope rather than derived from one call site, which is an argument for A that has nothing to do
+with the cast.
+
+**A cheaper subset exists.** Enable and disable, keeping the plugin registered, is a much smaller change: no
+construction, no teardown, no hook replay, and Chart.js shows it working as a plain options flag. It covers a good
+share of what "dynamic" is usually wanted for. It is not free either, since every hook dispatch has to consult the
+flag, but it touches no published contract. If any of this is pursued, it is the place to start.
 
 ## 4. Comparison
 
@@ -169,26 +240,26 @@ Columns trimmed to the axes that discriminate. "Cast" means the consumer must as
 Build-time Node tools (Vite, Rollup, ESLint) are excluded: their loading model resolves plugins by package name at
 runtime, which a browser library cannot do. One idea from them transfers, noted in 5.C.
 
-| | Load by | Retrieve by | Cast | Deps | Global state | Feature reads as native |
-|---|---|---|---|---|---|---|
-| **addons (today)** | class | string id | yes | no | none | no |
-| maxGraph 0.24 | class | string id | yes | no | none | no |
-| bpmn-js 18 | module map | string id | yes | `__depends__` | none | no |
-| X6 3.1 | instance | string id (undocumented) | yes | no | prototype patching, CSS | yes |
-| G6 v5 | **string id** | `getPluginInstance(key)` | yes, double | no | global registry | partly |
-| LogicFlow 2.x | class, global or per instance | `lf.extension.<name>` | **worse than a cast** | no | static registry | inconsistent, three idioms |
-| Chart.js 4 | object with an id | id, rarely needed | no | no | registry singleton | yes, via options |
-| CodeMirror 6 | value | typed handle | **no** | `enables` | none | mostly |
-| ProseMirror 1 | instance | typed `PluginKey<T>` | **no** | no | none | yes, via exported functions |
-| Tiptap 3 | factory result | **nothing to retrieve** | **no** | no | type augmentation is global | **yes** |
-| xterm.js 5/6 | instance | **nothing to retrieve** | **no** | no | none | no, deliberately |
-| countUp.js 2 | instance, single slot | **nothing to retrieve** | **no** | no | none | no |
-| GrapesJS 0.23 | function | bookkeeping model only | n/a | no | none | yes |
-| PrismJS 1.30 | side-effect import | `Prism.plugins.X` by convention | untyped | build metadata only | **everything** | yes |
-| ECharts 5/6 | installer function | **nothing to retrieve** | **no** | runtime topological | permanent global registry | yes, via options |
-| draggable 1.2 | class | **nothing to retrieve** | **no** | no | none | n/a, no API |
-| Cytoscape 3 | global `use()` | prototype method | n/a | no | heavy | yes |
-| auto-animate 0.10 | callback, single slot | **nothing to retrieve** | **no** | no | observers created at import | n/a, no API |
+| | Load by | Retrieve by | Cast | Deps | Global state | Feature reads as native  Dynamic |
+|---|---|---|---|---|---|---|---|
+| **addons (today)** | class | string id | yes | no | none | no | no |
+| maxGraph 0.24 | class | string id | yes | no | none | no | no |
+| bpmn-js 18 | module map | string id | yes | `__depends__` | none | no | no, injector frozen |
+| X6 3.1 | instance | string id (undocumented) | yes | no | prototype patching, CSS | yes | add, remove, disable |
+| G6 v5 | **string id** | `getPluginInstance(key)` | yes, double | no | global registry | partly | swap the set, keyed diff |
+| LogicFlow 2.x | class, global or per instance | `lf.extension.<name>` | **worse than a cast** | no | static registry | inconsistent, three idioms | no |
+| Chart.js 4 | object with an id | id, rarely needed | no | no | registry singleton | yes, via options | add, remove, disable |
+| CodeMirror 6 | value | typed handle | **no** | `enables` | none | mostly | swap, per compartment |
+| ProseMirror 1 | instance | typed `PluginKey<T>` | **no** | no | none | yes, via exported functions | swap the set |
+| Tiptap 3 | factory result | **nothing to retrieve** | **no** | no | type augmentation is global | **yes** | ProseMirror plugins only |
+| xterm.js 5/6 | instance | **nothing to retrieve** | **no** | no | none | no, deliberately | add; remove via the addon |
+| countUp.js 2 | instance, single slot | **nothing to retrieve** | **no** | no | none | no | one slot, swappable |
+| GrapesJS 0.23 | function | bookkeeping model only | n/a | no | none | yes | add, remove |
+| PrismJS 1.30 | side-effect import | `Prism.plugins.X` by convention | untyped | build metadata only | **everything** | yes | no |
+| ECharts 5/6 | installer function | **nothing to retrieve** | **no** | runtime topological | permanent global registry | yes, via options | no |
+| draggable 1.2 | class | **nothing to retrieve** | **no** | no | none | n/a, no API | add, remove |
+| Cytoscape 3 | global `use()` | prototype method | n/a | no | heavy | yes | no |
+| auto-animate 0.10 | callback, single slot | **nothing to retrieve** | **no** | no | observers created at import | n/a, no API | no |
 
 Two observations matter more than the table.
 
@@ -920,7 +991,9 @@ Grouped by the organizing question in the preamble.
 
 ## Versions and sources
 
-Research performed 13 and 14 August 2026. **Only G6 was read at a pinned commit.** Everything else was read from a
+Research performed 13 and 14 August 2026. The `Dynamic` column of section 4 and the subsection on dynamic
+plugin management were researched separately on 20 August 2026, against the same versions listed below, by
+reading the published artifacts on unpkg and the repository sources. **Only G6 was read at a pinned commit.** Everything else was read from a
 moving branch or a version tag, so these readings are reproducible by version but not byte-exactly; where a branch is
 named, its content may since have changed. Where a documentation site could not be fetched, the upstream markdown that
 generates it was used instead, and that substitution is noted.

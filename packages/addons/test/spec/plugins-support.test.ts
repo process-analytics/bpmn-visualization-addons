@@ -276,7 +276,9 @@ describe('Ensure that plugins cannot break each other nor the host', () => {
   });
   afterAll(() => consoleErrorSpy.mockRestore());
 
-  type HookName = 'onConfigure' | 'onBeforeLoad' | 'onLoadSuccess' | 'onLoadError' | 'onDispose';
+  // Derived from `Plugin` for the same reason the implementation derives its own: a hook added to the interface
+  // must not leave these helpers behind.
+  type HookName = Exclude<keyof Plugin, 'getPluginId'>;
 
   const createRecordingPlugin = (pluginId: string): PluginConstructor =>
     class implements Plugin {

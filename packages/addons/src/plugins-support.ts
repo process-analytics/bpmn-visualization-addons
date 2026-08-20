@@ -131,6 +131,12 @@ export type DefaultPlugins = 'css' | 'elements' | 'overlays' | 'style' | 'style-
  */
 export type PluginIds = DefaultPlugins | (string & Record<never, never>);
 
+/**
+ * The lifecycle hooks {@link BpmnVisualization} dispatches, derived from {@link Plugin} rather than listed again, so
+ * that adding a hook to the interface cannot leave the dispatch out of step with it.
+ */
+type PluginHookName = Exclude<keyof Plugin, 'getPluginId'>;
+
 /** A plugin hook that threw, kept so that every failure of a single dispatch can be reported together. */
 interface PluginHookFailure {
   pluginId: string;
@@ -213,7 +219,7 @@ export class BpmnVisualization extends BaseBpmnVisualization {
     this.plugins.clear();
   };
 
-  private readonly forEachPlugin = (hookName: string, functor: (plugin: Plugin) => void): void => {
+  private readonly forEachPlugin = (hookName: PluginHookName, functor: (plugin: Plugin) => void): void => {
     this.callPluginsHook(hookName, this.plugins, functor);
   };
 
@@ -221,7 +227,7 @@ export class BpmnVisualization extends BaseBpmnVisualization {
    * Call one hook on the given plugins, letting every plugin run even when another one throws. Failures are collected
    * and reported once: a plugin must not be able to break the host, nor the plugins registered after it.
    */
-  private readonly callPluginsHook = (hookName: string, plugins: Iterable<[string, Plugin]>, functor: (plugin: Plugin) => void): void => {
+  private readonly callPluginsHook = (hookName: PluginHookName, plugins: Iterable<[string, Plugin]>, functor: (plugin: Plugin) => void): void => {
     const failures: PluginHookFailure[] = [];
     for (const [pluginId, plugin] of plugins) {
       try {

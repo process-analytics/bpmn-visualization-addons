@@ -298,9 +298,9 @@ The five hooks are not a stopgap, and the comparison has to start by saying what
 failure modes catalogued above cannot occur here at all.
 
 **What the current design buys.** The host calls the plugin directly, so there is no subscription bookkeeping and
-therefore **no listener can leak**: maxGraph's `TooltipHandler`, which registers a `mouseleave` handler on the graph
-container and never removes it, and bpmn-js's injector, which never clears its instance cache, are both failures of a
-mechanism this package does not have. The contract is one interface with TSDoc on every member, so the extension
+therefore **no listener can leak**: maxGraph's `TooltipHandler`, which unsubscribes two of its three registrations
+and misses the third, and bpmn-js's injector, which never clears its instance cache, are both failures of a mechanism
+this package does not have. The contract is one interface with TSDoc on every member, so the extension
 surface is exactly as large as it looks. Ordering is the `options.plugins` array, with no priority puzzle and no
 `isFunction` disambiguation. There is no event-name namespace, so no collisions and no typo-shaped runtime silence
 beyond the one noted below. Nothing is global and nothing needs tree-shaking.
@@ -384,9 +384,15 @@ the fix for `dispose()` idempotency, not a separate task.
 
 **`on()` returns a disposable.** xterm.js's pattern, adapted: it makes a plugin's `onDispose` a fan-out over the
 handles it collected, rather than a hand-maintained mirror of its constructor. maxGraph's `TooltipHandler` is what the
-hand-maintained mirror looks like when it drifts: it registers a `mouseleave` listener on the graph container in a
-lazily-called `init()` (`TooltipHandler.ts:69-77`) and never removes it, so the container keeps a closure pinning the
-graph after `destroy()`.
+hand-maintained mirror looks like when it drifts, and the detail matters because the handler is mostly diligent.
+Its `onDestroy` (`TooltipHandler.ts:314-336`) does unsubscribe: `this.graph.removeMouseListener(this)` at `:317`
+removes it from the graph's mouse-listener list, and `InternalEvent.release(this.div)` at `:319` removes the gesture
+listeners it put on its own tooltip element. What it misses is the third registration, a `'mouseleave'` DOM listener
+placed on the **graph container** by the lazily-called `init()` (`:69-77`). `release` walks only the node it is given
+and that node's descendants (`InternalEvent.ts:301-317`), and `this.div` was appended to `document.body` (`:58`), not
+to the container, so it cannot reach it. Two mechanisms cleaned up, one forgotten, and nothing in the framework
+notices: the container keeps a closure pinning the handler and the graph after `destroy()`, whenever a tooltip was
+shown at least once.
 
 **Type event names with an augmentable interface**, following X6 and GrapesJS. The shape is the one already
 recommended for plugin ids in the companion document, one level down:

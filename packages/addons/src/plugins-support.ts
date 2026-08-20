@@ -134,8 +134,12 @@ export type PluginIds = DefaultPlugins | (string & Record<never, never>);
 /**
  * The lifecycle hooks {@link BpmnVisualization} dispatches, derived from {@link Plugin} rather than listed again, so
  * that adding a hook to the interface cannot leave the dispatch out of step with it.
+ *
+ * Exported so that the tests share this definition instead of restating it. `stripInternal` keeps it out of the
+ * published declarations, so it is not part of the public API.
+ * @internal
  */
-type PluginHookName = Exclude<keyof Plugin, 'getPluginId'>;
+export type PluginHookName = Exclude<keyof Plugin, 'getPluginId'>;
 
 /** A plugin hook that threw, kept so that every failure of a single dispatch can be reported together. */
 interface PluginHookFailure {

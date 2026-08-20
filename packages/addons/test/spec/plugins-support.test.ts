@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import type { Plugin, PluginConstructor } from '../../src/index.js';
+import type { Plugin, PluginConstructor, PluginHookName } from '../../src/index.js';
 import type { GlobalOptions } from 'bpmn-visualization';
 
 import { afterAll, beforeEach, describe, expect, jest, test } from '@jest/globals';
@@ -276,10 +276,6 @@ describe('Ensure that plugins cannot break each other nor the host', () => {
   });
   afterAll(() => consoleErrorSpy.mockRestore());
 
-  // Derived from `Plugin` for the same reason the implementation derives its own: a hook added to the interface
-  // must not leave these helpers behind.
-  type HookName = Exclude<keyof Plugin, 'getPluginId'>;
-
   const createRecordingPlugin = (pluginId: string): PluginConstructor =>
     class implements Plugin {
       getPluginId = (): string => pluginId;
@@ -290,7 +286,7 @@ describe('Ensure that plugins cannot break each other nor the host', () => {
       onDispose = (): void => void hookCalls.push(`${pluginId}:onDispose`);
     };
 
-  const createThrowingPlugin = (pluginId: string, throwingHook: HookName): PluginConstructor => {
+  const createThrowingPlugin = (pluginId: string, throwingHook: PluginHookName): PluginConstructor => {
     const RecordingPlugin = createRecordingPlugin(pluginId);
     return class extends RecordingPlugin {
       constructor(bpmnVisualization: BpmnVisualization, options: GlobalOptions) {

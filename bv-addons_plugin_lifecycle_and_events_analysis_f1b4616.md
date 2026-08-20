@@ -21,7 +21,8 @@ and none of the second.
 The recommendation is a single synchronous event bus on the `BpmnVisualization` instance, not per-object listeners,
 with four properties the corpus shows are decided at design time and expensive to add later: error isolation from the
 first line, no interception through return values, event names typed by an augmentable interface, and `on()` returning
-a disposable.
+a disposable. Five shapes were weighed, in section 4.2; the runner-up, typed event properties in the xterm.js style,
+loses on one point only, and it is the one that matters here.
 
 The hard constraint, and the reason to be modest about scope: **this package can only emit events about things it
 mediates itself.** It mediates `load`, `dispose` and plugin registration. It does not mediate zoom, pan, click or
@@ -81,6 +82,9 @@ package can inherit, and it does not cover the lifecycle events that are actuall
 ---
 
 ## 2. The two reference designs
+
+These two are the starting point of the study, and they frame the choice: one mechanism in one place, or many
+mechanisms on many objects. Three further shapes are weighed in section 4.2.
 
 ### bpmn-js: one shared bus, injected
 
@@ -347,7 +351,79 @@ lifecycle contract, and add a bus whose first purpose is plugin-authored and plu
 lifecycle mirrored onto it because that costs one line per hook. Keeping both is not a compromise, it is what Tiptap
 does, and for the same reason: a hook is the right shape when the host knows who should react, a bus when it does not.
 
-### 4.2 What can actually be emitted
+### 4.2 Three other shapes, one of which is a real rival
+
+A shared injected bus and per-object listeners are the two designs this study started from. They are not the only
+options, and one of the three below deserves to be weighed against the bus rather than mentioned in passing.
+
+**A. Typed event properties returning a disposable.** xterm.js's shape: no bus and no string names at all, one
+property per event, each backed by its own emitter, subscribed by calling it and unsubscribed through the handle it
+returns.
+
+```ts
+const subscription = bpmnVisualization.onLoadSuccess(() => { /* ... */ });
+subscription.dispose();
+```
+
+Its public set is fixed and small, `onBell`, `onData`, `onKey`, `onRender`, `onResize` and a dozen more
+(`xterm.d.ts:885-971`), each an `IEvent<T>` whose subscribe call returns an `IDisposable`
+(`src/common/EventEmitter.ts:12-13`, `:29-43`).
+
+This obtains **by construction** three of the four properties section 4.4 says are expensive to retrofit. Typing is
+exact without an augmentable interface, and a misspelled `onLoadSucces` is a compile error rather than a listener that
+never fires, which is precisely the hole measured in section 4.1. Unsubscription is in the signature, so it cannot be
+forgotten. And there is no name-keyed dispatch, so there is no return value to give meaning to, which keeps an
+asynchronous variant possible.
+
+The usual objection, that the set is frozen by the host, costs little here: the mediated surface is five events and
+will not grow until the core emits something. The real objection is the one that matters. A plugin exposing
+`onCacheRebuilt` on itself is reachable only through `getPlugin`, so **plugin-to-plugin coupling returns exactly where
+the bus removed it**, and that was the strongest argument for the bus in the first place. Safety against decoupling,
+in one sentence.
+
+**B. DOM `CustomEvent` on the container.** The platform already ships an event system, and this package already owns a
+container element:
+
+```ts
+container.dispatchEvent(new CustomEvent('bv:load-success', { detail: { /* ... */ } }));
+container.addEventListener('bv:load-success', listener);
+```
+
+Nothing to design, nothing to maintain. Subscription and teardown are standard, `stopPropagation` and
+`preventDefault` come for free and are understood by everyone, non-TypeScript consumers and framework components can
+listen without importing anything, and browser devtools can inspect listeners. A plugin can emit its own events
+without asking the host for permission, which answers the same need as the bus.
+
+The costs are real. String names return, typable only by augmenting the global `HTMLElementEventMap`, which is a
+coarser seam than a package-scoped interface. Events bubble up the DOM by default and can reach the host application
+unbidden, so `bubbles: false` should be the default and the choice documented. And the container, currently an
+implementation detail the consumer merely supplies, becomes a public API surface.
+
+None of the seventeen libraries uses this as its extension channel. Two of them contain `CustomEvent` for unrelated
+reasons: X6's `onCustomEvent` is its own naming for magnet events on cell views, and GrapesJS re-dispatches canvas
+iframe events onto the main document for interop (`packages/core/src/utils/dom.ts:101`). Checked against the cached
+sources of the libraries read for this study, not exhaustively across all seventeen.
+
+**C. A middleware chain.** Tiptap's `dispatchTransaction` is composed with `reduceRight` so that each extension
+receives a `next` continuation and wraps the others (`ExtensionManager.ts:332-359`), and `transformPastedHTML` is
+chained the same way (`:366-400`). ProseMirror's `appendTransaction` is the same idea run to a fixed point
+(`state.ts:144-167`).
+
+It is the only shape in the corpus that lets an extension **change** what happens rather than observe it, and it is
+listed here to be rejected explicitly rather than silently. Section 4.4 argues against interception, no use case
+attests the need, and a pipeline costs considerably more than a bus in ordering rules, debuggability and
+documentation. Naming it at least records what is being given up: with any of the other shapes, no plugin will ever be
+able to veto a load, rewrite the BPMN source before parsing the way bpmn-js allows at `import.parse.start`, or filter
+what another plugin does.
+
+**Where this leaves the recommendation.** B and C are recorded, not chosen: B trades a designed API for a platform
+one and loses the typing this package cares about, C solves a problem nobody has. A is a genuine rival and the
+decision between it and the bus is a single trade-off, safety by construction against plugin-to-plugin decoupling.
+The bus is recommended because points 1 and 2 of section 4.1 are the whole reason to build anything here, and A
+addresses neither. A hybrid is available if that judgement turns out wrong: the host lifecycle as typed properties,
+the plugin-authored events on a bus. It is more surface than either, and it is the fallback rather than the proposal.
+
+### 4.3 What can actually be emitted
 
 The reachable surface is bounded by what this package mediates. It overrides `load` and `dispose`, and it owns plugin
 registration. It does not see zoom, pan, click, hover or selection, because those happen inside the core, which emits
@@ -361,7 +437,7 @@ That is not a disappointment, it is the same scope the hooks already cover, made
 to the plugin that implements the hook. Interaction events remain blocked upstream, and #1488 is the place where that
 would be unblocked.
 
-### 4.3 The design, and the evidence for each choice
+### 4.4 The design, and the evidence for each choice
 
 **One bus on the `BpmnVisualization` instance.** Not per-object listeners. maxGraph's nineteen sources with colliding
 names, undocumented ownership and silent misattachment is the counter-example; bpmn-js's single injected service is
@@ -420,7 +496,7 @@ needs because dozens of modules compose behaviors; five plugins do not. Document
 order, and add a test asserting it, which no library in the corpus does. If priority is ever added, take it as a named
 option rather than bpmn-js's positional argument disambiguated at runtime by `isFunction`.
 
-### 4.4 What this does not solve
+### 4.5 What this does not solve
 
 An event bus does not give plugins a dependency mechanism, does not make ordering safe, and does not replace the
 typed retrieval discussed in the companion document. It also does not remove the need for the five hooks: a hook is

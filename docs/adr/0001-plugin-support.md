@@ -55,7 +55,9 @@ The plugin lifecycle is therefore:
 1. **construct**: each plugin class in `options.plugins` is instantiated and registered by its id.
 2. **onConfigure**: once all plugins are registered, the optional `onConfigure(options)` hook of each plugin is invoked.
 3. **load hooks**: on each `load` call, `onBeforeLoad` fires before processing the BPMN source, then either `onLoadSuccess` (on success) or `onLoadError(error)` (on failure, before the error is rethrown). `load` can be called several times, so these hooks may run more than once.
-4. **onDispose**: when the instance is disposed, `onDispose` fires before the core resources are released.
+4. **onDispose**: when the instance is disposed, `onDispose` fires before the core resources are released. It fires at most once per instance, and also when the registration of a later plugin fails, so that the plugins already constructed release what they acquired rather than leaking with the discarded instance.
+
+At every step, a hook that throws is caught and reported rather than propagated: one plugin must not be able to break the visualization, nor the plugins registered after it.
 
 The features provided by the addons package (`CssClassesPlugin`, `ElementsPlugin`, `OverlaysPlugin`, `StylePlugin`, `StyleByNamePlugin`) are implemented as plugins on top of this infrastructure.
 

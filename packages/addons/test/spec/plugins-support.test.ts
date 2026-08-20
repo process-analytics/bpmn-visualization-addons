@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import type { Plugin } from '../../src/index.js';
+import type { Plugin, PluginConstructor } from '../../src/index.js';
 import type { GlobalOptions } from 'bpmn-visualization';
 
-import { describe, expect, jest, test } from '@jest/globals';
+import { afterAll, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 import { BpmnVisualization } from '../../src/index.js';
 import { createNewBpmnVisualizationWithoutContainer } from '../shared/bv-utilities.js';
@@ -257,5 +257,185 @@ describe('Ensure that plugins are notified on load error', () => {
     expect(loadAwarePlugin2.onLoadError).toHaveBeenCalledWith(expect.any(Error));
     expect(loadAwarePlugin1.onLoadSuccess).not.toHaveBeenCalled();
     expect(loadAwarePlugin2.onLoadSuccess).not.toHaveBeenCalled();
+  });
+});
+
+// The tests below cover the robustness of the lifecycle dispatch: a plugin must not be able to break the host, nor
+// the plugins registered after it, and disposal must happen exactly once.
+describe('Ensure that plugins cannot break each other nor the host', () => {
+  // Records `<pluginId>:<hookName>` for every hook actually reached, which is what makes "the later plugins still
+  // ran" and "the hooks ran in registration order" assertable. Jest alone cannot express either.
+  const hookCalls: string[] = [];
+  const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
+    // silence the failures these tests provoke on purpose
+  });
+
+  beforeEach(() => {
+    hookCalls.length = 0;
+    consoleErrorSpy.mockClear();
+  });
+  afterAll(() => consoleErrorSpy.mockRestore());
+
+  type HookName = 'onConfigure' | 'onBeforeLoad' | 'onLoadSuccess' | 'onLoadError' | 'onDispose';
+
+  const createRecordingPlugin = (pluginId: string): PluginConstructor =>
+    class implements Plugin {
+      getPluginId = (): string => pluginId;
+      onConfigure = (): void => void hookCalls.push(`${pluginId}:onConfigure`);
+      onBeforeLoad = (): void => void hookCalls.push(`${pluginId}:onBeforeLoad`);
+      onLoadSuccess = (): void => void hookCalls.push(`${pluginId}:onLoadSuccess`);
+      onLoadError = (): void => void hookCalls.push(`${pluginId}:onLoadError`);
+      onDispose = (): void => void hookCalls.push(`${pluginId}:onDispose`);
+    };
+
+  const createThrowingPlugin = (pluginId: string, throwingHook: HookName): PluginConstructor => {
+    const RecordingPlugin = createRecordingPlugin(pluginId);
+    return class extends RecordingPlugin {
+      constructor(bpmnVisualization: BpmnVisualization, options: GlobalOptions) {
+        super(bpmnVisualization, options);
+        this[throwingHook] = (): void => {
+          hookCalls.push(`${pluginId}:${throwingHook}`);
+          throw new Error(`boom-${pluginId}-${throwingHook}`);
+        };
+      }
+    };
+  };
+
+  describe('Error isolation', () => {
+    test('Call onDispose on every plugin when one of them throws, and still dispose the instance', () => {
+      const bpmnVisualization = new BpmnVisualization({
+        container: insertBpmnContainerWithoutId(),
+        plugins: [createRecordingPlugin('p1'), createThrowingPlugin('p2', 'onDispose'), createRecordingPlugin('p3'), PluginWithoutOptionalMethods],
+      });
+
+      expect(() => bpmnVisualization.dispose()).not.toThrow();
+
+      expect(hookCalls.filter(call => call.endsWith(':onDispose'))).toEqual(['p1:onDispose', 'p2:onDispose', 'p3:onDispose']);
+      // The core resources are released: its own guard only rejects a load once disposal completed.
+      expect(() => bpmnVisualization.load(validBpmnContent)).toThrow('Cannot load BPMN diagram: the BpmnVisualization instance has been disposed');
+    });
+
+    test('Call onBeforeLoad and onLoadSuccess on every plugin when one of them throws, and still load', () => {
+      const bpmnVisualization = new BpmnVisualization({
+        container: insertBpmnContainerWithoutId(),
+        plugins: [createRecordingPlugin('p1'), createThrowingPlugin('p2', 'onBeforeLoad'), createRecordingPlugin('p3')],
+      });
+
+      expect(() => bpmnVisualization.load(validBpmnContent)).not.toThrow();
+
+      expect(hookCalls.filter(call => call.endsWith(':onBeforeLoad'))).toEqual(['p1:onBeforeLoad', 'p2:onBeforeLoad', 'p3:onBeforeLoad']);
+      expect(hookCalls.filter(call => call.endsWith(':onLoadSuccess'))).toEqual(['p1:onLoadSuccess', 'p2:onLoadSuccess', 'p3:onLoadSuccess']);
+      expect(hookCalls.filter(call => call.endsWith(':onLoadError'))).toHaveLength(0);
+    });
+
+    test('Call onLoadError on every plugin when one of them throws, and rethrow the load error unchanged', () => {
+      const bpmnVisualization = new BpmnVisualization({
+        container: insertBpmnContainerWithoutId(),
+        plugins: [createRecordingPlugin('p1'), createThrowingPlugin('p2', 'onLoadError'), createRecordingPlugin('p3')],
+      });
+
+      let thrown: unknown;
+      try {
+        bpmnVisualization.load(invalidBpmnContent);
+      } catch (error) {
+        thrown = error;
+      }
+
+      expect(thrown).toBeInstanceOf(Error);
+      // The hook failure must be reported, never substituted for the original error.
+      expect((thrown as Error).message).not.toContain('boom-p2-onLoadError');
+      expect(hookCalls.filter(call => call.endsWith(':onLoadError'))).toEqual(['p1:onLoadError', 'p2:onLoadError', 'p3:onLoadError']);
+      expect(hookCalls.filter(call => call.endsWith(':onLoadSuccess'))).toHaveLength(0);
+    });
+
+    test('Call onConfigure on every plugin when one of them throws, and still construct the instance', () => {
+      const bpmnVisualization = new BpmnVisualization({
+        container: undefined!,
+        plugins: [createRecordingPlugin('p1'), createThrowingPlugin('p2', 'onConfigure'), createRecordingPlugin('p3')],
+      });
+
+      expect(hookCalls).toEqual(['p1:onConfigure', 'p2:onConfigure', 'p3:onConfigure']);
+      // A plugin that failed to configure stays registered: the host does not decide that it is unusable.
+      expect(bpmnVisualization.getPlugin('p2')).toBeDefined();
+    });
+
+    test('Report every failing plugin of a single dispatch in one message', () => {
+      const bpmnVisualization = new BpmnVisualization({
+        container: undefined!,
+        plugins: [createThrowingPlugin('p1', 'onDispose'), createThrowingPlugin('p2', 'onDispose'), createRecordingPlugin('p3')],
+      });
+
+      bpmnVisualization.dispose();
+
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        expect.stringContaining("'onDispose'"),
+        expect.arrayContaining([
+          { pluginId: 'p1', error: expect.objectContaining({ message: 'boom-p1-onDispose' }) },
+          { pluginId: 'p2', error: expect.objectContaining({ message: 'boom-p2-onDispose' }) },
+        ]),
+      );
+    });
+  });
+
+  describe('Disposal happens once and releases the plugins', () => {
+    test('Do not call onDispose again on a second dispose', () => {
+      const bpmnVisualization = new BpmnVisualization({ container: undefined!, plugins: [createRecordingPlugin('p1'), createRecordingPlugin('p2')] });
+
+      bpmnVisualization.dispose();
+      expect(() => bpmnVisualization.dispose()).not.toThrow();
+
+      expect(hookCalls.filter(call => call.endsWith(':onDispose'))).toEqual(['p1:onDispose', 'p2:onDispose']);
+    });
+
+    test('Return undefined from getPlugin after dispose', () => {
+      const bpmnVisualization = new BpmnVisualization({ container: undefined!, plugins: [createRecordingPlugin('p1')] });
+      expect(bpmnVisualization.getPlugin('p1')).toBeDefined();
+
+      bpmnVisualization.dispose();
+
+      expect(bpmnVisualization.getPlugin('p1')).toBeUndefined();
+    });
+
+    test('Call no hook on a disposed instance', () => {
+      const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId(), plugins: [createRecordingPlugin('p1')] });
+      bpmnVisualization.dispose();
+      hookCalls.length = 0;
+
+      expect(() => bpmnVisualization.load(validBpmnContent)).toThrow('Cannot load BPMN diagram: the BpmnVisualization instance has been disposed');
+
+      expect(hookCalls).toHaveLength(0);
+    });
+  });
+
+  describe('Failed registration releases what was already built', () => {
+    test('Dispose the plugins already registered when an identifier is duplicated', () => {
+      expect(
+        () =>
+          new BpmnVisualization({
+            container: insertBpmnContainerWithoutId(),
+            plugins: [createRecordingPlugin('p1'), createRecordingPlugin('duplicated'), createRecordingPlugin('duplicated')],
+          }),
+      ).toThrow("Plugin loading fails. It is not possible to register multiple plugins with the same 'duplicated' identifier.");
+
+      // The plugin that triggered the failure never enters the registry, so it is disposed on its own, where it was
+      // constructed, hence first. The registered ones follow, in registration order.
+      expect(hookCalls).toEqual(['duplicated:onDispose', 'p1:onDispose', 'duplicated:onDispose']);
+      // The registration threw before the configure loop, and the cleanup must not retroactively configure anything.
+      expect(hookCalls.filter(call => call.endsWith(':onConfigure'))).toHaveLength(0);
+    });
+
+    test('Report but do not mask the duplicate identifier error when a plugin onDispose throws during the cleanup', () => {
+      expect(
+        () =>
+          new BpmnVisualization({
+            container: insertBpmnContainerWithoutId(),
+            plugins: [createThrowingPlugin('p1', 'onDispose'), createRecordingPlugin('duplicated'), createRecordingPlugin('duplicated')],
+          }),
+      ).toThrow("Plugin loading fails. It is not possible to register multiple plugins with the same 'duplicated' identifier.");
+
+      expect(hookCalls).toContain('duplicated:onDispose');
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
+    });
   });
 });

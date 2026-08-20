@@ -33,7 +33,7 @@ beforeEach(() => {
 // The actual implementation is in `bpmn-visualization`. Here, we only validate that the `bpmn-visualization` code is called.
 describe('StylePlugin', () => {
   const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId(), plugins: [StylePlugin] });
-  const stylePlugin = bpmnVisualization.getPlugin<StylePlugin>('style');
+  const stylePlugin = bpmnVisualization.getPlugin<StylePlugin>('style')!;
 
   describe('updateStyle', () => {
     test('Pass a single id', () => {
@@ -79,7 +79,7 @@ describe('StylePlugin', () => {
 describe('StyleByNamePlugin', () => {
   const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId(), plugins: [StyleByNamePlugin] });
   bpmnVisualization.load(readFileSync('./fixtures/bpmn/search-elements.bpmn'));
-  const styleByNamePlugin = bpmnVisualization.getPlugin<StyleByNamePlugin>('style-by-name');
+  const styleByNamePlugin = bpmnVisualization.getPlugin<StyleByNamePlugin>('style-by-name')!;
 
   describe('updateStyle', () => {
     test('Pass a single name related to an existing element', () => {

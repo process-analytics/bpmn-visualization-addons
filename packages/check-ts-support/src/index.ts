@@ -14,13 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { BpmnElementsIdentifier, PathResolver } from '@process-analytics/bpmn-visualization-addons';
-import { BpmnVisualization } from 'bpmn-visualization';
+import { BpmnElementsIdentifier, BpmnVisualization, CssClassesPlugin, PathResolver } from '@process-analytics/bpmn-visualization-addons';
 
-// bpmn-visualization
-const bpmnVisualization = new BpmnVisualization({ container: 'bpmn-container' });
+// bpmn-visualization, through the BpmnVisualization subclass provided by the addons. Importing it from
+// `bpmn-visualization` would also compile, but would not provide plugin support.
+// The `plugins` property comes from the module augmentation of `GlobalOptions`. The demo checks it too, but only
+// here is it checked against the lowest supported TypeScript version.
+const bpmnVisualization = new BpmnVisualization({ container: 'bpmn-container', plugins: [CssClassesPlugin] });
 bpmnVisualization.load(`fake BPMN content`);
 const bpmnElementsRegistry = bpmnVisualization.bpmnElementsRegistry;
+
+// addons: plugin retrieval, in both forms documented in the README
+const cssClassesPlugin = bpmnVisualization.getPlugin<CssClassesPlugin>('css');
+cssClassesPlugin?.addCssClasses('id_1', 'class_1');
+bpmnVisualization.getPlugin<CssClassesPlugin>('css')!.addCssClasses('id_2', 'class_2');
 
 // addons
 const bpmnElementsIdentifier = new BpmnElementsIdentifier(bpmnElementsRegistry);

@@ -35,7 +35,7 @@ const fitOptions: FitOptions = { type: FitType.Center, margin: 20 };
 bpmnVisualization.load(diagram, { fit: fitOptions });
 
 // Add overlays
-const overlaysPlugin = bpmnVisualization.getPlugin<OverlaysPlugin>('overlays');
+const overlaysPlugin = bpmnVisualization.getPlugin<OverlaysPlugin>('overlays')!;
 const overlayStyle = { stroke: { color: 'chartreuse' }, fill: { color: 'chartreuse' }, font: { color: 'white', size: 18 } };
 // SRM subprocess
 overlaysPlugin.addOverlays('Activity_0ec8azh', { label: '123', position: 'top-center', style: overlayStyle });

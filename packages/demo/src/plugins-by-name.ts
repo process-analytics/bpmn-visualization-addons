@@ -39,7 +39,7 @@ bpmnVisualization.load(diagram, { fit: fitOptions });
 new ZoomComponent(bpmnVisualization, fitOptions).render();
 
 // Use style by name plugin to update the style of the elements
-const styleRegistryByName = bpmnVisualization.getPlugin<StyleByNamePlugin>('style-by-name');
+const styleRegistryByName = bpmnVisualization.getPlugin<StyleByNamePlugin>('style-by-name')!;
 
 function clearAllStyles(): void {
   styleRegistryByName.resetStyle();

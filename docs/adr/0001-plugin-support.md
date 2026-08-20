@@ -48,7 +48,7 @@ The plugin system is implemented in `packages/addons/src/plugins-support.ts`:
   - `onLoadError(error)` runs when a `load` call fails, before the error is rethrown to the caller. Implement it to roll back partial work; it does not swallow the error.
   - `onDispose()` runs when the instance is disposed, before the underlying core resources are released, so the instance and the BPMN model are still accessible. Implement it to release everything the plugin acquired.
 - Plugins are passed to the constructor through `options.plugins`. They are instantiated with `(bpmnVisualization, options)` and stored in a per-instance registry.
-- Consumers retrieve a plugin with `getPlugin<PluginType>(pluginId)` and then call its methods.
+- Consumers retrieve a plugin with `getPlugin<PluginType>(pluginId)` and then call its methods. The lookup returns `undefined` when no plugin is registered with this id.
 
 The plugin lifecycle is therefore:
 

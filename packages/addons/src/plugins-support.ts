@@ -143,8 +143,14 @@ export class BpmnVisualization extends BaseBpmnVisualization {
     this.forEachPlugin(plugin => plugin.onLoadSuccess?.());
   }
 
-  getPlugin<T extends Plugin>(id: PluginIds): T {
-    return this.plugins.get(id) as T;
+  /**
+   * Retrieve a plugin registered on this instance.
+   *
+   * @param id The identifier of the plugin, as returned by its {@link Plugin.getPluginId} implementation.
+   * @returns The plugin registered with this identifier, or `undefined` when no plugin has been registered with it.
+   */
+  getPlugin<T extends Plugin>(id: PluginIds): T | undefined {
+    return this.plugins.get(id) as T | undefined;
   }
 
   private readonly registerPlugins = (options: GlobalOptions): void => {

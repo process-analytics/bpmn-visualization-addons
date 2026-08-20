@@ -1,0 +1,14 @@
+{
+  // Shared by every package, and by `tsconfig.eslint.json`. It holds only the type-checking strictness that must not
+  // drift between packages. Everything else stays local on purpose:
+  //   - `target`, `module`, `lib` and `moduleResolution` differ because the packages have different jobs: a published
+  //     library, a bundled demo, and a compatibility check that mimics a minimal consumer.
+  //   - `skipLibCheck` is false where third-party types must be validated (`addons`, `check-ts-support`) and true
+  //     where they are known to be noisy (`demo`, and the addons test config).
+  //   - emit options (`declaration`, `outDir`, `stripInternal`, `noEmit`) belong to whichever package emits.
+  "compilerOptions": {
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitOverride": true
+  }
+}

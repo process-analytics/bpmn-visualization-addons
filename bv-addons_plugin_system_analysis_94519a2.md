@@ -12,6 +12,9 @@ Those probes are kept in [`tools/plugin-registry-probes/`](./tools/plugin-regist
 `./tools/plugin-registry-probes/run-probes.sh`. Every TypeScript claim in sections 5.A and 5.F comes from their
 output. Their compiler errors are the measurement rather than a defect, so do not "fix" them.
 
+A companion document, [`bv-addons_plugin_lifecycle_and_events_analysis_f1b4616.md`](./bv-addons_plugin_lifecycle_and_events_analysis_f1b4616.md), covers what happens after a plugin is loaded:
+lifecycle hooks, event systems, error isolation and teardown, over the same corpus.
+
 ## Verdict
 
 The mechanism is small, correct in its core choices, and has the strictest collision handling of any comparable

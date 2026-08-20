@@ -65,6 +65,10 @@ export interface Plugin {
    *
    * It runs at most once per instance: a second `dispose()` does not call it again.
    *
+   * Do not call `dispose()` from this hook. The nested call is the one that reaches the core disposal first, so the
+   * underlying resources are released in the middle of the dispatch and the plugins registered after this one run
+   * against a destroyed graph.
+   *
    * It also runs when the registration of a later plugin fails, so that the plugins already constructed release what
    * they acquired instead of leaking with the discarded instance. On that path {@link Plugin.onConfigure} has not run,
    * so an implementation must not assume it did.
@@ -168,6 +172,10 @@ export class BpmnVisualization extends BaseBpmnVisualization {
   }
 
   override dispose(): void {
+    // No guard needed here: `disposePlugins` has its own, and the core `dispose` also runs at most once. What neither
+    // guard covers is the ordering when a plugin calls `dispose()` from its own `onDispose`: that nested call reaches
+    // the core first and destroys the graph mid-dispatch. Documented on `Plugin.onDispose` rather than prevented,
+    // since a hook disposing the instance that is disposing it is not a supported pattern.
     this.disposePlugins();
     super.dispose();
   }

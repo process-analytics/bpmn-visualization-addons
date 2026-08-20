@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "generated-lib",
+    "rootDir": "src"
+  },
+  "include": ["src/**/*.ts"]
+}

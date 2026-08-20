@@ -369,7 +369,7 @@ describe('Ensure that plugins cannot break each other nor the host', () => {
 
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining("'onDispose'"),
+        expect.stringMatching(/^\[bv-addons] .*'onDispose'/),
         expect.arrayContaining([
           { pluginId: 'p1', error: expect.objectContaining({ message: 'boom-p1-onDispose' }) },
           { pluginId: 'p2', error: expect.objectContaining({ message: 'boom-p2-onDispose' }) },

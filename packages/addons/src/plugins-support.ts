@@ -231,7 +231,12 @@ export class BpmnVisualization extends BaseBpmnVisualization {
       }
     }
     if (failures.length > 0) {
-      console.error(`Errors thrown by the '${hookName}' hook of ${failures.length} plugin(s). They have been ignored to let the other plugins run.`, failures);
+      // Reporting to the console is a first implementation, and the intended default rather than the only option.
+      // What to do with a failing plugin is the consumer's decision, not this package's: a later version can accept a
+      // handler receiving these failures, so that the caller retrieves them and chooses, whether that is logging
+      // differently, surfacing them in the interface, counting them, or rethrowing. This stays the fallback when no
+      // handler is provided.
+      console.error(`[bv-addons] Errors thrown by the '${hookName}' hook of ${failures.length} plugin(s). They have been ignored to let the other plugins run.`, failures);
     }
   };
 }

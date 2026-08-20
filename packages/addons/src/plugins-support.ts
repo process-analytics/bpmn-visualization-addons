@@ -63,11 +63,11 @@ export interface Plugin {
    * It runs before the core resources are released, so the {@link BpmnVisualization} instance and the BPMN model are still
    * accessible if cleanup requires them.
    *
-   * It runs at most once per instance: a second `dispose()` does not call it again.
+   * It runs at most once per instance: a second call to {@link BpmnVisualization.dispose} does not call it again.
    *
-   * Do not call `dispose()` from this hook. The nested call is the one that reaches the core disposal first, so the
-   * underlying resources are released in the middle of the dispatch and the plugins registered after this one run
-   * against a destroyed graph.
+   * Do not call {@link BpmnVisualization.dispose} from this hook, on the instance the plugin was constructed with.
+   * That nested call is the one that reaches the core disposal first, so the underlying resources are released in
+   * the middle of the dispatch and the plugins registered after this one run against a destroyed graph.
    *
    * It also runs when the registration of a later plugin fails, so that the plugins already constructed release what
    * they acquired instead of leaking with the discarded instance. On that path {@link Plugin.onConfigure} has not run,
@@ -173,9 +173,9 @@ export class BpmnVisualization extends BaseBpmnVisualization {
 
   override dispose(): void {
     // No guard needed here: `disposePlugins` has its own, and the core `dispose` also runs at most once. What neither
-    // guard covers is the ordering when a plugin calls `dispose()` from its own `onDispose`: that nested call reaches
-    // the core first and destroys the graph mid-dispatch. Documented on `Plugin.onDispose` rather than prevented,
-    // since a hook disposing the instance that is disposing it is not a supported pattern.
+    // guard covers is the ordering when a plugin calls `dispose()` on this instance from its own `onDispose`: that
+    // nested call reaches the core first and destroys the graph mid-dispatch. Documented on `Plugin.onDispose` rather
+    // than prevented, since a hook disposing the instance that is disposing it is not a supported pattern.
     this.disposePlugins();
     super.dispose();
   }
@@ -223,8 +223,9 @@ export class BpmnVisualization extends BaseBpmnVisualization {
     if (this.pluginsDisposed) {
       return;
     }
-    // Set before dispatching, so that a plugin calling `dispose()` from its own `onDispose` cannot recurse. Errors
-    // are isolated by `forEachPlugin`, so this cannot leave the instance in a state where disposal never completes.
+    // Set before dispatching, so that a plugin calling `dispose()` on this instance from its own `onDispose` cannot
+    // recurse. Errors are isolated by `forEachPlugin`, so this cannot leave the instance in a state where disposal
+    // never completes.
     this.pluginsDisposed = true;
     this.forEachPlugin('onDispose', plugin => plugin.onDispose?.());
     // Release the instances, so that the host stops keeping them alive and `getPlugin` stops handing out dead ones.

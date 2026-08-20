@@ -27,8 +27,22 @@ export type PluginConstructor = new (bpmnVisualization: BpmnVisualization, optio
  * not by client code:
  *   - construct
  *   - {@link Plugin.onConfigure}: once, after all plugins have been constructed
- *   - {@link Plugin.onBeforeLoad} / {@link Plugin.onLoadSuccess} / {@link Plugin.onLoadError}: on each `load` call
+ *   - {@link Plugin.onBeforeLoad} / {@link Plugin.onLoadSuccess} / {@link Plugin.onLoadError}: on each
+ *     {@link BpmnVisualization.load} call
  *   - {@link Plugin.onDispose}: when the {@link BpmnVisualization} instance is disposed
+ *
+ * Hooks are called in registration order, that is the order of the `plugins` option.
+ *
+ * A hook that throws cannot break the host nor the other plugins: the error is caught, the remaining plugins still
+ * receive the hook, and the failures of one dispatch are reported together with `console.error`. A plugin that needs
+ * to react to its own failure has to handle it inside its hook.
+ *
+ * Construction is the exception, because it is not a hook. A plugin constructor or a {@link Plugin.getPluginId}
+ * implementation that throws aborts the whole registration, and the error reaches the caller of the
+ * {@link BpmnVisualization} constructor, which gets no instance. Nothing leaks: the plugins already registered receive
+ * {@link Plugin.onDispose} and the core resources are released before the error is rethrown. So a plugin whose set-up
+ * can fail either throws, making the misconfiguration fatal for the whole visualization, or defers that set-up to
+ * {@link Plugin.onConfigure}, whose failure is isolated like any other hook failure.
  */
 export interface Plugin {
   /** Returns the unique identifier of the plugin. It is not possible to use several plugins having the same identifier. */
@@ -56,25 +70,38 @@ export interface Plugin {
    *
    * It runs before the core resources are released, so the {@link BpmnVisualization} instance and the BPMN model are still
    * accessible if cleanup requires them.
+   *
+   * It runs at most once per instance: a second call to {@link BpmnVisualization.dispose} does not call it again.
+   *
+   * Do not call {@link BpmnVisualization.dispose} from this hook, on the instance the plugin was constructed with.
+   * That nested call is the one that reaches the core disposal first, so the underlying resources are released in
+   * the middle of the dispatch and the plugins registered after this one run against a destroyed graph.
+   *
+   * It also runs when the registration of a later plugin fails, so that the plugins already constructed release what
+   * they acquired instead of leaking with the discarded instance. On that path {@link Plugin.onConfigure} has not run,
+   * so an implementation must not assume it did.
    * @since 0.10.0
    */
   onDispose?: () => void;
 
   /**
-   * Lifecycle hook called by {@link BpmnVisualization} at the beginning of each `load` call, before the BPMN source is processed.
+   * Lifecycle hook called by {@link BpmnVisualization} at the beginning of each {@link BpmnVisualization.load} call,
+   * before the BPMN source is processed.
    * It is not intended to be called by client code.
    *
    * Runs while the previous model is still rendered. Implement it to reset state tied to the outgoing model, for example
    * clearing caches, removing overlays or CSS classes, or discarding indexes built from the previous diagram.
    *
-   * `load` can be called several times on the same instance, so this hook may run more than once.
+   * {@link BpmnVisualization.load} can be called several times on the same instance, so this hook may run more than
+   * once.
    * @since 0.10.0
    */
   onBeforeLoad?: () => void;
 
   /**
-   * Lifecycle hook called by {@link BpmnVisualization} after a `load` call has succeeded. It is not called when the load fails;
-   * in that case, {@link Plugin.onLoadError} is called instead. It is not intended to be called by client code.
+   * Lifecycle hook called by {@link BpmnVisualization} after a {@link BpmnVisualization.load} call has succeeded. It is
+   * not called when the load fails; in that case, {@link Plugin.onLoadError} is called instead. It is not intended to
+   * be called by client code.
    *
    * Runs after the new model has been rendered. Implement it to (re)build state from the freshly loaded diagram, for example
    * indexing elements, registering event listeners, or applying default styles and overlays. Clean up this work in a later
@@ -84,8 +111,8 @@ export interface Plugin {
   onLoadSuccess?: () => void;
 
   /**
-   * Lifecycle hook called by {@link BpmnVisualization} when a `load` call fails, before the error is rethrown to the caller.
-   * It is not intended to be called by client code.
+   * Lifecycle hook called by {@link BpmnVisualization} when a {@link BpmnVisualization.load} call fails, before the
+   * error is rethrown to the caller. It is not intended to be called by client code.
    *
    * Implement it to roll back any partial work started in {@link Plugin.onBeforeLoad} and to report or log the failure.
    * It does not swallow the error: the original error is still rethrown to the caller.
@@ -119,28 +146,60 @@ export type DefaultPlugins = 'css' | 'elements' | 'overlays' | 'style' | 'style-
  */
 export type PluginIds = DefaultPlugins | (string & Record<never, never>);
 
+/**
+ * The lifecycle hooks {@link BpmnVisualization} dispatches, derived from {@link Plugin} rather than listed again, so
+ * that adding a hook to the interface cannot leave the dispatch out of step with it.
+ *
+ * Exported so that the tests share this definition instead of restating it. `stripInternal` keeps it out of the
+ * published declarations, so it is not part of the public API.
+ * @internal
+ */
+export type PluginHookName = Exclude<keyof Plugin, 'getPluginId'>;
+
+/** A plugin hook that threw, kept so that every failure of a single dispatch can be reported together. */
+interface PluginHookFailure {
+  pluginId: string;
+  error: unknown;
+}
+
 export class BpmnVisualization extends BaseBpmnVisualization {
   private readonly plugins = new Map<string, Plugin>();
+  // Not named `disposed`: the base class defines an own property with that name at runtime, and redeclaring it here
+  // would overwrite it and defeat its own idempotency guard.
+  private pluginsDisposed = false;
 
   constructor(options: GlobalOptions) {
     super(options);
-    this.registerPlugins(options);
+    try {
+      this.registerPlugins(options);
+    } catch (error) {
+      // `super(options)` has already built the graph and its listeners. The instance is about to be discarded, so
+      // release them instead of leaking them. `super.dispose()` rather than `this.dispose()`, because `dispose` is
+      // overridable and a subclass override would run here before its own fields are initialized.
+      this.disposePlugins();
+      super.dispose();
+      throw error;
+    }
   }
 
   override dispose(): void {
-    this.forEachPlugin(plugin => plugin.onDispose?.());
+    // No guard needed here: `disposePlugins` has its own, and the core `dispose` also runs at most once. What neither
+    // guard covers is the ordering when a plugin calls `dispose()` on this instance from its own `onDispose`: that
+    // nested call reaches the core first and destroys the graph mid-dispatch. Documented on `Plugin.onDispose` rather
+    // than prevented, since a hook disposing the instance that is disposing it is not a supported pattern.
+    this.disposePlugins();
     super.dispose();
   }
 
   override load(xml: string, options?: LoadOptions): void {
-    this.forEachPlugin(plugin => plugin.onBeforeLoad?.());
+    this.forEachPlugin('onBeforeLoad', plugin => plugin.onBeforeLoad?.());
     try {
       super.load(xml, options);
     } catch (error) {
-      this.forEachPlugin(plugin => plugin.onLoadError?.(error));
+      this.forEachPlugin('onLoadError', plugin => plugin.onLoadError?.(error));
       throw error;
     }
-    this.forEachPlugin(plugin => plugin.onLoadSuccess?.());
+    this.forEachPlugin('onLoadSuccess', plugin => plugin.onLoadSuccess?.());
   }
 
   /**
@@ -159,20 +218,55 @@ export class BpmnVisualization extends BaseBpmnVisualization {
       const plugin = new constructor(this, options);
       const pluginId = plugin.getPluginId();
       if (this.plugins.has(pluginId)) {
+        // This instance is fully constructed but never enters the map, so `disposePlugins` cannot reach it. Give it
+        // its `onDispose` here, and report rather than throw, so that it cannot mask the duplicate identifier error.
+        this.callPluginsHook('onDispose', [[pluginId, plugin]], toDispose => toDispose.onDispose?.());
         throw new Error(`Plugin loading fails. It is not possible to register multiple plugins with the same '${pluginId}' identifier.`);
       }
       this.plugins.set(pluginId, plugin);
     }
 
     // configure
-    for (const plugin of this.plugins.values()) {
-      plugin.onConfigure?.(options);
-    }
+    this.forEachPlugin('onConfigure', plugin => plugin.onConfigure?.(options));
   };
 
-  private readonly forEachPlugin = (functor: (plugin: Plugin) => void): void => {
-    for (const plugin of this.plugins.values()) {
-      functor(plugin);
+  private readonly disposePlugins = (): void => {
+    if (this.pluginsDisposed) {
+      return;
+    }
+    // Set before dispatching, so that a plugin calling `dispose()` on this instance from its own `onDispose` cannot
+    // recurse. Errors are isolated by `forEachPlugin`, so this cannot leave the instance in a state where disposal
+    // never completes.
+    this.pluginsDisposed = true;
+    this.forEachPlugin('onDispose', plugin => plugin.onDispose?.());
+    // Release the instances, so that the host stops keeping them alive and `getPlugin` stops handing out dead ones.
+    this.plugins.clear();
+  };
+
+  private readonly forEachPlugin = (hookName: PluginHookName, functor: (plugin: Plugin) => void): void => {
+    this.callPluginsHook(hookName, this.plugins, functor);
+  };
+
+  /**
+   * Call one hook on the given plugins, letting every plugin run even when another one throws. Failures are collected
+   * and reported once: a plugin must not be able to break the host, nor the plugins registered after it.
+   */
+  private readonly callPluginsHook = (hookName: PluginHookName, plugins: Iterable<[string, Plugin]>, functor: (plugin: Plugin) => void): void => {
+    const failures: PluginHookFailure[] = [];
+    for (const [pluginId, plugin] of plugins) {
+      try {
+        functor(plugin);
+      } catch (error) {
+        failures.push({ pluginId, error });
+      }
+    }
+    if (failures.length > 0) {
+      // Reporting to the console is a first implementation, and the intended default rather than the only option.
+      // What to do with a failing plugin is the consumer's decision, not this package's: a later version can accept a
+      // handler receiving these failures, so that the caller retrieves them and chooses, whether that is logging
+      // differently, surfacing them in the interface, counting them, or rethrowing. This stays the fallback when no
+      // handler is provided.
+      console.error(`[bv-addons] Errors thrown by the '${hookName}' hook of ${failures.length} plugin(s). They have been ignored to let the other plugins run.`, failures);
     }
   };
 }

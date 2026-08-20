@@ -85,6 +85,16 @@ A plugin is defined as a class:
   - `onLoadSuccess`: called after a `load` call has succeeded.
   - `onLoadError`: called with the thrown error when a `load` call fails, before the error is rethrown to the caller.
   - `onDispose`: called when the `BpmnVisualization` instance is disposed, before the underlying resources are released.
+    It runs at most once, and it also runs when the registration of a later plugin fails, so that the plugins already
+    constructed can release what they acquired.
+
+Hooks are called in the order of the `plugins` option. A hook that throws cannot break the visualization nor the other
+plugins: the error is caught and reported with `console.error`, and the remaining plugins still receive the hook.
+
+Construction is not a hook and is not isolated. A plugin constructor that throws, like a duplicated plugin id, aborts
+the registration: the error reaches the caller of the `BpmnVisualization` constructor and no instance is created. The
+plugins already registered still receive `onDispose` and the core resources are released, so nothing leaks. Move the
+set-up that may fail without being fatal to `onConfigure`.
 
 ##### Passing options to a plugin with `onConfigure`
 

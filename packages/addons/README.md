@@ -53,8 +53,10 @@ const bpmnVisualization = new BpmnVisualization({
     container: 'bpmn-container',
     plugins: [MyPlugin]
 });
-// Retrieve the plugin by id. The id is defined in the plugin implementation
-const myPlugin = bpmnVisualization.getPlugin<MyPlugin>('my-plugin');
+// Retrieve the plugin by id. The id is defined in the plugin implementation.
+// `getPlugin` returns `undefined` when no plugin is registered with this id, hence the non-null assertion here: the
+// plugin has just been registered above.
+const myPlugin = bpmnVisualization.getPlugin<MyPlugin>('my-plugin')!;
 myPlugin.aMethod();
 ```
 

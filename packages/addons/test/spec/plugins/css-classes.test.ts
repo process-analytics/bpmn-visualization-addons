@@ -36,7 +36,7 @@ beforeEach(() => {
 // The actual implementation is in `bpmn-visualization`. Here, we only validate that the `bpmn-visualization` code is called.
 describe('CssClassesPlugin', () => {
   const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId(), plugins: [CssClassesPlugin] });
-  const cssClassesPlugin = bpmnVisualization.getPlugin<CssClassesPlugin>('css');
+  const cssClassesPlugin = bpmnVisualization.getPlugin<CssClassesPlugin>('css')!;
 
   describe('addCssClasses', () => {
     test('Pass a single id', () => {

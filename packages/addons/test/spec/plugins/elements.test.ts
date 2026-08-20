@@ -25,7 +25,7 @@ import { readFileSync } from '../../shared/io-utilities.js';
 describe('Check ElementsPlugin methods', () => {
   const bpmnVisualization = new BpmnVisualization({ container: insertBpmnContainerWithoutId(), plugins: [ElementsPlugin] });
   bpmnVisualization.load(readFileSync('./fixtures/bpmn/search-elements.bpmn'));
-  const elementsPlugin = bpmnVisualization.getPlugin<ElementsPlugin>('elements');
+  const elementsPlugin = bpmnVisualization.getPlugin<ElementsPlugin>('elements')!;
 
   test('getElementsByIds', () => {
     const bpmnElements = elementsPlugin.getElementsByIds('Gateway_0t7d2lu');

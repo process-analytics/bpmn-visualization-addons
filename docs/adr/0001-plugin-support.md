@@ -59,6 +59,8 @@ The plugin lifecycle is therefore:
 
 At every step, a hook that throws is caught and reported rather than propagated: one plugin must not be able to break the visualization, nor the plugins registered after it.
 
+Construction is deliberately left out of that rule. A plugin constructor that throws, like a duplicated plugin id, is a configuration error rather than a runtime incident, so it aborts the construction and reaches the caller, after the plugins already registered have been disposed and the core resources released.
+
 The features provided by the addons package (`CssClassesPlugin`, `ElementsPlugin`, `OverlaysPlugin`, `StylePlugin`, `StyleByNamePlugin`) are implemented as plugins on top of this infrastructure.
 
 ### Consequences

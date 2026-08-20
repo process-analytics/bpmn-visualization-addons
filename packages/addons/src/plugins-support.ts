@@ -36,6 +36,13 @@ export type PluginConstructor = new (bpmnVisualization: BpmnVisualization, optio
  * A hook that throws cannot break the host nor the other plugins: the error is caught, the remaining plugins still
  * receive the hook, and the failures of one dispatch are reported together with `console.error`. A plugin that needs
  * to react to its own failure has to handle it inside its hook.
+ *
+ * Construction is the exception, because it is not a hook. A plugin constructor or a {@link Plugin.getPluginId}
+ * implementation that throws aborts the whole registration, and the error reaches the caller of the
+ * {@link BpmnVisualization} constructor, which gets no instance. Nothing leaks: the plugins already registered receive
+ * {@link Plugin.onDispose} and the core resources are released before the error is rethrown. So a plugin whose set-up
+ * can fail either throws, making the misconfiguration fatal for the whole visualization, or defers that set-up to
+ * {@link Plugin.onConfigure}, whose failure is isolated like any other hook failure.
  */
 export interface Plugin {
   /** Returns the unique identifier of the plugin. It is not possible to use several plugins having the same identifier. */

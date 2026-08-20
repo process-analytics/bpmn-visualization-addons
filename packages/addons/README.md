@@ -91,6 +91,11 @@ A plugin is defined as a class:
 Hooks are called in the order of the `plugins` option. A hook that throws cannot break the visualization nor the other
 plugins: the error is caught and reported with `console.error`, and the remaining plugins still receive the hook.
 
+Construction is not a hook and is not isolated. A plugin constructor that throws, like a duplicated plugin id, aborts
+the registration: the error reaches the caller of the `BpmnVisualization` constructor and no instance is created. The
+plugins already registered still receive `onDispose` and the core resources are released, so nothing leaks. Move the
+set-up that may fail without being fatal to `onConfigure`.
+
 ##### Passing options to a plugin with `onConfigure`
 
 `onConfigure` receives the options passed to the `BpmnVisualization` constructor. To pass your own properties in a

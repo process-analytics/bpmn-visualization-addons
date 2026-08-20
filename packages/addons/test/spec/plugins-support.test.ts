@@ -428,6 +428,27 @@ describe('Ensure that plugins cannot break each other nor the host', () => {
       expect(hookCalls.filter(call => call.endsWith(':onConfigure'))).toHaveLength(0);
     });
 
+    test('Dispose the plugins already registered when a plugin constructor throws, and let the error reach the caller', () => {
+      const FailingPlugin: PluginConstructor = class extends createRecordingPlugin('failing') {
+        constructor(bpmnVisualization: BpmnVisualization, options: GlobalOptions) {
+          super(bpmnVisualization, options);
+          throw new Error('cannot set up');
+        }
+      };
+
+      expect(
+        () =>
+          new BpmnVisualization({
+            container: insertBpmnContainerWithoutId(),
+            plugins: [createRecordingPlugin('p1'), FailingPlugin, createRecordingPlugin('p3')],
+          }),
+      ).toThrow('cannot set up');
+
+      // Unlike a hook failure, a construction failure is fatal. The plugin that threw never completed, so it gets no
+      // `onDispose`, and the ones declared after it are never constructed. Only what was registered is released.
+      expect(hookCalls).toEqual(['p1:onDispose']);
+    });
+
     test('Report but do not mask the duplicate identifier error when a plugin onDispose throws during the cleanup', () => {
       expect(
         () =>

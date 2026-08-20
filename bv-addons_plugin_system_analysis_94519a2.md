@@ -78,9 +78,13 @@ getPlugin<T extends Plugin>(id: PluginIds): T {
 
 1. **The generic is an unchecked cast.** `getPlugin<StylePlugin>('overlays')` compiles and returns an
    `OverlaysPlugin` typed as `StylePlugin`. Failure is a `TypeError` at the first method call. `getPlugin` carries no
-   TSDoc at all.
+   TSDoc at all. The cast itself is untouched, but the TSDoc is added by
+   [#554](https://github.com/process-analytics/bpmn-visualization-addons/pull/554).
 2. **The return type lies.** Declared non-nullable `T`, actually `undefined` for an unknown id, asserted by the suite
-   itself (`test/spec/plugins-support.test.ts:13`).
+   itself (`test/spec/plugins-support.test.ts:13`). Fixed by
+   [#554](https://github.com/process-analytics/bpmn-visualization-addons/pull/554), which declares `T | undefined`.
+   Compiling the demo against it produced 14 `TS18048` errors, one per call site that relied on the guarantee the
+   compiler never had.
 3. **The id has no link to the implementation.** `DefaultPlugins` (`plugins-support.ts:115`) re-declares the five id
    literals that already live in each `getPluginId()` body. Nothing keeps them in sync, and `T` can never be inferred.
 
@@ -120,12 +124,16 @@ having the extension install API onto the host, never by renaming things.
 - **`StyleByNamePlugin` substring bug.** `plugins/style.ts:103` and `:115` cast `string | string[]` to `string[]`, and
   `bpmn-elements.ts:93` filters with `names.includes(element.name)`. With a single string that is
   `String.prototype.includes`, so `updateStyle('Task 1', ...)` also matches an element named `Task`. Passing a plain
-  string is part of the documented signature. No test covers it.
+  string is part of the documented signature. No test covers it. Fixed by
+  [#553](https://github.com/process-analytics/bpmn-visualization-addons/pull/553), which normalizes the parameter to
+  an array instead of casting, with one regression test per method.
 - **The typings-validation package never exercises the plugin API.** `packages/check-ts-support/src/index.ts:18`
   imports `BpmnVisualization` from `bpmn-visualization` rather than from the addons package, and contains zero uses of
   `plugins:` or `getPlugin`. So `PluginConstructor`, `getPlugin` and the `GlobalOptions` module augmentation, the
   riskiest typing construct in the package, are never checked against the minimum supported TypeScript version. It
-  also reproduces the exact mistake the README and the ADR warn consumers against.
+  also reproduces the exact mistake the README and the ADR warn consumers against. Fixed by
+  [#554](https://github.com/process-analytics/bpmn-visualization-addons/pull/554), which registers and retrieves a
+  plugin there; removing the guard it adds makes TypeScript 4.5.2 fail with `TS2532`, so the check does bite.
 
 ## 3. Missing features
 
@@ -1082,7 +1090,9 @@ Notable: duplicate `pluginId` **overwrites silently** (`Map.set` is unconditiona
 two plugins handling the same functionality "leads to non-deterministic behavior". Plugins receive only the graph,
 with no options object and no configure hook. Cross-plugin dependency is lazy and by convention:
 `PopupMenuHandler` and `SelectionHandler` call `this.graph.getPlugin<X>('X')` at use time and tolerate `undefined`.
-The docs' own custom-plugin example omits the required `onDestroy`.
+The docs' own custom-plugin example omitted the required `onDestroy`, and the retrieval example on the same page
+dereferenced the nullable result of `getPlugin`, so neither compiled. Both are fixed by
+[maxGraph/maxGraph#1144](https://github.com/maxGraph/maxGraph/pull/1144), merged.
 
 **Dynamic:** nothing after construction. Registration happens once in the `AbstractGraph` constructor, the map is
 private, and `onDestroy` is invoked only from `destroy()`, over every plugin at once. A repository-wide search at

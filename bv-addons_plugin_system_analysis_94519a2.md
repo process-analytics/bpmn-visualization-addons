@@ -182,7 +182,8 @@ maxGraph, bpmn-js, LogicFlow, PrismJS, ECharts, Cytoscape and auto-animate.
 Two observations about that split. Being a browser library decides nothing, both camps are well populated. And the
 capability is largely **undocumented even where it exists**: X6's `disposePlugins`, `enablePlugins` and
 `disablePlugins` have zero hits in the repository's markdown, Chart.js documents `register`/`unregister` but never
-runtime mutation of a chart's plugin list, and countUp's live slot appears in no documentation at all.
+runtime mutation of a chart's plugin list, and countUp's live slot appears in no documentation at all. Each appendix entry
+carries a **Dynamic** paragraph with that library's mechanism and its caveats.
 
 **Removal is where the designs actually diverge**, and that is the part that bears on this package. Three behaviors:
 
@@ -1083,6 +1084,11 @@ with no options object and no configure hook. Cross-plugin dependency is lazy an
 `PopupMenuHandler` and `SelectionHandler` call `this.graph.getPlugin<X>('X')` at use time and tolerate `undefined`.
 The docs' own custom-plugin example omits the required `onDestroy`.
 
+**Dynamic:** nothing after construction. Registration happens once in the `AbstractGraph` constructor, the map is
+private, and `onDestroy` is invoked only from `destroy()`, over every plugin at once. A repository-wide search at
+`v0.24.0` for `addPlugin`, `removePlugin` and `setPlugins` returns no hit in source, tests or website. Several
+built-ins expose their own `setEnabled`, but that is behavior a plugin author chose, not part of `GraphPlugin`.
+
 What it teaches: this package already improved on it (five hooks against one, fail-fast duplicates, an options
 channel). The remaining shared defect is the cast, and it is the natural thing to fix jointly.
 
@@ -1115,6 +1121,13 @@ interception, which is what makes rules and behaviors composable.
 
 Teardown is shallow: `destroy()` fires `diagram.destroy` and each service cleans itself up by convention. The injector
 is never torn down, and its instance cache is never cleared.
+
+**Dynamic:** the injector is frozen at bootstrap. didi exposes `get`, `invoke`, `instantiate`, `createChild` and
+`init`, and modules are consumed once; bpmn-js reads `additionalModules` in `_init`, called from the constructor, so
+mutating `_modules` afterwards has no effect. The nearest thing to adding is
+`injector.createChild([module]).init()`, which builds a second injector inheriting the live singletons while the
+host's own injector is unchanged, so `viewer.get('newService')` still throws. It is typed but documented nowhere.
+No removal, and no per-module teardown hook exists: the convention is a single `diagram.destroy` event.
 
 What it teaches: dependency declaration by identity, and an event bus worth copying if one is ever added here.
 
@@ -1159,6 +1172,14 @@ Graph.prototype.select = function (cells, options) {
 Note the `if (selection)`: calling `graph.select()` without the plugin is a **silent no-op**. `installedPlugins` is
 not cleared by `dispose()`. The plugin interface has never been documented in any version.
 
+**Dynamic:** the richest per-plugin control in the survey, and entirely undocumented. `graph.use(plugin, ...options)`
+is the only installation path and works on a live graph, since there is no `plugins` option at all. `disposePlugins`
+calls the plugin's `dispose()`, a required member, then unregisters it. `enablePlugins`, `disablePlugins` and
+`isPluginEnabled` exist, but `enable`, `disable` and `isEnabled` are optional on the interface and are called through
+optional chaining, so a plugin that omits them is silently unaffected and `isPluginEnabled` returns `undefined`
+instead of a boolean. Deduplication is by object identity rather than by name, so two plugins sharing a `name` both
+install and `getPlugin` returns only the first.
+
 What it teaches: both the appeal of host augmentation and its two costs, silent no-ops and page-global patching.
 
 ### AntV G6 v5
@@ -1184,6 +1205,13 @@ back to a type lookup, then returns `undefined`. The `type` field is a bare `str
 
 The plugin base class is three members after inheritance: `constructor(context, options)`, `update(options)`,
 `destroy()`. There is no `init`. Plugins bind listeners in the constructor and unbind in `update`/`destroy`.
+
+**Dynamic:** `setPlugins` replaces the whole per-instance list and is the only way in or out; its JSDoc spells out the
+additive form. The controller diffs old against new by `key` and calls `destroy()` on the exiting instances only,
+so survivors keep their state, although every survivor is re-`update`d with its options on each call. Entries without
+an explicit `key` receive a positional auto-key, so a removal in an unkeyed list re-indexes the rest and can destroy
+the wrong instance. This per-instance list is distinct from the global registry, which holds classes and instantiates
+nothing.
 
 What it teaches: the registry design in its fullest form, and the evidence that it buys neither tree-shaking nor type
 safety.
@@ -1221,6 +1249,14 @@ Three consumer idioms coexist for the same mechanism: go through `lf.extension.x
 plugin that works by pure side effect (`BpmnElement` registering element types). Which applies is knowable only from
 each plugin's docs.
 
+**Dynamic:** nothing at all, the only library in the survey with no post-construction management of any kind.
+`LogicFlow.use` is static and writes into a class-level map that the constructor consumes once, so calling it later
+affects only instances built afterwards. The per-instance `plugins` option is `readonly`, and `disabledPlugins` is
+read once and merely skips installation, so a disabled plugin is never instantiated rather than being off. Nothing
+removes an entry, and per-plugin `destroy()` runs only from `lf.destroy()`. The JSDoc on `use` claims that re-adding a
+plugin destroys the previous one; that call is commented out in the source, with a note that it never worked because
+the map holds constructors rather than instances, so re-using a name silently overwrites with no teardown.
+
 What it teaches: the global-registration-plus-per-instance-construction layering is genuinely valuable and separable
 from everything else. The retrieval story is a warning.
 
@@ -1242,6 +1278,14 @@ Retrieval exists but is vestigial: `Chart.registry.getPlugin(id)` returns the sh
 `Plugin` and throws on miss. Consumers are not meant to call it, because a Chart.js plugin is configured, never
 invoked. The plugin object is a singleton shared by every chart; built-ins stamp `chart.legend` / `chart.tooltip` and
 `delete` it in `stop`, with no supported per-chart state store.
+
+**Dynamic:** the fullest set in the survey, and mostly undocumented. `Chart.register`/`unregister` invalidate the
+descriptor cache of every live chart, so existing charts pick the change up on their next `update()`; splicing the
+inline `config.plugins` array does the same for a single chart. Disabling is the documented
+`options.plugins.<id> = false` flag, reversible. Two traps: `install` never runs for a late addition, only `start`,
+and removal fires `stop` and never `uninstall`, so a plugin that cleans up in `uninstall` leaks on every live removal.
+A third is type-level: `chart.config` is typed as the raw configuration with a mutable `plugins` array, while the
+runtime object is a wrapper whose `plugins` is a getter with no setter, so assigning a new array compiles and throws.
 
 What it teaches: declaration merging welding an id string to a type across a seam a cast would leave unchecked. This is
 the direct ancestor of alternative A.
@@ -1268,6 +1312,13 @@ Two typing holes worth knowing before copying: `PluginSpec.key?: PluginKey` is n
 key's `T` against the plugin's actual state type, and `PluginSpec` has `[key: string]: any`, which disables
 excess-property checking.
 
+**Dynamic:** `state.reconfigure({plugins})` replaces the whole array, and a dropped plugin's state field is discarded
+because carry-over is keyed by field name on the old state. `PluginView.destroy` is documented as running when the
+view "receives a state with different plugins", so teardown is not limited to editor destruction. The cost is that it
+is not a diff: any change to the array destroys and rebuilds every plugin view, so unrelated plugins pay for one
+removal. Carry-over by key name also means a different plugin instance reusing a key inherits the previous state.
+Plugins passed directly to the view are runtime-checked and rejected if they carry a state component.
+
 What it teaches: identity as capability. The type rides on the token, so there is one assertion at declaration time
 instead of one cast per call site.
 
@@ -1284,6 +1335,14 @@ and handles can stay module-private.
 
 A crashing plugin is logged, destroyed and deactivated, explicitly so it cannot take down the view. Reconfiguration
 destroys removed plugins automatically.
+
+**Dynamic:** reconfiguration is transactional rather than imperative. `Compartment.reconfigure` swaps the contents of
+a pre-placed compartment, `StateEffect.appendConfig` appends to the root, and `StateEffect.reconfigure` replaces it,
+each forcing a full resolve of the slot table. Disabling is the documented `compartment.reconfigure([])` idiom, but it
+removes rather than suspends: a `ViewPlugin` is destroyed and a fresh instance created on re-enable, and a
+`StateField` runs `create()` again, so state does not survive an off/on cycle. Teardown is split by kind:
+`ViewPlugin.destroy` runs on removal, while a `StateField` has none at all, the word `destroy` never appearing in
+`@codemirror/state`.
 
 What it teaches: dependency declaration that works by pulling the dependency in rather than validating that the
 consumer supplied it, plus the only error-isolation policy in the survey.
@@ -1320,6 +1379,13 @@ Duplicate extension names only `console.warn`, and both copies stay wired.
 Storage is the sound counterpart: `interface Storage {}` has **no index signature**, so `editor.storage.characterCount`
 is a compile error unless the extension ships its own augmentation.
 
+**Dynamic:** the extension set is frozen at construction. `registerPlugin` and `unregisterPlugin` operate on
+ProseMirror plugins only, the latter matching by prefix on a private key through two `@ts-ignore`s into ProseMirror
+internals. There is no `addExtension` or `setExtensions`. `editor.setOptions({extensions})` type-checks, because
+`extensions` belongs to `EditorOptions`, but at runtime it merges the options object and never rebuilds the extension
+manager or the schema, so it silently does nothing. Per-extension teardown does not exist either: an extension's
+`onDestroy` is bound once to the editor's own `destroy` event.
+
 What it teaches: both halves of alternative F. The commands surface shows the ergonomics, the storage surface shows how
 to get them without an index signature swallowing mistakes.
 
@@ -1347,6 +1413,12 @@ Caveat found in source: `FitAddon` and `WebglAddon` both reach into `(terminal a
 `// TODO: Remove reliance on private API`, so the public extension surface is not sufficient even for first-party
 addons.
 
+**Dynamic:** `loadAddon` works at any time and activates the addon immediately. There is no `unloadAddon`, no way to
+enumerate what is loaded, and no disable; unloading goes through the addon itself, because the manager overwrites the
+addon's own `dispose` with a wrapper that runs the original and then splices it out of the list. Disposal is one-way,
+so re-enabling means loading a fresh instance. This follows from instance-passing: the host holds no handle the
+consumer could name.
+
 What it teaches: alternative B in its purest form, including the honest cost that the host can never ask whether an
 addon is present.
 
@@ -1366,6 +1438,11 @@ const countUp = new CountUp('targetId', 5234, {
 One plugin slot, singular, no array and no composition. No registry, no id, no retrieval. The plugin's options are
 typed by its own constructor at the consumer's call site, and the core `CountUpOptions` interface contains zero
 knowledge of any plugin's option shape. No teardown exists at all.
+
+**Dynamic:** the plugin is one optional field of a public `options` object that `printValue` reads on every render, so
+assigning `countUp.options.plugin` swaps or clears it on a live instance. That works but is documented nowhere, the
+README showing only the constructor form. There is no teardown to speak of, since `CountUpPlugin` declares only
+`render`, so a plugin that touched the DOM leaves its markup behind when it is swapped out.
 
 What it teaches: the cleanest demonstration that instance-passing decouples plugin options from the core's type
 surface, and the clearest example of what is lost without a lifecycle.
@@ -1400,6 +1477,12 @@ typed home for its options. Documented constraints are unenforced: "The swap ani
 with `Sortable`", yet `plugins` is declared on the base options so the wrong combination type-checks and silently does
 nothing.
 
+**Dynamic:** `addPlugin(...)` constructs each class and calls `attach()`, `removePlugin(...)` calls `detach()` before
+dropping it, and `destroy()` routes through the same `removePlugin`, so removal and host teardown share one path.
+Identification is by constructor reference, which means removing a class removes every instance of it and two
+registrations of the same class cannot be told apart. There is no disable: re-adding constructs a new instance and
+loses whatever state the previous one held. `options.exclude.plugins` is read once at construction.
+
 What it teaches: the id is a consequence of retrieval. Remove the need to retrieve and the id, the collision namespace
 and the cast all disappear together.
 
@@ -1422,6 +1505,13 @@ structurally impossible. String ids resolve through the `window` global, which a
 Teardown is unusually thorough for registrations made during plugin execution (blocks, keymaps, component types,
 devices, style sectors are recorded and replayed in reverse), but `PluginManager.destroy()` never invokes the stored
 cleanups: they run only on explicit `Plugins.remove()`.
+
+**Dynamic:** `Plugins.add` and `Plugins.remove` work on a live editor since 0.23.1, `add` being the same code path
+init uses. `remove` runs the cleanup handler the plugin returned, or the recorded undo of what it registered while
+running. That tracking is narrower than it looks: the type declares nine buckets while the tracker installs listeners
+for five, so commands, trait types, style types and asset types are not undone. There is no disable, the documentation
+notwithstanding, only remove and re-add. The inherited `clear()` is public and typed but runs no cleanup, so it
+unregisters the plugins while leaving everything they installed in place.
 
 What it teaches: option typing by inference at the registration site, needing no registry and no merging.
 
@@ -1449,6 +1539,12 @@ per-instance concept at all, and two independently configured setups cannot coex
 The official docs example for writing a plugin is **wrong against the source**: it tests `env.token === 'entity'`, but
 the `wrap` env carries `type` and never `token`, so the condition is always false. The snippet above is the corrected
 form.
+
+**Dynamic:** there is no host instance to manage. A plugin is a script that appends to `Prism.hooks.all` and writes
+itself into the `Prism.plugins` bag; the hooks namespace offers `add` and `run` and no removal. Importing a plugin
+later works, so adding is possible and page-global, while undoing is not: hand-splicing the callback array is raw
+state mutation and would leave the plugin's other side effects in place. The closest thing to disabling is a
+per-element `no-<plugin-name>` class, a convention honored only by the plugins that check for it.
 
 What it teaches: hook-based extension at its most flexible and least safe, which is the shape of the trade-off behind
 the event-bus question.
@@ -1485,6 +1581,14 @@ Forgetting `use()` produces a development-only `console.error` and, in productio
 simply never renders. `ComposeOption` catches wrong series subtypes and wrong values but not missing components, for
 the index-signature reason described in 5.A.
 
+**Dynamic:** `echarts.use` appends to a module-private array with identity deduplication, and no `unuse` exists
+anywhere in the published types. What matters more is the behavior on a live chart, which the source addresses
+directly: the scheduler copies the processor arrays at instance construction, with a comment stating that incremental
+registration is not supported by its stream architecture. Component and series classes are resolved from the global
+registry at `setOption` time, so a late `use` is visible to a subsequent `setOption` while its processing and visual
+stages never are. The result is half-applied rather than refused, which is the strongest argument in the corpus that
+dynamic registration is an architectural commitment rather than an added method.
+
 What it teaches: real tree-shaking comes from passing values, and a permanent global registry with no `unuse` is the
 price.
 
@@ -1505,6 +1609,12 @@ and collection extensions are first-wins with a suppressible warning, layouts an
 recommended setup pattern is an import side effect, and there is no `sideEffects` field. There is no unregister at
 all, and `cy.destroy()` does not notify extensions.
 
+**Dynamic:** registration is page-global and irreversible. `core` and `collection` extensions are written onto the
+prototypes, so instances that already exist gain them at once; `layout` extensions resolve lazily and are equally
+visible; `renderer` extensions are not, the renderer being resolved once in the constructor. Nothing unregisters, and
+extensions have no teardown hook to run. Re-registering a `core` name is refused with a warning, while a `layout` name
+is silently overwritten for every instance on the page.
+
 What it teaches: maximum call-site transparency, and the full bill for it.
 
 ### FormKit auto-animate 0.10
@@ -1520,6 +1630,12 @@ Not a plugin system. What the docs call a plugin is the second positional argume
 `typeof === "function"`, one per element, mutually exclusive with the options object. No registry, no id, no ordering,
 no lifecycle. Passing a plugin means `duration`, `easing` and `disrespectUserMotionPreference` are all ignored,
 **including the reduced-motion check**, which is an accessibility regression with no warning.
+
+**Dynamic:** the plugin is the second argument of `autoAnimate` and is stored in a module-private `WeakMap`, so there
+is no public write after setup. Calling `autoAnimate` again on the same element does overwrite the entry, but it also
+leaks the previous `MutationObserver`, which is never disconnected and keeps firing. The returned controller's
+`enable` and `disable` are real and reversible, but they toggle all animation for that element rather than the plugin,
+and `destroy()` tears down the whole element setup.
 
 What it teaches: the correct amount of machinery for a problem with one extension point. Included as the honest lower
 bound, since a registry here would be pure overhead.

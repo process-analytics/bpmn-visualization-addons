@@ -27,7 +27,8 @@ export type PluginConstructor = new (bpmnVisualization: BpmnVisualization, optio
  * not by client code:
  *   - construct
  *   - {@link Plugin.onConfigure}: once, after all plugins have been constructed
- *   - {@link Plugin.onBeforeLoad} / {@link Plugin.onLoadSuccess} / {@link Plugin.onLoadError}: on each `load` call
+ *   - {@link Plugin.onBeforeLoad} / {@link Plugin.onLoadSuccess} / {@link Plugin.onLoadError}: on each
+ *     {@link BpmnVisualization.load} call
  *   - {@link Plugin.onDispose}: when the {@link BpmnVisualization} instance is disposed
  *
  * Hooks are called in registration order, that is the order of the `plugins` option.
@@ -77,20 +78,23 @@ export interface Plugin {
   onDispose?: () => void;
 
   /**
-   * Lifecycle hook called by {@link BpmnVisualization} at the beginning of each `load` call, before the BPMN source is processed.
+   * Lifecycle hook called by {@link BpmnVisualization} at the beginning of each {@link BpmnVisualization.load} call,
+   * before the BPMN source is processed.
    * It is not intended to be called by client code.
    *
    * Runs while the previous model is still rendered. Implement it to reset state tied to the outgoing model, for example
    * clearing caches, removing overlays or CSS classes, or discarding indexes built from the previous diagram.
    *
-   * `load` can be called several times on the same instance, so this hook may run more than once.
+   * {@link BpmnVisualization.load} can be called several times on the same instance, so this hook may run more than
+   * once.
    * @since 0.10.0
    */
   onBeforeLoad?: () => void;
 
   /**
-   * Lifecycle hook called by {@link BpmnVisualization} after a `load` call has succeeded. It is not called when the load fails;
-   * in that case, {@link Plugin.onLoadError} is called instead. It is not intended to be called by client code.
+   * Lifecycle hook called by {@link BpmnVisualization} after a {@link BpmnVisualization.load} call has succeeded. It is
+   * not called when the load fails; in that case, {@link Plugin.onLoadError} is called instead. It is not intended to
+   * be called by client code.
    *
    * Runs after the new model has been rendered. Implement it to (re)build state from the freshly loaded diagram, for example
    * indexing elements, registering event listeners, or applying default styles and overlays. Clean up this work in a later
@@ -100,8 +104,8 @@ export interface Plugin {
   onLoadSuccess?: () => void;
 
   /**
-   * Lifecycle hook called by {@link BpmnVisualization} when a `load` call fails, before the error is rethrown to the caller.
-   * It is not intended to be called by client code.
+   * Lifecycle hook called by {@link BpmnVisualization} when a {@link BpmnVisualization.load} call fails, before the
+   * error is rethrown to the caller. It is not intended to be called by client code.
    *
    * Implement it to roll back any partial work started in {@link Plugin.onBeforeLoad} and to report or log the failure.
    * It does not swallow the error: the original error is still rethrown to the caller.

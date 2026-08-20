@@ -437,6 +437,29 @@ That is not a disappointment, it is the same scope the hooks already cover, made
 to the plugin that implements the hook. Interaction events remain blocked upstream, and #1488 is the place where that
 would be unblocked.
 
+**A sixth event, and the first concrete use case for the bus.** Since #557, a plugin hook that throws is caught and
+reported with `console.error`, and the code marks that reporting as a first implementation: what to do with a failing
+plugin is the consumer's decision, not this package's. Letting them decide has two possible shapes, and they are not
+equivalent.
+
+An option in `GlobalOptions`, filled by module augmentation, works and costs one more entry on the options object. It
+is limited to one handler, chosen by whoever constructs the instance, so a plugin cannot observe the failures of
+another plugin.
+
+A `plugin:hook-error` event costs no new API surface at all, allows several subscribers, and lets a plugin react to
+its own failures or to another's, which the option cannot. It is the first use case for the bus that is not merely
+"the same thing the hooks already do, exposed more widely", which makes it the one worth building the bus for.
+
+It comes with a hazard specific to error events, and it has to be settled before the first line: **what happens when
+the listener of `plugin:hook-error` throws?** If the bus reports listener failures by emitting `plugin:hook-error`,
+that failure re-enters the same channel and recurses without end. The rule follows: failures of the `plugin:hook-error`
+dispatch go to the console and nowhere else, never back onto the bus. It is one line of code and an unbounded loop if
+forgotten, which is exactly the kind of decision section 4.4 argues cannot be retrofitted.
+
+Two secondary choices, recorded so they are not re-litigated: the event fires once per dispatch carrying every
+failure, matching what `callPluginsHook` already does rather than one event per failing plugin; and it stays emitted
+even when no listener is registered, with the console reporting as the fallback, so that a failure is never silent.
+
 ### 4.4 The design, and the evidence for each choice
 
 **One bus on the `BpmnVisualization` instance.** Not per-object listeners. maxGraph's nineteen sources with colliding

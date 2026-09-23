@@ -8,6 +8,10 @@ Same corpus, same pinned versions, same rule that every claim is cited to `file:
 performed 20 August 2026. The versions and sources table of the companion document applies unchanged and is not
 repeated here. Where a reading differs from that document, the difference is called out.
 
+Leafer UI and FlowGram.ai were added to the corpus on 23 September 2026, at the commits listed in the companion
+document, and are folded into the axes of section 3. Neither changes the recommendation; FlowGram.ai strengthens the
+case for the runner-up shape of section 4.2.
+
 This package is read at `main`, commit `f1b4616`.
 
 ---
@@ -178,6 +182,8 @@ error. For a package with five plugins and a single host object, that is a settl
 | draggable | yes | cancelable event objects, `event.cancel()`, honored by the host |
 | GrapesJS | partly | the `*:remove:before` plus `opts.abort` convention |
 | Cytoscape | partly | `stopPropagation` honored, `return false` implies both, but no priority |
+| Leafer UI | partly | `stop()` and `stopNow()` on the event object, honored by the dispatch loop; return values ignored. The editor adds `beforeSelect`, `beforeMove` and similar config callbacks where `false` cancels and an object rewrites the value (`leafer-in/packages/editor/src/tool/TransformTool.ts:135-139`) |
+| FlowGram.ai | not through events | events are notification only; a plugin can instead `rebind` a core service in the container, which is replacement rather than interception |
 | maxGraph | cooperative only | `consume()` is never read by the dispatcher |
 | X6 | no, despite appearances | `trigger` folds handler returns into an `AsyncBoolean` that **nothing ever consumes** |
 | G6, LogicFlow, PrismJS, ECharts, countUp, auto-animate | no | notification only |
@@ -220,6 +226,13 @@ Everyone else propagates, and the downstream damage is instructive:
   zero, permanently changing `off()` behavior.
 - **countUp**: `printValue` calls the plugin before the `requestAnimationFrame` reschedule, so one throw kills the
   animation loop for good rather than dropping a frame.
+- **FlowGram.ai**: hook loops and `Emitter.fire` are bare (`packages/canvas-engine/core/src/playground.ts:164-172`,
+  `:355-362`, `packages/common/utils/src/event.ts:64-68`). A throwing `onDispose` skips the later plugins and the
+  release of every resource. Its one `catch` near the hooks swallows a failing contribution factory into an empty
+  list, which would silently disable every plugin's lifecycle (`contribution-provider.ts:32-38`, read, not probed).
+- **Leafer UI**: `Eventer.emit` is bare (`leafer/packages/event/src/Eventer.ts:139-148`). Pointer events are walked
+  inside a single `try`/`catch`, so a throw is logged but every later listener and ancestor for that event is skipped:
+  containment without isolation.
 - **ECharts**: a throwing `afterinit` hook propagates out of `echarts.init()` *after* the instance was registered, so
   the chart exists and the caller never receives it. Since hooks are global and unremovable, one bad installer breaks
   every chart on the page permanently.
@@ -231,6 +244,8 @@ for bpmn-js (default 1000, higher first), Tiptap (default 100, higher first) and
 applies to processors, layouts and visuals only, never to its lifecycle hooks. Precedence buckets for CodeMirror.
 Undocumented for Chart.js, where it is registration order then inline array order and the plugin guide never mentions
 it. Draggable is the outlier: **reverse registration order** (`Emitter.ts:65`), so last registered runs first.
+FlowGram.ai runs every hook in plugin array order, dispose included; Leafer UI has no plugin hooks, and its listeners
+run in registration order.
 
 X6 tears plugins down in insertion order (`graph.ts:1417-1419`), xterm.js in reverse (`AddonManager.ts:17-21`).
 Neither documents the choice.
@@ -269,6 +284,11 @@ The technique that works is an **augmentable interface keyed by event name**, an
 - **GrapesJS**: `EditorEventCallbacks` is mergeable, and the bundled `dist/index.d.ts` exports it at top level so
   `declare module 'grapesjs'` works. Caveat: it carries a `[key: string]: any[]` index signature, so merging buys
   precise payloads, not permission.
+
+FlowGram.ai reaches exact typing without names at all: VS Code style `Emitter<T>` and `Event<T>` properties on each
+service (`packages/common/utils/src/event.ts:17-81`), which is shape A of section 4.2. Leafer UI is untyped: event
+types are `string` and listeners `(...arg: any) => any` (`leafer/packages/interface/src/event/IEventer.ts:8`), so
+`rect.on('pointer.dwn', ...)` compiles.
 
 Everyone else forecloses it, in three different ways. **LogicFlow** is the dead end: `EventArgs` is a `type` alias
 intersection (`event/eventArgs.ts:635-643`) and none of its nine constituent interfaces is exported, so there is no
@@ -367,7 +387,10 @@ subscription.dispose();
 
 Its public set is fixed and small, `onBell`, `onData`, `onKey`, `onRender`, `onResize` and a dozen more
 (`xterm.d.ts:885-971`), each an `IEvent<T>` whose subscribe call returns an `IDisposable`
-(`src/common/EventEmitter.ts:12-13`, `:29-43`).
+(`src/common/EventEmitter.ts:12-13`, `:29-43`). FlowGram.ai is a second, independent instance of the shape, with
+`onZoom`, `onScroll`, `onResize`, `onFocus` and `onBlur` on its playground, and a disposable that becomes a no-op after
+its first call (`packages/common/utils/src/event.ts:36-58`). It also confirms the objection below: a FlowGram plugin's
+events live on its own service, and another plugin reaches them only by resolving that service from the container.
 
 This obtains **by construction** three of the four properties section 4.4 says are expensive to retrofit. Typing is
 exact without an augmentable interface, and a misspelled `onLoadSucces` is a compile error rather than a listener that
@@ -399,10 +422,11 @@ coarser seam than a package-scoped interface. Events bubble up the DOM by defaul
 unbidden, so `bubbles: false` should be the default and the choice documented. And the container, currently an
 implementation detail the consumer merely supplies, becomes a public API surface.
 
-None of the seventeen libraries uses this as its extension channel. Two of them contain `CustomEvent` for unrelated
+None of the nineteen libraries uses this as its extension channel. Two of them contain `CustomEvent` for unrelated
 reasons: X6's `onCustomEvent` is its own naming for magnet events on cell views, and GrapesJS re-dispatches canvas
 iframe events onto the main document for interop (`packages/core/src/utils/dom.ts:101`). Checked against the cached
-sources of the libraries read for this study, not exhaustively across all seventeen.
+sources of the libraries read for this study, not exhaustively across all nineteen. FlowGram.ai uses `CustomEvent` only in tests, demos and one
+material package; Leafer UI not at all.
 
 **C. A middleware chain.** Tiptap's `dispatchTransaction` is composed with `reduceRight` so that each extension
 receives a `next` continuation and wraps the others (`ExtensionManager.ts:332-359`), and `transformPastedHTML` is
@@ -514,7 +538,7 @@ optional, and expose the interface from the package root rather than a deep path
 Whether to keep the `(string & Record<never, never>)` escape is the same trade-off as `PluginIds`, and the answer
 should match it.
 
-**No priority, for now.** Nine of the seventeen use plain registration order. Priority is the kind of thing bpmn-js
+**No priority, for now.** Eleven of the nineteen use plain registration order. Priority is the kind of thing bpmn-js
 needs because dozens of modules compose behaviors; five plugins do not. Document that order is `options.plugins`
 order, and add a test asserting it, which no library in the corpus does. If priority is ever added, take it as a named
 option rather than bpmn-js's positional argument disambiguated at runtime by `isFunction`.

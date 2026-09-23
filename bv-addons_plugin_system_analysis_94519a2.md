@@ -2,11 +2,13 @@
 
 Commit `94519a2`, package version 0.10.0, peer
 [`bpmn-visualization`](https://github.com/process-analytics/bpmn-visualization-js) `>=0.48.0`.
-Every claim is cited to `file:line` in this repo, or to a primary source for a third-party library. Seventeen
+Every claim is cited to `file:line` in this repo, or to a primary source for a third-party library. Nineteen
 browser-side extension mechanisms were examined; the per-library detail is in the appendix.
 
 Analysis carried out from 12 to 14 August 2026, with Claude Opus 5 (1M token context), using parallel research agents
-for the third-party survey and compiled probes for the TypeScript claims.
+for the third-party survey and compiled probes for the TypeScript claims. Leafer UI and FlowGram.ai were added on 23
+September 2026, with Claude Opus 5.5, by the same method; both fit families the first seventeen had already
+established, and the conclusions below did not change.
 
 Those probes are kept in [`tools/plugin-registry-probes/`](./tools/plugin-registry-probes/) and are runnable:
 `./tools/plugin-registry-probes/run-probes.sh`. Every TypeScript claim in sections 5.A and 5.F comes from their
@@ -28,9 +30,9 @@ forced to take a constructor and hand back an identity later.
 
 ## The organizing question
 
-Seventeen libraries sort cleanly by one question: **does a plugin expose an imperative API that the consumer calls?**
+Nineteen libraries sort cleanly by one question: **does a plugin expose an imperative API that the consumer calls?**
 
-- **No.** Draggable, GrapesJS, PrismJS, ECharts, Cytoscape and auto-animate have no retrieval API at all. The id
+- **No.** Draggable, GrapesJS, PrismJS, ECharts, Cytoscape, Leafer UI and auto-animate have no retrieval API at all. The id
   problem, the cast problem and the collision problem simply do not exist for them. Shopify draggable is the proof
   that an id is a *consequence of retrieval*, not a prerequisite of plugins: a repo-wide search across its 76 source
   files for `getPlugin`, `pluginId` and `registerPlugin` returns zero hits, because the class object already serves as
@@ -39,6 +41,9 @@ Seventeen libraries sort cleanly by one question: **does a plugin expose an impe
   string, and all pay with an unchecked cast. This package is in this group.
 - **Yes, and solved.** ProseMirror (typed token), Tiptap (declaration merging), xterm.js and countUp.js
   (instance-passing), CodeMirror (extension values plus typed handles). Four distinct escapes, all in production.
+  FlowGram.ai is a partial fifth: it retrieves a plugin's services from a dependency injection container keyed on the
+  exported service class, which is typed when inferred, and falls back to an unchecked cast as soon as the key is a
+  Symbol, a string, or an explicit type argument.
 
 This package needs the imperative API, so dropping the id is not available. The whole question is which escape to take.
 
@@ -47,19 +52,23 @@ This package needs the imperative API, so dropping the id is not available. The 
 - **No global mutable state.** The plugin map is a per-instance field (`plugins-support.ts:123`), and a grep for
   module-level mutable bindings, `static` fields and shared registries across `packages/addons/src` finds none. This
   is rarer than expected: X6 patches `Graph.prototype` and keeps a module-global CSS loader, Cytoscape mutates
-  prototypes globally and retroactively, ECharts and G6 hold permanent module-level registries with no `unuse`, and
-  PrismJS is a single page-wide singleton where two configurations cannot coexist. This is the best property the
+  prototypes globally and retroactively, ECharts and G6 hold permanent module-level registries with no `unuse`,
+  PrismJS is a single page-wide singleton where two configurations cannot coexist, and Leafer UI patches host
+  prototypes on import so that every app on the page shares one plugin set. This is the best property the
   package has, and several alternatives below would cost it.
 - **Fail-fast on duplicate ids** (`plugins-support.ts:155-157`), tested for three cases including subclassing
-  (`test/spec/plugins-support.test.ts:75-106`). Of seventeen libraries only ProseMirror also throws. maxGraph
+  (`test/spec/plugins-support.test.ts:75-106`). Of nineteen libraries only ProseMirror also throws. maxGraph
   overwrites silently, G6 warns and overwrites, LogicFlow overwrites silently (and in the global-plus-instance case
   installs the plugin twice, contradicting its own docs), Tiptap warns and keeps both, Cytoscape is inconsistent by
-  extension type.
+  extension type, Leafer UI lets the last import win, and FlowGram.ai goes both ways: first wins for ordinary plugins,
+  last wins for those flagged `singleton`, silently in both cases.
 - **The richest lifecycle of the class-based designs.** Five hooks (`plugins-support.ts:43-95`) against maxGraph's
   single `onDestroy`, X6's three, G6's three and LogicFlow's three. The two-phase construct-then-configure split
   (`plugins-support.ts:152-164`) means every plugin exists before any is configured, so a plugin can look up another
   in `onConfigure` without depending on array order. maxGraph has no equivalent and defers cross-plugin lookups to
-  call time; LogicFlow's `render` hook does not fire until the consumer calls `lf.render()`.
+  call time; LogicFlow's `render` hook does not fire until the consumer calls `lf.render()`. FlowGram.ai, which is
+  factory-based rather than class-based, also has five hooks and the same bind-then-init split, and is the only design
+  in the survey that matches this one on that axis.
 - **Tree-shaking is not sabotaged.** No import side effects, no global registration call. Contrast X6 v3, where every
   plugin does `import './api'` executing `Graph.prototype.select = ...` at import time with no `sideEffects` field;
   G6, where `preset.ts` statically registers all eighteen built-ins on any import; and PrismJS, where plugins are
@@ -144,12 +153,12 @@ having the extension install API onto the host, never by renaming things.
 
 | Gap | Current state | Who solves it |
 |---|---|---|
-| Declared dependencies | None | CodeMirror (`enables`/`provide` pull the dependency in), bpmn-js (`__depends__`, identity-deduplicated, topologically sorted). maxGraph, X6, G6, LogicFlow, Tiptap and draggable all have nothing |
+| Declared dependencies | None | CodeMirror (`enables`/`provide` pull the dependency in), bpmn-js (`__depends__`, identity-deduplicated, topologically sorted). maxGraph, X6, G6, LogicFlow, Tiptap, draggable and FlowGram.ai all have nothing. Leafer UI declares them as strings and only reports a missing one with `console.error`, once |
 | Load ordering | Array order, undocumented and unasserted | CodeMirror `Prec` buckets, Tiptap numeric `priority`, bpmn-js topological sort |
 | Error isolation | None, see 2.3 | CodeMirror |
-| Per-plugin typed options | Whole `GlobalOptions` passed to every plugin twice; namespacing is an unenforced README convention | Chart.js (namespaced, declaration-merged), GrapesJS (inferred from the plugin value, see below), xterm.js, countUp.js and X6 (ordinary constructor arguments) |
+| Per-plugin typed options | Whole `GlobalOptions` passed to every plugin twice; namespacing is an unenforced README convention | Chart.js (namespaced, declaration-merged), GrapesJS (inferred from the plugin value, see below), xterm.js, countUp.js and X6 (ordinary constructor arguments), FlowGram.ai (a generic on the plugin factory, so `createMinimapPlugin({ disableLayr: true })` is a compile error) |
 | Options validation | None. The only thrown error in the system is the duplicate-id one | Chart.js, and any instance-passing design where the plugin's own constructor validates |
-| Adding API surface | Methods live on the plugin object; the consumer must fetch it | Tiptap (declaration merging), X6 and Cytoscape (prototype patching) |
+| Adding API surface | Methods live on the plugin object; the consumer must fetch it | Tiptap (declaration merging), X6, Cytoscape and Leafer UI (prototype patching; Leafer declares the methods in the core types, so they type-check without the plugin) |
 | Cross-plugin communication | Only `getPlugin` from inside a plugin, unused by any shipped plugin | bpmn-js event bus with priority and interception, LogicFlow event bus without either |
 | Plugin metadata | Nothing beyond the id. A descriptor carrying version, declared dependencies and a capability list would give a single home for three separate gaps above | no browser library in the survey ships one; it is closer to what server-side plugin systems do |
 
@@ -168,7 +177,7 @@ The option type is inferred from the plugin value at the registration site.
 |---|---|---|
 | Knowing whether a plugin is loaded | Nothing. No `hasPlugin`, no `getPlugins`, no warning. The only signal is a `TypeError` | Chart.js throws on miss; G6 warns on a miss and on an unregistered plugin |
 | Knowing what a plugin adds | Read the source. The README says so outright (`README.md:54`) | ProseMirror and CodeMirror export plain functions, so the module's exports are the API |
-| Add or remove after construction | Impossible | Eight of the seventeen, detailed below: X6, G6, Chart.js, CodeMirror, ProseMirror, xterm.js, GrapesJS, draggable. Tiptap does it for ProseMirror plugins but not for its own extensions |
+| Add or remove after construction | Impossible | Eight of the nineteen, detailed below: X6, G6, Chart.js, CodeMirror, ProseMirror, xterm.js, GrapesJS, draggable. Tiptap does it for ProseMirror plugins but not for its own extensions |
 | Enable or disable without unloading | Impossible | Chart.js `options.plugins.<id> = false`, the only clean case. X6 `enablePlugins` works only for plugins that opted in, and silently does nothing otherwise. LogicFlow `disabledPlugins` does **not** belong here: it is read once in the constructor and skips installation |
 | Declaring a plugin set once for the whole app | Impossible; every call site repeats the list | LogicFlow: `LogicFlow.use(X)` registers the class globally, each instance constructs its own copy, and `plugins` plus `disabledPlugins` override per instance. This layering is genuinely more capable than a constructor-only list, and is orthogonal to every other axis here |
 | Version compatibility | Nothing links a plugin to a core version | X6 v2 used per-plugin peer dependencies |
@@ -180,15 +189,17 @@ The DeepWiki pass made "dynamic plugin management" one of its three recommendati
 rows above, because the survey shows the capability is common, and because adding it here would rewrite three
 published contracts rather than add one method.
 
-**What the survey found.** Eight of the seventeen let a consumer add or remove on a live host: X6 (`graph.use`,
+**What the survey found.** Eight of the nineteen let a consumer add or remove on a live host: X6 (`graph.use`,
 `disposePlugins`), G6 (`setPlugins`), Chart.js (`Chart.register`/`unregister`, or splicing the inline `config.plugins`
 array), CodeMirror (`Compartment.reconfigure`, `StateEffect.appendConfig`), ProseMirror
 (`state.reconfigure({plugins})`), xterm.js (`loadAddon`, then the addon's own `dispose`), GrapesJS (`Plugins.add` and
 `Plugins.remove`, since 0.23.1) and Shopify draggable (`addPlugin`/`removePlugin`). Tiptap is a half case: ProseMirror
 plugins can be registered and unregistered on a live editor, its own extension set cannot, and
 `editor.setOptions({extensions})` type-checks while doing nothing at runtime. countUp.js is a curiosity rather than a
-design: its single plugin slot is a public field, so it can be swapped live, undocumented. Seven offer nothing:
-maxGraph, bpmn-js, LogicFlow, PrismJS, ECharts, Cytoscape and auto-animate.
+design: its single plugin slot is a public field, so it can be swapped live, undocumented. Nine offer nothing:
+maxGraph, bpmn-js, LogicFlow, PrismJS, ECharts, Cytoscape, auto-animate, Leafer UI (prototype patches cannot be undone)
+and FlowGram.ai (plugins load once, and its React provider states in a source comment that changing them is not
+allowed).
 
 Two observations about that split. Being a browser library decides nothing, both camps are well populated. And the
 capability is largely **undocumented even where it exists**: X6's `disposePlugins`, `enablePlugins` and
@@ -205,8 +216,8 @@ carries a **Dynamic** paragraph with that library's mechanism and its caveats.
   array changes, so unrelated plugins pay for one removal. CodeMirror splits by kind: `ViewPlugin.destroy` runs, while
   a `StateField` has no teardown at all and its value is silently dropped.
 - *Teardown is partial or absent.* Chart.js calls `stop` on removal but never `uninstall`, so a plugin that cleans up
-  in `uninstall` leaks on every live removal. countUp, Cytoscape, PrismJS and ECharts have no teardown hook to call in
-  the first place.
+  in `uninstall` leaks on every live removal. countUp, Cytoscape, PrismJS, ECharts and Leafer UI have no teardown hook to
+  call in the first place.
 
 ECharts is the most instructive refusal in the corpus. Its scheduler copies the processor arrays at instance
 construction, with a source comment stating that incremental registration is not supported by its stream
@@ -252,7 +263,7 @@ Columns trimmed to the axes that discriminate. "Cast" means the consumer must as
 Build-time Node tools (Vite, Rollup, ESLint) are excluded: their loading model resolves plugins by package name at
 runtime, which a browser library cannot do. One idea from them transfers, noted in 5.C.
 
-| | Load by | Retrieve by | Cast | Deps | Global state | Feature reads as native  Dynamic |
+| | Load by | Retrieve by | Cast | Deps | Global state | Feature reads as native | Dynamic |
 |---|---|---|---|---|---|---|---|
 | **addons (today)** | class | string id | yes | no | none | no | no |
 | maxGraph 0.24 | class | string id | yes | no | none | no | no |
@@ -265,12 +276,14 @@ runtime, which a browser library cannot do. One idea from them transfers, noted 
 | ProseMirror 1 | instance | typed `PluginKey<T>` | **no** | no | none | yes, via exported functions | swap the set |
 | Tiptap 3 | factory result | **nothing to retrieve** | **no** | no | type augmentation is global | **yes** | ProseMirror plugins only |
 | xterm.js 5/6 | instance | **nothing to retrieve** | **no** | no | none | no, deliberately | add; remove via the addon |
+| FlowGram.ai 1.0 | factory result, per editor | DI `get(ServiceClass)` | **no** if inferred from a class; yes with a Symbol, a string or an explicit `<T>` | no | module counter, `reflect-metadata` | no, separate services | no |
 | countUp.js 2 | instance, single slot | **nothing to retrieve** | **no** | no | none | no | one slot, swappable |
 | GrapesJS 0.23 | function | bookkeeping model only | n/a | no | none | yes | add, remove |
 | PrismJS 1.30 | side-effect import | `Prism.plugins.X` by convention | untyped | build metadata only | **everything** | yes | no |
 | ECharts 5/6 | installer function | **nothing to retrieve** | **no** | runtime topological | permanent global registry | yes, via options | no |
 | draggable 1.2 | class | **nothing to retrieve** | **no** | no | none | n/a, no API | add, remove |
 | Cytoscape 3 | global `use()` | prototype method | n/a | no | heavy | yes | no |
+| Leafer UI 2.2 | side-effect import | prototype method, declared in the core types | n/a, but **typed even when absent** | strings, reported once | heavy | yes | no |
 | auto-animate 0.10 | callback, single slot | **nothing to retrieve** | **no** | no | observers created at import | n/a, no API | no |
 
 Two observations matter more than the table.
@@ -284,6 +297,12 @@ solving the typing produces something worse than the cast it replaces.
 **Transparency has two proven mechanisms, not one.** X6 and Cytoscape patch the host prototype, which is page-global
 and defeats tree-shaking. Tiptap instead merges declarations into an already-typed namespace object, so
 `editor.commands.undo()` needs no cast, no string and no lookup. The second is far better suited here.
+
+Leafer UI shows the patching route at its extreme, and a failure mode the other two do not have. Its core types declare
+the plugin methods themselves, `Leafer.zoom()` and `app.editor` among them, and the core implements each one as a stub
+that logs "please install and import plugin". The types therefore claim every feature is present whether or not the
+plugin was imported, so forgetting an import type-checks and fails at runtime, softly. If this package ever installs
+features on the host, the type has to come from the plugin, never from the core.
 
 ## 5. Alternatives
 
@@ -695,6 +714,14 @@ same shape as CodeMirror's `Prec` buckets.
 string is generated and disambiguated), and allows real encapsulation, since a package can keep its token private and
 export only functions. The most principled option, and the least aligned with the current codebase.
 
+FlowGram.ai shows a cheaper variant, and where it leaks. The token is the plugin's exported service class itself, so
+nothing new has to be declared: `ctx.get(FlowMinimapService)` is typed with no cast, and a misspelled class name is a
+compile error. But the key type is Inversify's `ServiceIdentifier<T> = string | symbol | Newable<T> | Function`, and the
+`| Function` branch accepts any class, so `ctx.get<number>(FlowMinimapService)` compiles; FlowGram's own docs write
+`ctx.get<MyService>(MyService)`, the unchecked form. Probed with TypeScript 5.9.3. If D is ever taken, the signature
+must be `get<T>(token: Token<T>): T` with nothing looser beside it, and the docs must never show an explicit type
+argument.
+
 ### E. Global id-to-implementation registry, load by id
 
 The design the review was originally asked about. G6 v5 implements it exactly:
@@ -970,6 +997,14 @@ and a broken release.
   yet ready for review".
 - `CLAUDE.md:60-67` lists only `getPluginId` and `onConfigure` under "Plugin Lifecycle", missing the four hooks added
   in 0.10.0.
+- Leafer UI was probed for typing only, nothing was executed: the runtime `console.error` of a missing plugin, and
+  `app.editor` staying `undefined` without the editor import, are read from source. Its documentation site was read
+  through a summarizing fetch, not verbatim. Whether the unused `IPlugin` interface was consumed by an older
+  `use`-style API was not traced, the clones being shallow.
+- FlowGram.ai's documentation was read from the repository sources (`apps/docs/src/en/`), not from the live site.
+  That one failing contribution factory silently empties every plugin's lifecycle hooks is read from
+  `contribution-provider.ts`, not probed. The shared minimap defaults were shown on a bare service object, not on two
+  full editors side by side.
 
 ## 9. Not covered here
 
@@ -993,7 +1028,9 @@ Candidates for a follow-up, ranked by what would change a decision:
    behaves inside it, and what the type-checking cost is on a real consumer project.
 
 Deliberately excluded: bundle-size measurements (no alternative except E moves that axis), more libraries (seventeen
-already produced three families; an eighteenth adds a row, not an insight), and effort estimates.
+already produced three families; an eighteenth adds a row, not an insight), and effort estimates. The two libraries
+added on 23 September 2026 bore that out: Leafer UI joined the no-retrieval family, FlowGram.ai the solved one, and
+each contributed a warning rather than a new option.
 
 ---
 
@@ -1009,6 +1046,8 @@ reading the published artifacts on unpkg and the repository sources. **Only G6 w
 moving branch or a version tag, so these readings are reproducible by version but not byte-exactly; where a branch is
 named, its content may since have changed. Where a documentation site could not be fetched, the upstream markdown that
 generates it was used instead, and that substitution is noted.
+
+Leafer UI and FlowGram.ai were read on 23 September 2026, both at pinned commits, the last two rows of the table.
 
 | Library | Version | Source read | Documentation | Caveats |
 |---|---|---|---|---|
@@ -1033,6 +1072,8 @@ generates it was used instead, and that substitution is noted.
 | countUp.js | 2.10.1 | [inorganik/countUp.js](https://github.com/inorganik/countUp.js), branch `master`, no SHA | repo `README.md` | Plugins exist since 2.6.0. The only known plugin, [odometer_countup.js](https://github.com/msoler75/odometer_countup.js), was **not** inspected |
 | FormKit auto-animate | 0.10.0 | [formkit/auto-animate](https://github.com/formkit/auto-animate), branch `master`, no SHA | [plugins](https://auto-animate.formkit.com/#plugins) | The docs page could not be read verbatim; claims come from source plus the repo's own example under `docs/src/examples/plugin/`. Repo root `package.json` is `private`, so published metadata was read from npm directly |
 | bpmn-visualization | 0.48.0 (peer dependency of this package) | [process-analytics/bpmn-visualization-js](https://github.com/process-analytics/bpmn-visualization-js), read from `node_modules` (published build, `dist/bpmn-visualization.d.ts` and `dist/bpmn-visualization.js`), not from the repository | [bpmn-visualization-js docs](https://process-analytics.github.io/bpmn-visualization-js/) | Read only to establish the host API surface and the mxGraph substrate. No commit or tag applies, since the published artifact was used |
+| Leafer UI | 2.2.11 (`leafer-ui`, `@leafer-ui/*`, `@leafer/*`, `@leafer-in/*`) | branch `main` of [leaferjs/leafer](https://github.com/leaferjs/leafer) **`f6d38b1fc88915547ce99ae89a4d230ee1dfaeea`** (2026-09-17), [leaferjs/leafer-ui](https://github.com/leaferjs/leafer-ui) **`2f333f8b271f60b8023ce31fceff17fa6e110ca0`** (2026-09-22), [leaferjs/leafer-in](https://github.com/leaferjs/leafer-in) **`ed03ba52b6a813178417495b0650cd97f11a2a00`** (2026-09-17) | [README](https://github.com/leaferjs/leafer-ui/blob/main/README-EN.md), [plugins](https://www.leaferjs.com/ui/plugin/), [writing a plugin](https://www.leaferjs.com/ui/plugin/dev.html), [editor](https://www.leaferjs.com/ui/plugin/in/editor/) | The mechanism is split across three repositories: the registry in `leafer`, the host stubs in `leafer-ui`, the official plugins in `leafer-in`. The documentation is primarily Chinese and was read through a summarizing fetch. Typing probed with TypeScript 5.9.3 against the published packages; no runtime execution |
+| FlowGram.ai | `@flowgram.ai/core` 1.0.15, with `utils`, `minimap-plugin`, `shortcuts-plugin` at the same version | [bytedance/flowgram.ai](https://github.com/bytedance/flowgram.ai), branch `main`, **commit `ba1a9630f80263a196d31993cd85fd1c873d9ddd`** (2026-09-01), equal to the `gitHead` of the published 1.0.15 | [custom plugin](https://flowgram.ai/en/guide/advanced/custom-plugin.html), [custom service](https://flowgram.ai/en/guide/advanced/custom-service.html), [minimap plugin](https://flowgram.ai/en/guide/plugin/minimap-plugin.html) | The workspace `package.json` files say `0.1.8` while npm publishes 1.0.15 from the same commit. Docs read from `apps/docs/src/en/` in the repository. Inversify resolved to 6.2.2. Typing probed with TypeScript 5.9.3, runtime behavior with Node and `global-jsdom` against the published packages |
 
 ### Reference commits, captured 14 August 2026
 
@@ -1066,6 +1107,9 @@ had no activity in between, so for those the capture and the reading coincide.
 | Shopify/draggable | `main` | `8a1eed57f3ab2dff9371e8ce60fb39ac85871e8d` | 2025-10-22 |
 | inorganik/countUp.js | `master` | `2346e4994f870fdc9028944b3d79dc80af3b33d2` | 2026-07-02 |
 | formkit/auto-animate | `master` | `06882a8e69ba9bc8456d8f2ae6010f697fd7a37c` | 2026-07-10 |
+
+Leafer UI and FlowGram.ai are not in this table: they were read later, at the pinned commits given in the versions
+table above.
 
 Note that xterm.js, Cytoscape and ECharts were read at version tags (`5.5.0`, `v3.34.1`, `5.5.1`) rather than at these
 branch heads, so for them the tag is authoritative and the row above is only context.
@@ -1460,6 +1504,69 @@ README showing only the constructor form. There is no teardown to speak of, sinc
 What it teaches: the cleanest demonstration that instance-passing decouples plugin options from the core's type
 surface, and the clearest example of what is lost without a lifecycle.
 
+### FlowGram.ai 1.0 (`@flowgram.ai/core` 1.0.15)
+
+Paths below are relative to `packages/` in the repository.
+
+```ts
+export const createMinimapPlugin = definePluginCreator<CreateMinimapPluginOptions>({
+  onBind: ({ bind }) => { bind(FlowMinimapService).toSelf().inSingletonScope(); },
+  onInit: (ctx, opts) => { ctx.playground.registerLayer(FlowMinimapLayer, opts); ctx.get(FlowMinimapService).init(opts); },
+  onDispose: (ctx) => { ctx.get(FlowMinimapService).dispose(); },
+});
+```
+
+```ts
+// editor props, as in apps/docs/src/en/guide/advanced/custom-plugin.mdx
+{ plugins: () => [createMinimapPlugin({ disableLayer: true })] }
+
+// later, inside a React component of that editor
+const minimap = useService(FlowMinimapService);
+```
+
+The first snippet is the whole minimap plugin (`plugins/minimap-plugin/src/create-plugin.ts:12-23`). A plugin is the
+result of a factory built by `definePluginCreator<Options>` (`canvas-engine/core/src/plugin/plugin.ts:153-204`), and
+each editor loads its plugins into its own Inversify container (`canvas-engine/core/src/react/playground-react-provider.tsx:89-91`).
+The host is itself assembled from plugins, the way bpmn-js is assembled from modules. Five hooks: `onBind` (the
+Inversify `bind`, `unbind`, `isBound` and `rebind`), `onInit`, `onReady`, `onAllLayersRendered` and `onDispose`, all in
+array order, dispose included.
+
+There is no plugin to retrieve: the plugin id is generated (`Playground_${n}` from a module-level counter,
+`plugin.ts:161-162`) and never exposed. The consumer fetches the services a plugin bound, with `ctx.get(token)` or
+`useService(token)`, and both implementations end in `container.get(identifier) as T`
+(`canvas-engine/core/src/react-hooks/use-service.ts:14-17`). Inferred from a class token the result is typed and a typo
+is a compile error; with a Symbol token, such as `ShortcutsContribution`, it is `unknown` and any annotation is
+accepted; with an explicit type argument anything compiles, see alternative D. A missing plugin fails at resolution,
+with Inversify's `No matching bindings found`. Options, by contrast, are typed properly: the factory's generic rejects
+an unknown option and a missing argument.
+
+Duplicates are handled in two opposite ways, both silent and neither documented. `loadPlugins` (`plugin.ts:85-120`)
+keeps the **first** instance of an ordinary plugin and drops the second one's options and hooks, the repository's own
+test saying so in a comment ("只加载第一个", load only the first, `canvas-engine/core/__tests__/plugin.test.ts:120-131`),
+and keeps the **last** instance of a plugin flagged `singleton`, through a `reduceRight`. Two different plugins binding
+the same token are not detected at load time and fail at resolution as an ambiguous match; `rebind` is the sanctioned
+override.
+
+Hook dispatch has no isolation (`canvas-engine/core/src/playground.ts:164-172`, `:355-362`): a throwing `onInit` skips
+the later plugins, a throwing `onDispose` skips the later ones and the release of every resource. The idempotence guard
+is on the right side of the Tiptap trap, since `disposed` is derived from the resource collection released last, but
+that means a retry runs every hook again. The one `try`/`catch` near the hooks is worse than none:
+`ContributionProvider.getContributions` catches around `container.getAll` and returns an empty list
+(`common/utils/src/contribution-provider.ts:32-38`), so one failing contribution would silently disable the lifecycle of
+every plugin; read from source, not probed. The minimap plugin also mutates its exported defaults
+(`this.options = MinimapDefaultOptions; Object.assign(this.options, options)`,
+`plugins/minimap-plugin/src/service.ts:59-60`), so two editors on one page share their minimap options. Authoring a
+service requires legacy decorators and `reflect-metadata`, which the core imports globally, and no published package
+declares `sideEffects`.
+
+**Dynamic:** none. Plugins are loaded once in a `useMemo(..., [])`, with a source comment stating that changed props do
+not refresh and are not allowed to change (`playground-react-provider.tsx:77-94`). There is no unload, enable or
+disable; `onDispose` runs only from the playground's own `dispose()`.
+
+What it teaches: keying retrieval on the exported class removes the id and the cast for free, provided the signature
+admits nothing looser than a class. It is also the corpus's best evidence that auto-generated ids with undocumented
+first-wins and last-wins rules are worse than a thrown error.
+
 ## C. No retrieval at all
 
 ### Shopify draggable 1.2
@@ -1629,6 +1736,70 @@ extensions have no teardown hook to run. Re-registering a `core` name is refused
 is silently overwritten for every instance on the page.
 
 What it teaches: maximum call-site transparency, and the full bill for it.
+
+### Leafer UI 2.2 (`leafer-ui`, `@leafer-in/*` 2.2.11)
+
+```ts
+import { App, Rect } from 'leafer-ui'
+import '@leafer-in/editor'
+
+const app = new App({ view: window, editor: {} })
+```
+
+```ts
+// leafer-in/packages/view/src/index.ts
+Plugin.add('view')
+Leafer.prototype.zoom = function (zoomType, optionsOrPadding, scroll, transition) { /* ... */ }
+```
+
+A plugin is a package imported for its side effects. On import it records its name in a page-wide registry,
+`Plugin.add(name, ...dependencies)`, and overwrites host prototypes, singletons and factories: `Leafer.prototype.zoom`
+for the view plugin (`leafer-in/packages/view/src/index.ts:6-8`), `Creator.editor` for the editor
+(`leafer-in/packages/editor/src/index.ts:40-47`). The registry is the whole of `leafer/packages/debug/src/Plugin.ts`, a
+boolean map with `add`, `has` and `need`. An `IPlugin` interface with `run` and `onLeafer` exists in
+`leafer/packages/interface/src/plugin/IPlugin.ts:4-10`, and nothing in the three repositories consumes it.
+
+The consumer never retrieves anything: the feature is a host method (`leafer.zoom()`, `ui.export()`) or a new
+attribute (`startArrow`, `editConfig`). The distinctive part is where the types come from. There is no `declare module`
+anywhere; the core declares the plugin API itself, and implements each method as a stub:
+
+```ts
+// leafer-ui/packages/display/src/Leafer.ts:397-400
+// need view plugin
+public zoom(_zoomType: IZoomType, ...): IBoundsData {
+  return Plugin.need('view')     // console.error('please install and import plugin: @leafer-in/view')
+}
+```
+
+Likewise `ILeafer.editor: IEditorBase` (`leafer-ui/packages/interface/src/app/ILeafer.ts:12`). Probed with TypeScript
+5.9.3 against the published packages, with no plugin imported: `app.tree.zoom('fit')`, `new App({ editor: {} })` and
+`app.editor.select(rect)` all compile. The full editor API needs `app.editor as IEditor`, since the host field carries
+only the base type, and the editor options accept any key, `IEditorConfig` extending `{ [name: string]: any }`.
+
+Dependencies are string arguments, `Plugin.add('editor', 'resize')`, checked once by a `setTimeout` scheduled when the
+registry module is evaluated (`Plugin.ts:26`), with a `console.error` as the only consequence; the real ordering is the
+ES import order, the editor importing `@leafer-in/resize` itself. A plugin imported after that tick is never checked, a
+reading of the source. Duplicates are silent: the last assignment to a prototype wins, and the string-keyed
+sub-registries (`UICreator`, `EditToolCreator`) warn once and overwrite. Two apps on one page cannot have different
+plugin sets. No package declares `sideEffects`, which is harmless here, since not importing a plugin is the only way to
+leave it out.
+
+There are no plugin lifecycle hooks. A plugin that must react overrides a host method (`onInit` is documented in the
+source as meant to be rewritten) or listens to `LeaferEvent` strings on the instance. Host `destroy()` is deferred by a
+`setTimeout` unless called with `sync`, guarded against a second call, and wrapped whole in one `try`/`catch`
+(`leafer-ui/packages/display/src/Leafer.ts:453-485`).
+
+The authoring guide (`/ui/plugin/dev.html`) describes a plugin as a package exporting a class, with a naming convention
+and a template repository. It says nothing of `Plugin.add` or prototype patching, which is what every official plugin
+does.
+
+**Dynamic:** none. Prototype patches cannot be undone and there is no remove, enable or disable. The only per-instance
+choice is configuration read by an already-installed plugin, such as `editor: {}` or the Leafer `type`; an object-shaped
+feature such as the editor can be destroyed individually.
+
+What it teaches: installing features on the host removes the cast, and declaring them in the core rather than in the
+plugin removes even the compiler's ability to say that a plugin is missing. That is worse than a `getPlugin` returning
+`undefined`.
 
 ### FormKit auto-animate 0.10
 

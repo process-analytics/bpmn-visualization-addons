@@ -1011,10 +1011,10 @@ third-party plugin may read its settings there. Bare entries have to keep receiv
 **A related precedent, studied in a targeted way: unified and remark.** unified is the best-known `[plugin, options]`
 tuple API, used in the browser through react-markdown's `remarkPlugins` prop. It was studied on this one question only,
 how options are passed next to a plugin and how far TypeScript checks them, and it is not counted among the nineteen
-libraries of the corpus. The reason is scope: unified is a tree-transformation pipeline, mostly run at build time,
-whose plugins transform a syntax tree and keep nothing alive afterwards, so retrieval, lifecycle hooks, disposal and
-events do not apply to it. Probed with TypeScript 5.9.3 against the published unified 11.0.5, remark-toc 9.0.0 and
-react-markdown 10.1.0:
+libraries of the corpus (appendix entry D). The reason is scope: unified is a tree-transformation pipeline, mostly run
+at build time, whose plugins transform a syntax tree and keep nothing alive afterwards, so retrieval, lifecycle hooks,
+disposal and events do not apply to it. Probed with TypeScript 5.9.3 against the published unified 11.0.5, remark-toc
+9.0.0 and react-markdown 10.1.0:
 
 - `.use(remarkToc, { heading: 123 })` is caught, because that overload is generic over the plugin's parameters
   ([`lib/index.js:1038-1053`](https://github.com/unifiedjs/unified/blob/242105bd6e18c61ca10f37d99529b89f1be37518/lib/index.js#L1038-L1053)). The message points at the wrong branch
@@ -1250,10 +1250,9 @@ Leafer UI and FlowGram.ai were read on 23 September 2026, both at pinned commits
 
 Since almost everything above was read from a moving branch, these are the head commits of those same branches on the
 last day of the analysis. **They are a nearby reference point, not a record of what was read**: a branch may have
-advanced between the reading and this capture. The G6 and maxGraph rows are the actual commits analysed. Rows whose
-head predates
-the analysis (mxGraph, PrismJS, draggable, Chart.js, CodeMirror, ProseMirror, didi, countUp.js, auto-animate, ECharts)
-had no activity in between, so for those the capture and the reading coincide.
+advanced between the reading and this capture. The G6 and maxGraph rows are the actual commits analysed. Rows whose head
+predates the analysis (mxGraph, PrismJS, draggable, Chart.js, CodeMirror, ProseMirror, didi, countUp.js, auto-animate,
+ECharts) had no activity in between, so for those the capture and the reading coincide.
 
 | Repository | Branch | Head commit on 2026-08-14 | Committed |
 |---|---|---|---|
@@ -1279,8 +1278,9 @@ had no activity in between, so for those the capture and the reading coincide.
 | inorganik/countUp.js | `master` | `2346e4994f870fdc9028944b3d79dc80af3b33d2` | 2026-07-02 |
 | formkit/auto-animate | `master` | `06882a8e69ba9bc8456d8f2ae6010f697fd7a37c` | 2026-07-10 |
 
-Leafer UI and FlowGram.ai are not in this table: they were read later, at the pinned commits given in the versions
-table above.
+Leafer UI, FlowGram.ai and unified are not in this table: they were read later, at the pinned commits given in the
+versions table above. GrapesJS's `usePlugin`, quoted in 5.G and in section 3, was read later too, on branch `dev` at
+`bf2d83cd750528cb5f4a56aa1d3f8c95b007f833` (committed 2026-11-13), not at the head listed in the table.
 
 Note that xterm.js, Cytoscape and ECharts were read at version tags (`5.5.0`, `v3.34.1`, `5.5.1`) rather than at these
 branch heads, so for them the tag is authoritative and the row above is only context.
@@ -1994,6 +1994,70 @@ and `destroy()` tears down the whole element setup.
 
 What it teaches: the correct amount of machinery for a problem with one extension point. Included as the honest lower
 bound, since a registry here would be pure overhead.
+
+---
+
+## D. Studied in a targeted way, outside the corpus
+
+### unified 11 (`unified` 11.0.5, `remark-toc` 9.0.0, `react-markdown` 10.1.0)
+
+**Scope.** Studied on one question only, for 5.G: how options are passed next to a plugin, and how far TypeScript
+checks them. unified is a tree-transformation pipeline, mostly run at build time and used in the browser through
+react-markdown, whose plugins transform a syntax tree and keep nothing alive afterwards. Retrieval, lifecycle hooks,
+disposal and events therefore do not apply, and it is not counted among the nineteen libraries of the corpus.
+
+```ts
+unified().use(remarkParse).use(remarkToc, { heading: 'Contents' });        // plugin, then its options
+unified().use(remarkParse).use([remarkGfm, [remarkToc, { heading: 'x' }]]); // a list, holding a tuple
+unified().use({ plugins: [[remarkToc, { heading: 'x' }]], settings: {} });   // a preset
+<Markdown remarkPlugins={[[remarkToc, { heading: 'x' }]]}>{markdown}</Markdown>  // react-markdown
+```
+
+```ts
+type Plugin<PluginParameters extends unknown[] = [], Input, Output> =
+  (this: Processor, ...parameters: PluginParameters) => Transformer<Input, Output> | undefined | void;
+type PluginTuple<TupleParameters extends unknown[] = [], Input, Output> =
+  [plugin: Plugin<TupleParameters, Input, Output>, ...parameters: TupleParameters];
+type Pluggable = Plugin<Array<any>, any, any> | PluginTuple<Array<any>, any, any> | Preset;
+type PluggableList = Array<Pluggable>;
+```
+
+A plugin's options type is its parameter list ([`lib/index.js:91-137`](https://github.com/unifiedjs/unified/blob/242105bd6e18c61ca10f37d99529b89f1be37518/lib/index.js#L91-L137)); remark-toc does
+not even use `Plugin`, it is a plain function `(options?: Readonly<Options> | null) => transformer`
+([`lib/index.js:1-21`](https://github.com/remarkjs/remark-toc/blob/9d0e2764ce3b5a8276e3cdee36c56ff6eecf7477/lib/index.js#L1-L21)). `use` accepts a plugin with its parameters, a list, a preset, or
+`null` ([`lib/index.js:1062-1139`](https://github.com/unifiedjs/unified/blob/242105bd6e18c61ca10f37d99529b89f1be37518/lib/index.js#L1062-L1139), documented at
+[`readme.md:880-929`](https://github.com/unifiedjs/unified/blob/242105bd6e18c61ca10f37d99529b89f1be37518/readme.md#L880-L929)). A tuple is only meaningful inside a list: `.use([plugin, opts])` alone
+is read as a list of two items. react-markdown types `remarkPlugins` and `rehypePlugins` as `PluggableList`
+([`lib/index.js:64-67`](https://github.com/remarkjs/react-markdown/blob/44d2e4a44b37461ab7778d6870c1a9eb36393ad2/lib/index.js#L64-L67)) and hands them to `use` unchanged
+([`:262-273`](https://github.com/remarkjs/react-markdown/blob/44d2e4a44b37461ab7778d6870c1a9eb36393ad2/lib/index.js#L262-L273)).
+
+`PluginTuple` alone ties the parameters to the plugin, but `Pluggable` instantiates it with `Array<any>`
+([`lib/index.js:75-87`](https://github.com/unifiedjs/unified/blob/242105bd6e18c61ca10f37d99529b89f1be37518/lib/index.js#L75-L87), [`:139-181`](https://github.com/unifiedjs/unified/blob/242105bd6e18c61ca10f37d99529b89f1be37518/lib/index.js#L139-L181)), and only the plugin
+overload of `use` is generic ([`:1038-1053`](https://github.com/unifiedjs/unified/blob/242105bd6e18c61ca10f37d99529b89f1be37518/lib/index.js#L1038-L1053)). Measured with TypeScript 5.9.3 against
+the published packages:
+
+| Form | Wrong option value | Unknown option key |
+|---|---|---|
+| `.use(remarkToc, { heading: 123 })` | caught, but reported against the `[boolean]` branch | caught only when no known key is present |
+| tuple inline in `.use([...])`, in a `PluggableList` variable, in a preset, in `remarkPlugins` | **not caught** | **not caught** |
+| tuple annotated by hand `PluginTuple<[Options?], Root>` | caught | not measured |
+| user-written generic helper returning a `Pluggable` | caught | not measured |
+| first element not a function | caught: only the plugin slot is checked | |
+
+The `Parameters | [boolean]` rest type of `use` (`false` skips the plugin, `true` stands for no options,
+[`lib/index.js:628-634`](https://github.com/unifiedjs/unified/blob/242105bd6e18c61ca10f37d99529b89f1be37518/lib/index.js#L628-L634)) is what both degrades the message and lets an unknown key
+through next to a known one. Typing the lists was requested and closed by the maintainers,
+citing TypeScript limitations on complex types ([unified#221](https://github.com/unifiedjs/unified/issues/221#issuecomment-2371114469);
+an earlier attempt, [unified#92](https://github.com/unifiedjs/unified/pull/92), was closed too).
+
+Using a plugin a second time does not add it twice: plain-object options are deep-merged into the previous ones,
+anything else replaces them, and passing no parameter keeps them
+([`lib/index.js:1146-1171`](https://github.com/unifiedjs/unified/blob/242105bd6e18c61ca10f37d99529b89f1be37518/lib/index.js#L1146-L1171), [`readme.md:884-886`](https://github.com/unifiedjs/unified/blob/242105bd6e18c61ca10f37d99529b89f1be37518/readme.md#L884-L886)). Read
+from source, not run.
+
+What it teaches: the most widely used `[plugin, options]` API checks options only where a generic call sees the
+plugin, and gave up on checking them in lists. A per-entry helper call is the missing piece, which is exactly what 5.G
+proposes.
 
 ---
 

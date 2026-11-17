@@ -69,6 +69,7 @@ declarations).
 | `r3-implements-enforcement/` | R3, `implements` catching a missing instance id |
 | `r4-static-from-instance-method/` | R4, reading a static id from inside an instance method |
 | `r5-subclassing/` | R5, inheritance and redeclaration of the id |
+| `c1-configured-plugin-entries/` | C1, per-plugin config through a `usePlugin(plugin, config)` descriptor |
 
 `q5-module-augmentation/` holds several consumer projects rather than one, because the question is precisely whether
 the answer depends on the module specifier and the resolution mode:
@@ -106,6 +107,7 @@ committed source of truth.
 | R3 | `implements` enforcement | Strictly stronger than the static case. A missing instance id is TS2420 on the class's `implements` clause; a wrong type is TS2416 on the member. No `satisfies` workaround needed. A misspelled optional method is still accepted by both forms. |
 | R4 | Reading a static id from an instance method | `this.constructor` is typed `Function`, so `this.constructor.pluginId` does not compile. A hardcoded class name or a cast to `typeof TheClass` compiles and keeps the literal; a cast to the constructor interface compiles but degrades to `string`. For the hybrid, `readonly pluginId = MyPlugin.pluginId` keeps the literal on both sides; an unannotated getter silently widens to `string`. |
 | R5 | Subclassing | Both forms inherit the id and its literal type, and both reject redeclaring it with a different literal (TS2417 static, TS2416 instance). Widening the base to `string` allows redeclaration but disables the generic host. An `abstract readonly pluginId: string` base does let each subclass declare its own literal; there is no static equivalent, since `abstract static` is rejected (TS1243). |
+| C1 | Per-plugin config passed next to the plugin, in a non-generic options interface | **Viable with `usePlugin`.** `usePlugin(Plugin, config)` returns a `{ plugin, config }` descriptor accepted next to bare constructors; `registerPlugins` needs one `typeof entry === 'function'` branch and no cast. Errors are precise: a wrong value names the property type, a misspelled key gets TS2561 "Did you mean". The same signature serves a runtime `loadPlugin`. Reading the config as `config?: infer C` is wrong (`probe.ts`): it gives `unknown` for a constructor without config, so any config is silently accepted, and `never` for a required config, so the plugin cannot be used. Reading the constructor's remaining parameters as a rest tuple (`probe2.ts`) keeps absent, optional and required apart: config to a plugin that takes none is TS2554, a missing required config is TS2554, and typing bare entries as `new (host) => Plugin` rejects a bare plugin that needs a config. Two limits: the `usePlugin` body needs one internal cast, and a hand-written `{ plugin, config }` is not checked. |
 
 ## Note for maintainers
 

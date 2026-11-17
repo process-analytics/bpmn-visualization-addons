@@ -70,6 +70,7 @@ run_probe "R2  InstanceType extraction, generic host rebuilt"       "$PROBES_DIR
 run_probe "R3  implements enforcement at the class declaration"     "$PROBES_DIR/r3-implements-enforcement"
 run_probe "R4  reading a static id from an instance method"         "$PROBES_DIR/r4-static-from-instance-method"
 run_probe "R5  subclassing, static / instance / hybrid"             "$PROBES_DIR/r5-subclassing"
+run_probe "C1  usePlugin descriptor next to bare constructors"      "$PROBES_DIR/c1-configured-plugin-entries"
 
 echo "================================================================"
 echo "All probes ran. Non-zero tsc output above is EXPECTED: the errors are the result."

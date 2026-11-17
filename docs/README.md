@@ -22,3 +22,9 @@ Each record is numbered and is immutable once accepted: a decision that no longe
 | ADR | Title | Status |
 |-----|-------|--------|
 | [0001](./adr/0001-plugin-support.md) | Plugin support for BpmnVisualization | Draft |
+
+## Analyses
+
+Preliminary studies made before a decision are recorded in [`analyses`](./analyses/README.md): how the current code behaves, what comparable libraries do, which designs are possible, and what each would gain, cost and break. An analysis is not a decision: when it leads to one, the decision is recorded in an ADR that links back to it.
+
+Check there whether a change you are considering has already been studied.

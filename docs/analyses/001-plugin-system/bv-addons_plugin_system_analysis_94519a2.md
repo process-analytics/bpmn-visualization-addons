@@ -11,9 +11,10 @@ September 2026, with Claude Opus 5.5, by the same method; both fit families the 
 established, and the conclusions below did not change. Section 5.G, on per-plugin configuration, was added on 17
 November 2026, with Claude Opus 5.5, from a design discussion checked against the C1 probes.
 
-Those probes are kept in [`tools/plugin-registry-probes/`](./tools/plugin-registry-probes/) and are runnable:
-`./tools/plugin-registry-probes/run-probes.sh`. Every TypeScript claim in sections 5.A, 5.F and 5.G comes from
-their output. Their compiler errors are the measurement rather than a defect, so do not "fix" them.
+Those probes are kept in [`plugin-registry-probes/`](./plugin-registry-probes/) and are runnable from the repository
+root: `./docs/analyses/001-plugin-system/plugin-registry-probes/run-probes.sh`. Every TypeScript claim in sections 5.A,
+5.F and 5.G comes from their output. Their compiler errors are the measurement rather than a defect, so do not "fix"
+them.
 
 A companion document, [`bv-addons_plugin_lifecycle_and_events_analysis_f1b4616.md`](./bv-addons_plugin_lifecycle_and_events_analysis_f1b4616.md), covers what happens after a plugin is loaded:
 lifecycle hooks, event systems, error isolation and teardown, over the same corpus.
@@ -927,7 +928,7 @@ added (section 3, "Dynamic plugin management").
 GrapesJS is the telling case: it started with the central map and added `usePlugin`, which is the only shape here that
 checks the configuration with nothing declared in advance.
 
-**What TypeScript checks, measured** by the C1 probes (`tools/plugin-registry-probes/c1-configured-plugin-entries/`,
+**What TypeScript checks, measured** by the C1 probes (`plugin-registry-probes/c1-configured-plugin-entries/`,
 TypeScript 5.9.2). The `plugins` property lives in the `GlobalOptions` augmentation, an interface that cannot take a
 type parameter, so the question is what can be checked without one.
 
@@ -1182,8 +1183,8 @@ Candidates for a follow-up, ranked by what would change a decision:
 1. ~~A compiled probe of alternatives A and F.~~ **Done**, TypeScript 5.9.2, results folded into 5.A and 5.F. It
    resolved the barrel-augmentation risk (it merges, no restructuring needed), confirmed that overload order silently
    decides whether the typed signature fires, and confirmed that the generic host in F option 3 works. The probes are
-   committed at [`tools/plugin-registry-probes/`](./tools/plugin-registry-probes/), one directory per question, with
-   a runner and a verdict table in their README.
+   committed at [`plugin-registry-probes/`](./plugin-registry-probes/), one directory per question, with a runner and a
+   verdict table in their README.
 2. ~~Making `BpmnVisualization` generic over the plugin tuple.~~ **Done**, viable, with two documented degradations
    (see 5.F), probed in `q4-generic-host-features` and `r2-instancetype-extraction`. What remains is a judgement call
    rather than a question: whether the ergonomic risk of an annotated plugin array collapsing `features` to `never`

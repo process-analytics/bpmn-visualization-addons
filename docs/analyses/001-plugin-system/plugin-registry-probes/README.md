@@ -1,10 +1,10 @@
 # Plugin registry TypeScript probes
 
 Compilable evidence behind the typed plugin registry proposal in
-[`bv-addons_plugin_system_analysis_94519a2.md`](../../bv-addons_plugin_system_analysis_94519a2.md), specifically
-[section 5.A, "Typed id-to-type map via declaration merging"](../../bv-addons_plugin_system_analysis_94519a2.md#a-typed-id-to-type-map-via-declaration-merging)
+[`bv-addons_plugin_system_analysis_94519a2.md`](../bv-addons_plugin_system_analysis_94519a2.md), specifically
+[section 5.A, "Typed id-to-type map via declaration merging"](../bv-addons_plugin_system_analysis_94519a2.md#a-typed-id-to-type-map-via-declaration-merging)
 and
-[section 5.F, "Namespaced accessor typed by an augmentable interface"](../../bv-addons_plugin_system_analysis_94519a2.md#f-namespaced-accessor-typed-by-an-augmentable-interface).
+[section 5.F, "Namespaced accessor typed by an augmentable interface"](../bv-addons_plugin_system_analysis_94519a2.md#f-namespaced-accessor-typed-by-an-augmentable-interface).
 
 Those sections make claims about what the TypeScript type system can and cannot express: whether a plugin id survives
 as a literal type, whether a third party can extend a registry interface through a package that publishes only a root
@@ -40,7 +40,7 @@ reports errors. If the output stops matching the table below, TypeScript's behav
 ```bash
 nvm use                              # the repo pins its Node version in .nvmrc
 npm install                          # the probes use the repo's own TypeScript
-./tools/plugin-registry-probes/run-probes.sh
+./docs/analyses/001-plugin-system/plugin-registry-probes/run-probes.sh
 ```
 
 The runner prints the TypeScript version it used, then each probe project's `tsc` output under a labelled header.
@@ -111,8 +111,8 @@ committed source of truth.
 
 ## Note for maintainers
 
-The root `lint` script globs `**/*.{js,cjs,mjs,ts,cts,mts}`, so these `.ts` files are in scope for ESLint, but
-`eslint.config.mjs` sets `parserOptions.project` to `./packages/**/tsconfig.json` and `./tsconfig.eslint.json`, and
-neither covers `tools/`. Linting this directory therefore fails on project inclusion rather than on any rule. See the
-handover notes accompanying this directory; deciding how to resolve it (ignore `tools/` or add it to
-`tsconfig.eslint.json`) is a lint-configuration change and was deliberately left to the maintainers.
+The root `lint` script globs `**/*.{js,cjs,mjs,ts,cts,mts}`, which would include these `.ts` files. They are excluded
+in the `ignores` of `eslint.config.mjs`: they deliberately contain type errors, and they are compiled by their own
+`tsconfig.json` files rather than by any package, so the type-aware rules cannot resolve them. If this directory moves,
+update that entry, and the repository root that `run-probes.sh` and `q5-module-augmentation/generate.sh` compute from
+their own location.

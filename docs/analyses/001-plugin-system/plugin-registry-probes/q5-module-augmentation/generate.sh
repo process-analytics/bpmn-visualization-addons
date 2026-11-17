@@ -23,7 +23,7 @@ set -euo pipefail
 
 Q5_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROBES_DIR="$(cd "$Q5_DIR/.." && pwd)"
-REPO_ROOT="$(cd "$PROBES_DIR/../.." && pwd)"
+REPO_ROOT="$(cd "$PROBES_DIR/../../../.." && pwd)"
 TSC="$REPO_ROOT/node_modules/typescript/bin/tsc"
 
 if ! command -v node >/dev/null 2>&1; then

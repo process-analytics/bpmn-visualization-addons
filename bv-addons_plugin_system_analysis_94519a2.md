@@ -8,11 +8,12 @@ browser-side extension mechanisms were examined; the per-library detail is in th
 Analysis carried out from 12 to 14 August 2026, with Claude Opus 5 (1M token context), using parallel research agents
 for the third-party survey and compiled probes for the TypeScript claims. Leafer UI and FlowGram.ai were added on 23
 September 2026, with Claude Opus 5.5, by the same method; both fit families the first seventeen had already
-established, and the conclusions below did not change.
+established, and the conclusions below did not change. Section 5.G, on per-plugin configuration, was added on 17
+November 2026, with Claude Opus 5.5, from a design discussion checked against the C1 probes.
 
 Those probes are kept in [`tools/plugin-registry-probes/`](./tools/plugin-registry-probes/) and are runnable:
-`./tools/plugin-registry-probes/run-probes.sh`. Every TypeScript claim in sections 5.A and 5.F comes from their
-output. Their compiler errors are the measurement rather than a defect, so do not "fix" them.
+`./tools/plugin-registry-probes/run-probes.sh`. Every TypeScript claim in sections 5.A, 5.F and 5.G comes from
+their output. Their compiler errors are the measurement rather than a defect, so do not "fix" them.
 
 A companion document, [`bv-addons_plugin_lifecycle_and_events_analysis_f1b4616.md`](./bv-addons_plugin_lifecycle_and_events_analysis_f1b4616.md), covers what happens after a plugin is loaded:
 lifecycle hooks, event systems, error isolation and teardown, over the same corpus.
@@ -46,6 +47,21 @@ Nineteen libraries sort cleanly by one question: **does a plugin expose an imper
   Symbol, a string, or an explicit type argument.
 
 This package needs the imperative API, so dropping the id is not available. The whole question is which escape to take.
+
+## Design principle: plugins are the means, features are the goal
+
+What a consumer wants from this package is extra **features** on a `BpmnVisualization`: overlays, styling, CSS
+classes, lookup by name. A plugin is only the mechanism that delivers them. The consumer-facing vocabulary should
+therefore name the feature, and keep "plugin" for the authoring contract and for registration. Several passages below
+apply this principle: the capability interfaces of 5.A, the `features` accessor of 5.F, and the naming advice in
+section 6.
+
+**Type names in this document are indicative.** `OverlaysApi`, `HighlightApi`, `OverlaysConfig`, `ConfiguredPlugin`
+and the like are placeholders chosen for readability, not proposals. The names will be chosen at implementation time,
+once the other decisions are taken. Candidates for the consumer-facing type of a feature include `OverlaysApi`,
+`OverlaysFeatureApi` and `OverlaysFeature`; the `Feature` wording follows the principle above most directly. For the
+configuration types, `OverlaysConfig`, `OverlaysOptions` or `OverlaysFeatureConfig`. Whatever is chosen, one rule is
+worth keeping: the same suffix for every plugin, so that the type of any feature can be guessed from its name.
 
 ## 1. Strengths
 
@@ -156,7 +172,7 @@ having the extension install API onto the host, never by renaming things.
 | Declared dependencies | None | CodeMirror (`enables`/`provide` pull the dependency in), bpmn-js (`__depends__`, identity-deduplicated, topologically sorted). maxGraph, X6, G6, LogicFlow, Tiptap, draggable and FlowGram.ai all have nothing. Leafer UI declares them as strings and only reports a missing one with `console.error`, once |
 | Load ordering | Array order, undocumented and unasserted | CodeMirror `Prec` buckets, Tiptap numeric `priority`, bpmn-js topological sort |
 | Error isolation | None, see 2.3 | CodeMirror |
-| Per-plugin typed options | Whole `GlobalOptions` passed to every plugin twice; namespacing is an unenforced README convention | Chart.js (namespaced, declaration-merged), GrapesJS (inferred from the plugin value, see below), xterm.js, countUp.js and X6 (ordinary constructor arguments), FlowGram.ai (a generic on the plugin factory, so `createMinimapPlugin({ disableLayr: true })` is a compile error) |
+| Per-plugin typed options | Whole `GlobalOptions` passed to every plugin twice; namespacing is an unenforced README convention | Chart.js (namespaced, declaration-merged), GrapesJS (inferred from the plugin value, see below), xterm.js, countUp.js and X6 (ordinary constructor arguments), FlowGram.ai (a generic on the plugin factory, so `createMinimapPlugin({ disableLayr: true })` is a compile error). See 5.G for the design that fits this package |
 | Options validation | None. The only thrown error in the system is the duplicate-id one | Chart.js, and any instance-passing design where the plugin's own constructor validates |
 | Adding API surface | Methods live on the plugin object; the consumer must fetch it | Tiptap (declaration merging), X6, Cytoscape and Leafer UI (prototype patching; Leafer declares the methods in the core types, so they type-check without the plugin) |
 | Cross-plugin communication | Only `getPlugin` from inside a plugin, unused by any shipped plugin | bpmn-js event bus with priority and interception, LogicFlow event bus without either |
@@ -169,7 +185,12 @@ export const usePlugin = <P extends Plugin<any> | string>(
   plugin: P, opts?: P extends Plugin<infer C> ? C : {}) => {
 ```
 
-The option type is inferred from the plugin value at the registration site.
+The option type is inferred from the plugin value at the registration site. At runtime, `usePlugin` returns a new
+plugin function that calls the original one with the captured options, and attaches the original plugin, its id and
+the options as `__gjsPluginMeta`. The `plugins` array therefore stays uniform, while the manager can still read the
+three back ([`utils.ts:16-31`](https://github.com/GrapesJS/grapesjs/blob/bf2d83cd750528cb5f4a56aa1d3f8c95b007f833/packages/core/src/plugin_manager/utils.ts#L16-L31) and
+[`:98-114`](https://github.com/GrapesJS/grapesjs/blob/bf2d83cd750528cb5f4a56aa1d3f8c95b007f833/packages/core/src/plugin_manager/utils.ts#L98-L114), branch `dev` at `bf2d83cd750528cb5f4a56aa1d3f8c95b007f833`, 13 November 2026).
+5.G adapts the idea to plugins that are classes.
 
 ### For the consumer
 
@@ -686,7 +707,7 @@ overlays.addOverlays(id, overlay);
 xterm.js, countUp.js and X6. It dissolves the asymmetry at its root: the consumer already holds a correctly typed
 reference, so retrieval becomes optional and exists only for cross-plugin lookup. Per-plugin options become ordinary
 typed constructor arguments, which removes the namespacing convention, the double-passing of `GlobalOptions` and the
-need for `onConfigure` in most cases.
+need for `onConfigure` in most cases. 5.G reaches the same option typing without changing how plugins are loaded.
 
 countUp.js shows the payoff precisely: its core option type contains **zero** knowledge of any plugin's option shape.
 Draggable shows the alternative cost of not doing this: because plugins are classes the library instantiates, the only
@@ -878,6 +899,145 @@ accessor alongside it.
 Note that option 3 also requires the plugin id to be reachable **at the type level**, which the current
 `getPluginId()` method cannot provide. See the id declaration discussion in 5.A.
 
+### G. Per-plugin configuration passed next to the plugin
+
+This alternative answers a different question from A to F: how a consumer gives each plugin its own configuration,
+rather than how the consumer gets a plugin back. It composes with A, D and F, makes B's option argument unnecessary
+for typing, and is not a row of the comparison table below.
+
+**Today.** Every plugin receives the whole `GlobalOptions`, once in its constructor (`plugins-support.ts:159`) and
+again in `onConfigure` (`:169`), and finds its own settings by an unenforced naming convention (section 3). No shipped
+plugin reads its options, so the problem is latent, but a third-party plugin has no typed way to declare what it
+expects.
+
+**The requirement.** The configuration sits next to the plugin it belongs to, not in a separate object holding every
+plugin's settings, and the same shape serves a runtime `loadPlugin(plugin, config)` if dynamic management is ever
+added (section 3, "Dynamic plugin management").
+
+**What the survey does.**
+
+| Shape | Who | Config typed? |
+|---|---|---|
+| Central map keyed by plugin id | Chart.js (`options.plugins.<id>`), GrapesJS (`pluginsOpts`, [`index.ts:27-31`](https://github.com/GrapesJS/grapesjs/blob/bf2d83cd750528cb5f4a56aa1d3f8c95b007f833/packages/core/src/plugin_manager/index.ts#L27-L31)) | Chart.js only, through a registry each plugin augments (`PluginOptionsByType`) |
+| Object entry in the list | G6 (`{ type: 'tooltip', key: 'my-tooltip', ... }`) | no, `type` is a bare `string` |
+| Function call pairing plugin and config | GrapesJS `usePlugin`, FlowGram.ai `createMinimapPlugin(opts)` | yes, inferred at the call |
+| Instance built by the consumer | xterm.js, countUp.js, X6, alternative B | yes, ordinary constructor arguments |
+| `[plugin, options]` tuple in the list | unified, through react-markdown in the browser (targeted study at the end of this section) | no, only the `.use(plugin, options)` call is checked |
+
+GrapesJS is the telling case: it started with the central map and added `usePlugin`, which is the only shape here that
+checks the configuration with nothing declared in advance.
+
+**What TypeScript checks, measured** by the C1 probes (`tools/plugin-registry-probes/c1-configured-plugin-entries/`,
+TypeScript 5.9.2). The `plugins` property lives in the `GlobalOptions` augmentation, an interface that cannot take a
+type parameter, so the question is what can be checked without one.
+
+| Form written by the consumer | Wrong value, unknown key | Error message | Cost |
+|---|---|---|---|
+| `[Plugin, config]` or `{ plugin, config }`, plain typing | **not caught** | none | none |
+| Same, typed by a registry union (A extended with constructor and config type per id) | caught | lists the whole union of valid pairs | every plugin repeats in a `declare module` block the config type its constructor already declares |
+| Same, checked by a generic mapped type | caught | misleading: `Type 'string' is not assignable to type 'never'`, or a long mismatch on the array's `every` method | `BpmnVisualization` generic, or a helper around the array; checking silently stops once the array is annotated `Entry[]`; a plugin loaded at runtime is outside the type, the tension already noted for F option 3 |
+| `usePlugin(Plugin, config)` | caught | precise: names the expected property type, `Did you mean to write 'hiddenByDefault'?` for a typo | one helper, one branch in `registerPlugins` |
+
+**Proposed design**, with a hypothetical `OverlaysPlugin` configuration:
+
+```ts
+/** What follows the host in the constructor: `[]`, `[config?: C]` or `[config: C]`. */
+type ConfigArgs<P> = P extends new (bpmnVisualization: BpmnVisualization, ...args: infer A) => Plugin ? A : never;
+
+export interface ConfiguredPlugin<C = unknown> {
+  readonly plugin: new (bpmnVisualization: BpmnVisualization, config: C) => Plugin;
+  readonly config: C;
+}
+
+export const usePlugin = <P extends new (bpmnVisualization: BpmnVisualization, ...args: any[]) => Plugin>(
+  plugin: P,
+  ...config: ConfigArgs<P>
+): ConfiguredPlugin<ConfigArgs<P>[0]> => ({ plugin, config: config[0] }) as ConfiguredPlugin<ConfigArgs<P>[0]>;
+
+// in the GlobalOptions augmentation
+plugins?: Array<(new (bpmnVisualization: BpmnVisualization) => Plugin) | ConfiguredPlugin<any>>;
+```
+
+```ts
+new BpmnVisualization({
+  container: 'bpmn',
+  plugins: [ElementsPlugin, usePlugin(OverlaysPlugin, { hiddenByDefault: true })],
+});
+```
+
+`registerPlugins` gains one branch, without a cast:
+
+```ts
+const { plugin: constructor, config } = typeof entry === 'function' ? { plugin: entry, config: undefined } : entry;
+const plugin = new constructor(this, config);
+```
+
+What the probes settled:
+
+- Reading the configuration as `config?: infer C`, the first idea, is wrong (`probe.ts`). It yields `unknown` for a
+  constructor taking no configuration, so any configuration is silently accepted, and `never` for a required one, so
+  the plugin cannot be registered at all. Reading the parameters after the host as a rest tuple keeps the three cases
+  apart (`probe2.ts`): a configuration passed to a plugin that takes none, and a missing required one, are both
+  `TS2554` (expected 1, or 2, arguments).
+- Typing a bare entry as `new (bpmnVisualization) => Plugin` rejects a plugin that requires a configuration when it
+  is listed without one, although the message does not say why.
+- The descriptor is exactly the verbose `{ plugin, config }` form, so it can also be written by hand, for a
+  configuration read from JSON for instance, at the price of losing the check.
+- The check happens at the call, so an array prepared beforehand and annotated with the entry type stays checked,
+  unlike the generic mapped type.
+- The body of `usePlugin` needs one internal cast; the public surface has none.
+- A runtime `loadPlugin(plugin, ...config)` takes the same parameters and is checked identically.
+
+**Rejected variant: a subclass binding the configuration.** `usePlugin` could return
+`class extends plugin { constructor(bv) { super(bv, config) } }`, the class counterpart of what GrapesJS does with
+functions: the array stays uniform and `registerPlugins` does not change. It hides the original constructor and the
+configuration behind an anonymous class, so anything that needs them back (an error message naming the plugin, a
+future `getPluginIds`, tooling) needs a side channel such as GrapesJS's `__gjsPluginMeta`. The descriptor already is
+that metadata.
+
+**Effect on `onConfigure`.** The hook does two things today. It signals that every plugin has been constructed, the
+first point where `getPlugin` on a sibling is safe whatever the array order, and it passes `GlobalOptions` a second
+time. Once the configuration reaches the constructor, only the first role remains. A method declaring no parameter
+already satisfies `onConfigure?: (options: GlobalOptions) => void`, so the core can keep passing the options while new
+plugins ignore them, and deprecating the parameter is enough. No shipped plugin implements `onConfigure`. Its name then
+describes less well what it signals; a name such as `onPluginsReady` would fit better, which is worth a deprecation
+cycle only if the hooks are reworked anyway.
+
+**Semver.** Additive for consumers: bare constructors keep working, `usePlugin` and the descriptor are new. One
+compatibility point is open and was not probed: today the second constructor argument is `GlobalOptions`, so a
+third-party plugin may read its settings there. Bare entries have to keep receiving it until a major release, and
+`onConfigure`, which already receives the same object, is the migration path.
+
+**A related precedent, studied in a targeted way: unified and remark.** unified is the best-known `[plugin, options]`
+tuple API, used in the browser through react-markdown's `remarkPlugins` prop. It was studied on this one question only,
+how options are passed next to a plugin and how far TypeScript checks them, and it is not counted among the nineteen
+libraries of the corpus. The reason is scope: unified is a tree-transformation pipeline, mostly run at build time,
+whose plugins transform a syntax tree and keep nothing alive afterwards, so retrieval, lifecycle hooks, disposal and
+events do not apply to it. Probed with TypeScript 5.9.3 against the published unified 11.0.5, remark-toc 9.0.0 and
+react-markdown 10.1.0:
+
+- `.use(remarkToc, { heading: 123 })` is caught, because that overload is generic over the plugin's parameters
+  ([`lib/index.js:1038-1053`](https://github.com/unifiedjs/unified/blob/242105bd6e18c61ca10f37d99529b89f1be37518/lib/index.js#L1038-L1053)). The message points at the wrong branch
+  (`Type '{ heading: number; }' is not assignable to type 'boolean'`), because the rest parameter is typed
+  `Parameters | [boolean]`, and the same union lets an unknown key through as soon as a known one is present.
+- Every tuple form compiles with any options: inline `.use([[remarkToc, { heading: 123 }]])`, a `PluggableList`
+  variable, a preset, and react-markdown's `remarkPlugins` ([`lib/index.js:64-67`](https://github.com/remarkjs/react-markdown/blob/44d2e4a44b37461ab7778d6870c1a9eb36393ad2/lib/index.js#L64-L67)).
+  `PluginTuple` itself ties the options to the plugin, but `Pluggable` instantiates it as
+  `PluginTuple<Array<any>, any, any>` ([`lib/index.js:75-87`](https://github.com/unifiedjs/unified/blob/242105bd6e18c61ca10f37d99529b89f1be37518/lib/index.js#L75-L87)), so inside a list only the
+  plugin slot is checked.
+- The maintainers closed the request to type those lists, citing TypeScript limitations on complex types
+  ([unified#221](https://github.com/unifiedjs/unified/issues/221#issuecomment-2371114469), after an earlier attempt in
+  [unified#92](https://github.com/unifiedjs/unified/pull/92)).
+- A user-written generic helper returning a `Pluggable` does catch the error. unified ships none; that helper is
+  `usePlugin`.
+- Using the same plugin twice deep-merges plain-object options instead of adding the plugin twice
+  ([`lib/index.js:1146-1171`](https://github.com/unifiedjs/unified/blob/242105bd6e18c61ca10f37d99529b89f1be37518/lib/index.js#L1146-L1171), documented at
+  [`readme.md:884-886`](https://github.com/unifiedjs/unified/blob/242105bd6e18c61ca10f37d99529b89f1be37518/readme.md#L884-L886)). This was read from source, not run, and does not apply here, since
+  this package rejects a duplicate id.
+
+The most widely used tuple API therefore confirms the C1 measurements: tuples in a list are not checked, and a
+generic call per entry is what restores the check.
+
 ### Comparison
 
 | | Ergonomics | Type safety | Tree-shaking | Author cost | Semver | Migration |
@@ -908,9 +1068,14 @@ therefore keeps the hole it is meant to close; A2 costs 26 mechanical call-site 
 either with the honest `| undefined` return type, which converts a runtime crash into a compile error, and with
 `hasPlugin`/`getPluginIds` so "is it loaded" stops being unanswerable.
 
-B remains the real answer to the asymmetry, and it also fixes per-plugin options typing, the largest authoring gap. It
-is breaking, so it belongs in the next major; the migration is `plugins: [OverlaysPlugin]` becomes
-`plugins: [new OverlaysPlugin()]`. A, B and F compose.
+B remains the real answer to the asymmetry, and it also fixes per-plugin options typing, the largest authoring gap,
+although that gap no longer waits for it: 5.G closes it additively. B is breaking, so it belongs in the next major; the
+migration is `plugins: [OverlaysPlugin]` becomes `plugins: [new OverlaysPlugin()]`. A, B and F compose.
+
+**Pass per-plugin configuration through `usePlugin` (5.G).** It is additive, checks each configuration where it is
+written with precise messages, needs no registry and no generic host, and serves a future runtime `loadPlugin`
+unchanged. Do not type `[plugin, config]` tuples: the probes and unified both show that a list cannot check them
+without something generic per entry. `onConfigure` then keeps only its "all plugins are constructed" role.
 
 Weigh all of this against maxGraph before committing, since the two implementations are deliberately kept close
 (see 7). A and F are the easier sell upstream: additive, no contract change, and maxGraph has the same unchecked cast
@@ -1001,6 +1166,10 @@ and a broken release.
   `app.editor` staying `undefined` without the editor import, are read from source. Its documentation site was read
   through a summarizing fetch, not verbatim. Whether the unused `IPlugin` interface was consumed by an older
   `use`-style API was not traced, the clones being shallow.
+- 5.G's design was probed on a stand-in host in `c1-configured-plugin-entries`, not implemented on
+  `BpmnVisualization`. Keeping `GlobalOptions` as the second constructor argument of bare entries, for compatibility,
+  was not probed. Chart.js's and G6's configuration shapes in 5.G come from the appendix entries, not from new reading.
+- unified was studied for 5.G only. Its option merging on repeated use is read from source, not run.
 - FlowGram.ai's documentation was read from the repository sources (`apps/docs/src/en/`), not from the live site.
   That one failing contribution factory silently empties every plugin's lifecycle hooks is read from
   `contribution-provider.ts`, not probed. The shared minimap defaults were shown on a bare service object, not on two
@@ -1030,7 +1199,8 @@ Candidates for a follow-up, ranked by what would change a decision:
 Deliberately excluded: bundle-size measurements (no alternative except E moves that axis), more libraries (seventeen
 already produced three families; an eighteenth adds a row, not an insight), and effort estimates. The two libraries
 added on 23 September 2026 bore that out: Leafer UI joined the no-retrieval family, FlowGram.ai the solved one, and
-each contributed a warning rather than a new option.
+each contributed a warning rather than a new option. unified, added on 17 November 2026, is not a corpus entry: it
+was studied on the options-passing question alone, for the reason given in 5.G.
 
 ---
 
@@ -1073,6 +1243,7 @@ Leafer UI and FlowGram.ai were read on 23 September 2026, both at pinned commits
 | FormKit auto-animate | 0.10.0 | [formkit/auto-animate](https://github.com/formkit/auto-animate), branch `master`, no SHA | [plugins](https://auto-animate.formkit.com/#plugins) | The docs page could not be read verbatim; claims come from source plus the repo's own example under `docs/src/examples/plugin/`. Repo root `package.json` is `private`, so published metadata was read from npm directly |
 | bpmn-visualization | 0.48.0 (peer dependency of this package) | [process-analytics/bpmn-visualization-js](https://github.com/process-analytics/bpmn-visualization-js), read from `node_modules` (published build, `dist/bpmn-visualization.d.ts` and `dist/bpmn-visualization.js`), not from the repository | [bpmn-visualization-js docs](https://process-analytics.github.io/bpmn-visualization-js/) | Read only to establish the host API surface and the mxGraph substrate. No commit or tag applies, since the published artifact was used |
 | Leafer UI | 2.2.11 (`leafer-ui`, `@leafer-ui/*`, `@leafer/*`, `@leafer-in/*`) | branch `main` of [leaferjs/leafer](https://github.com/leaferjs/leafer) **`f6d38b1fc88915547ce99ae89a4d230ee1dfaeea`** (2026-09-17), [leaferjs/leafer-ui](https://github.com/leaferjs/leafer-ui) **`2f333f8b271f60b8023ce31fceff17fa6e110ca0`** (2026-09-22), [leaferjs/leafer-in](https://github.com/leaferjs/leafer-in) **`ed03ba52b6a813178417495b0650cd97f11a2a00`** (2026-09-17) | [README](https://github.com/leaferjs/leafer-ui/blob/main/README-EN.md), [plugins](https://www.leaferjs.com/ui/plugin/), [writing a plugin](https://www.leaferjs.com/ui/plugin/dev.html), [editor](https://www.leaferjs.com/ui/plugin/in/editor/) | The mechanism is split across three repositories: the registry in `leafer`, the host stubs in `leafer-ui`, the official plugins in `leafer-in`. The documentation is primarily Chinese and was read through a summarizing fetch. Typing probed with TypeScript 5.9.3 against the published packages; no runtime execution |
+| unified (targeted, options passing only, not in the corpus) | `unified` 11.0.5, `remark-toc` 9.0.0, `react-markdown` 10.1.0 | [unifiedjs/unified](https://github.com/unifiedjs/unified) tag `11.0.5`, **commit `242105bd6e18c61ca10f37d99529b89f1be37518`**; [remarkjs/remark-toc](https://github.com/remarkjs/remark-toc) **`9d0e2764ce3b5a8276e3cdee36c56ff6eecf7477`**; [remarkjs/react-markdown](https://github.com/remarkjs/react-markdown) **`44d2e4a44b37461ab7778d6870c1a9eb36393ad2`** | [`use`](https://github.com/unifiedjs/unified/blob/242105bd6e18c61ca10f37d99529b89f1be37518/readme.md#L880-L929) | Studied for 5.G only, see the scope note there. Typing probed with TypeScript 5.9.3 against the published packages (`--ignore-scripts`); unified itself was not run |
 | FlowGram.ai | `@flowgram.ai/core` 1.0.15, with `utils`, `minimap-plugin`, `shortcuts-plugin` at the same version | [bytedance/flowgram.ai](https://github.com/bytedance/flowgram.ai), branch `main`, **commit `ba1a9630f80263a196d31993cd85fd1c873d9ddd`** (2026-09-01), equal to the `gitHead` of the published 1.0.15 | [custom plugin](https://flowgram.ai/en/guide/advanced/custom-plugin.html), [custom service](https://flowgram.ai/en/guide/advanced/custom-service.html), [minimap plugin](https://flowgram.ai/en/guide/plugin/minimap-plugin.html) | The workspace `package.json` files say `0.1.8` while npm publishes 1.0.15 from the same commit. Docs read from `apps/docs/src/en/` in the repository. Inversify resolved to 6.2.2. Typing probed with TypeScript 5.9.3, runtime behavior with Node and `global-jsdom` against the published packages |
 
 ### Reference commits, captured 14 August 2026

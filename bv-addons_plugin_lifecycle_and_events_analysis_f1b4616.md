@@ -53,6 +53,10 @@ Five hooks, all optional, declared at `plugins-support.ts:43` (`onConfigure`), `
 Dispatch is `forEachPlugin` (`:173-177`), a bare `for...of` over the map with no guard. Ordering is `Map` insertion
 order, therefore `options.plugins` array order. It is neither documented nor asserted by any test.
 
+`onConfigure` plays two roles: it signals that every plugin is constructed, and it hands over `GlobalOptions` a
+second time. Section 5.G of the main analysis proposes passing each plugin its own configuration through its
+constructor, which leaves the hook only the first role.
+
 There is no event bus, no way for a plugin to notify another, no interception, and no error isolation. The absence of
 isolation is not theoretical: a throwing `onDispose` prevents `super.dispose()` entirely, so the graph is never
 destroyed. That defect and its siblings are tracked in section 2.3 of the companion document.
